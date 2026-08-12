@@ -105,6 +105,17 @@
   .badge.live{color:#4cae4c;border-color:#2b4a2b}
   .badge.rec{color:var(--t-unique);border-color:#4a3826}
 
+  .mode{
+    background:var(--bg1);border:1px solid var(--line);border-radius:8px;padding:7px 14px;
+    font:inherit;font-size:13px;color:var(--dim);cursor:pointer
+  }
+  .mode[aria-selected=true]{border-color:var(--gold);color:var(--goldsoft);background:#241f16}
+  .mode b{font-variant-numeric:tabular-nums;color:inherit}
+  .credit{
+    margin:0 0 14px;font-size:12.5px;color:var(--dim);
+    border-left:2px solid var(--gold);padding-left:11px
+  }
+  .credit b{color:var(--goldsoft)}
   .empty{padding:40px;text-align:center;color:var(--faint)}
   .seathead{font-family:var(--serif);font-size:19px;color:var(--gold);margin:26px 0 4px}
   .seatblurb{color:var(--dim);font-size:13px;margin:0 0 13px}
@@ -176,8 +187,12 @@
   <!-- WORLD -->
   <div>
     <div class="tools">
-      <input class="search" id="q" type="search" placeholder="Search 598 items — try 'ledger', 'legal', 'memory'…" aria-label="Search the world">
+      <input class="search" id="q" type="search" placeholder="Search your builds — try 'ledger', 'legal', 'memory'…" aria-label="Search the world">
       <button class="chip" id="liveonly" aria-pressed="false">Live only</button>
+    </div>
+    <div class="tools" id="modes" role="tablist" aria-label="Whose work"></div>
+    <p id="credit" class="credit"></p>
+    <div class="tools">
     </div>
     <div class="tools" id="rarities"></div>
     <div id="out"></div>
@@ -232,7 +247,11 @@ const RUNGS = [
 ];
 
 const $ = s => document.querySelector(s);
-let W = null, state = { q:'', live:false, tiers:new Set(), seat:null };
+// `external` starts false on purpose: the default view is what YOU built. Wrappers around other
+// people's services are your code but not your ideas, and mixing them in inflates the number.
+// `mode` starts on your own work, and the three never blend: showing someone else's build as yours
+// takes credit you did not earn, and burying the work your estate was built on erases whoever did it.
+let W = null, state = { q:'', live:false, mode:'mine', tiers:new Set(), seat:null };
 
 const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -242,16 +261,17 @@ fetch('world.json').then(r=>r.json()).then(w=>{ W=w; boot(); })
 function boot(){
   const c=W.counts;
   $('#counts').innerHTML = [
-    `<b>${c.items}</b> items you own`,
+    `<b>${c.items}</b> things you built`,
     `<b>${c.live}</b> you can open right now`,
     `collapsed from <b>${c.indexed}</b> repositories`,
     `<b>${c.unidentified}</b> still unidentified`,
+    `<b>${c.foundation}</b> foundations by Thomas`,
   ].map(h=>`<span class="count">${h}</span>`).join('');
   $('#stamp').textContent = `Estate index generated ${W.generated} · ${W.counts.indexed} repositories → ${W.counts.items} items.`;
   $('#q').placeholder = `Search ${c.items} items — try 'ledger', 'legal', 'memory'…`;
 
   $('#rarities').innerHTML = ORDER.map(t=>{
-    const n = W.byTier[t]||0; if(!n) return '';
+    const n = (W.byTier[t]||0) + (W.byTierExternal?.[t]||0); if(!n) return '';
     return `<button class="chip" data-t="${t}" aria-pressed="false" style="color:${TIERS[t].c}">
       <span class="dot" style="background:${TIERS[t].c}"></span>${TIERS[t].label} <b>${n}</b></button>`;
   }).join('');
@@ -270,6 +290,18 @@ function boot(){
   $('#liveonly').addEventListener('click', e=>{
     state.live=!state.live; e.currentTarget.setAttribute('aria-pressed',String(state.live)); render();
   });
+  $('#modes').innerHTML = ['mine','foundation','external'].map(k=>{
+    const cr = W.credits[k]; if(!cr) return '';
+    return `<button class="mode" role="tab" data-mode="${k}" aria-selected="${k===state.mode}">${esc(cr.label)} <b>${cr.n}</b></button>`;
+  }).join('');
+  $('#modes').addEventListener('click', e=>{
+    const b=e.target.closest('[data-mode]'); if(!b) return;
+    state.mode=b.dataset.mode; state.seat=null;
+    document.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-selected',String(x.dataset.mode===state.mode)));
+    document.querySelectorAll('[data-seat]').forEach(x=>x.setAttribute('aria-pressed','false'));
+    credit(); render();
+  });
+  credit();
   $('#rarities').addEventListener('click', e=>{
     const b=e.target.closest('[data-t]'); if(!b) return;
     const t=b.dataset.t; state.tiers.has(t)?state.tiers.delete(t):state.tiers.add(t);
@@ -284,7 +316,15 @@ function boot(){
   render();
 }
 
+// The attribution is rendered from the data, every mode, every time — never a footnote someone has to
+// go looking for, and never something a filter can leave switched off.
+function credit(){
+  const cr = W.credits[state.mode];
+  $('#credit').innerHTML = `Built by <b>${esc(cr.by)}</b>. ${esc(cr.note||'Everything here is your own work.')}`;
+}
+
 function match(i){
+  if(i.kind !== state.mode) return false;   // one kind at a time, never a blend
   if(state.live && !i.live) return false;
   if(state.tiers.size && !state.tiers.has(i.tier)) return false;
   if(state.seat && i.seat!==state.seat) return false;
@@ -299,6 +339,10 @@ function render(){
 
   const groups = state.seat ? [[state.seat,hits]]
     : W.seats.map(s=>[s.id, hits.filter(i=>i.seat===s.id)]).filter(([,v])=>v.length);
+  const seatCount = (id)=> (state.mode==='mine' ? W.bySeat : state.mode==='foundation' ? W.bySeatFoundation : {})[id]||0;
+  document.querySelectorAll('[data-seat]').forEach(el=>{
+    const n=seatCount(el.dataset.seat); el.querySelector('.n').textContent=n; el.style.opacity=n?1:.42;
+  });
 
   $('#out').innerHTML = groups.map(([sid,list])=>{
     const s = W.seats.find(x=>x.id===sid) || {name:sid,blurb:''};
@@ -328,7 +372,7 @@ function open(i){
   $('#dlg').style.setProperty('--t',t.c);
   $('#dlgbody').innerHTML = `
     <h3>${esc(i.title)}</h3>
-    <div class="rar">${t.label}${i.set.length?` · ${i.set.length}-piece set`:''}</div>
+    <div class="rar">${t.label}${i.set.length?` · ${i.set.length}-piece set`:''} · built by ${esc(i.by)}</div>
     <p>${esc(i.desc||'Nothing anywhere says what this does — not the repository, not the estate memory. Identifying it is a job worth doing.')}</p>
     ${i.recovered?`<div class="why">This description was recovered from the estate's memory. The repository itself still says nothing, so anyone searching GitHub cannot find it.</div>`:''}
     <div class="why"><strong style="color:${t.c}">Why ${t.label}:</strong> ${esc(i.why)}</div>

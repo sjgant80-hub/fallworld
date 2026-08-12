@@ -4,8 +4,21 @@
 
 **Your didy is your character. Every tool you own is a piece of gear. Rarity is proof — not luck.**
 
-One place where the whole estate is walkable: **1,624 repositories collapsed into 598 items**, sorted
-into nine seats, every live one openable in a click.
+One place where the whole estate is walkable: **1,590 repositories collapsed into 470 things you
+built**, sorted into eight seats, every live one openable in a click.
+
+### Three kinds of thing, never blended
+
+| | | Credited to |
+|---|---|---|
+| **Your builds** | 470 | Simon Gant |
+| **Foundations** | 35 | **Thomas** — the original builds fall-os stands on: the industrial line (PLC, SCADA, HMI), `regulus` and `JEDI` among them |
+| **Outside services** | 94 | wrappers around services nobody here owns (`aws-s3`, `shopify`, `stripe`…) |
+
+They are kept apart rather than merged, because the dishonesty runs in both directions: showing
+someone else's work as yours takes credit you have not earned, and hiding the work your estate was
+built on erases the person who did it. The attribution is generated onto every card and every view —
+it is not a footnote, and no filter can switch it off.
 
 ---
 

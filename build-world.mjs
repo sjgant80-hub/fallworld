@@ -10,8 +10,22 @@ import { readFileSync, writeFileSync } from 'node:fs';
 
 const IDX = process.argv[2] || 'C:/Users/sjgan/.claude/projects/C--Users-sjgan--claude/memory/estate-index.json';
 const idx = JSON.parse(readFileSync(IDX, 'utf8'));
-const all = idx.nodes;
 const ORG = idx.org || 'sjgant80-hub';
+
+// ⚑ THREE KINDS OF THING, NEVER BLENDED.
+//
+//   yours       — you built it.
+//   foundations — Thomas's original builds. fall-os stands on these: `regulus` (konomified via
+//                 witness_py, the estate's first Python gate) and `JEDI` (konomified in place) are
+//                 the documented joins, and the industrial line — PLC, SCADA, HMI — is the same
+//                 lineage. They are NOT clutter and they are NOT deleted. They are CREDITED.
+//   outside     — wrappers you wrote around services nobody here owns.
+//
+// Kept apart rather than filtered away, because the honest failure here runs both directions: showing
+// someone else's work as yours takes credit you have not earned, and hiding the work your own estate
+// was built on erases the person who did it.
+const foundation = new Set(idx.nodes.filter(r => r.fork).map(r => r.name));
+const all = idx.nodes;
 
 // ── COLLAPSE THE TRIOS ───────────────────────────────────────────────────────────────────────────
 const byName = new Map(all.map(r => [r.name, r]));
@@ -121,17 +135,38 @@ const out = items.map(({ root, base, set, synthetic }) => {
     repo: `https://github.com/${ORG}/${root.name}`,
     set, synthetic: !!synthetic,
     seat: seatOf(base + ' ' + desc),
+    // Which of the three this is, and who to credit for it. `by` travels ON the item so no surface
+    // can render one of these without the attribution attached.
+    kind: foundation.has(root.name) ? 'foundation'
+        : /sovereign (api |mcp |sdk )?wrapper|real bindings|wrapper for target/i.test(desc) ? 'external'
+        : 'mine',
+    by: foundation.has(root.name) ? 'Thomas' : 'Simon Gant',
     ...rarity(desc, live, set.length),
   };
 }).sort((a, b) => a.name.localeCompare(b.name));
 
-const tally = (k) => out.reduce((m, i) => (m[i[k]] = (m[i[k]] || 0) + 1, m), {});
+// Counts are over YOUR builds only, so the headline is never inflated by other people's work or by
+// wrappers around other people's services. The other two are tallied in their own right.
+const of = (k) => out.filter(i => i.kind === k);
+const mine = of('mine');
+const tally = (list, k) => list.reduce((m, i) => (m[i[k]] = (m[i[k]] || 0) + 1, m), {});
 const world = {
   generated: idx.generated, org: ORG, built: 'regenerate with: node build-world.mjs',
-  counts: { indexed: all.length, items: out.length, live: out.filter(i => i.live).length,
-            unidentified: out.filter(i => i.tier === 'unknown').length,
-            collapsed: all.length - out.length },
-  byTier: tally('tier'), bySeat: tally('seat'),
+  counts: { indexed: all.length, items: mine.length, live: mine.filter(i => i.live).length,
+            unidentified: mine.filter(i => i.tier === 'unknown').length,
+            collapsed: all.length - out.length,
+            external: of('external').length, foundation: of('foundation').length },
+  credits: {
+    mine:       { by: 'Simon Gant', label: 'Your builds',        n: mine.length },
+    foundation: { by: 'Thomas',     label: 'Foundations',        n: of('foundation').length,
+                  note: 'Thomas’s original builds. fall-os stands on these — the industrial line (PLC, SCADA, HMI), regulus and JEDI among them.' },
+    external:   { by: 'Simon Gant', label: 'Outside services',   n: of('external').length,
+                  note: 'Wrappers you wrote around services nobody here owns.' },
+  },
+  byTier: tally(mine, 'tier'), bySeat: tally(mine, 'seat'),
+  byTierExternal: tally(of('external'), 'tier'),
+  byTierFoundation: tally(of('foundation'), 'tier'),
+  bySeatFoundation: tally(of('foundation'), 'seat'),
   seats: SEATS.map(({ re, ...s }) => s), items: out,
 };
 writeFileSync(new URL('./world.json', import.meta.url), JSON.stringify(world));
