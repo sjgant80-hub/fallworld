@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fall World — everything, in one place</title>
+<meta name="description" content="Your didy is your character. Every tool in the estate is a piece of gear. Rarity is proof, not luck.">
+<style>
+  :root{
+    --ink:#e8dcc4; --dim:#9d9280; --faint:#6a6155;
+    --bg0:#0b0a09; --bg1:#141210; --bg2:#1c1917; --bg3:#262220;
+    --line:#332e29; --gold:#c9a227; --goldsoft:#e0c25e;
+    --t-unknown:#6a6459; --t-normal:#dcd6cc; --t-magic:#6f92d8;
+    --t-rare:#d8c766; --t-unique:#c08a4a; --t-set:#4cae4c;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:radial-gradient(1200px 700px at 50% -10%,#211c17 0%,var(--bg0) 60%) fixed,var(--bg0);
+    color:var(--ink); font-family:var(--sans); font-size:15px; line-height:1.55;
+    -webkit-text-size-adjust:100%;
+  }
+  a{color:var(--goldsoft)}
+  .wrap{max-width:1400px;margin:0 auto;padding:0 18px 80px}
+
+  /* ── HEADER ─────────────────────────────────────────── */
+  header{padding:44px 0 26px;text-align:center;border-bottom:1px solid var(--line)}
+  h1{
+    font-family:var(--serif); font-size:clamp(34px,7vw,62px); margin:0 0 6px;
+    letter-spacing:.06em; font-weight:500;
+    background:linear-gradient(180deg,#f3e3b6,#c9a227 60%,#8a6c1c);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .tag{font-family:var(--serif);font-size:clamp(15px,2.4vw,20px);color:var(--dim);margin:0 auto;max-width:52ch;font-style:italic}
+  .counts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px}
+  .count{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:12.5px;color:var(--dim)}
+  .count b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+  /* ── LAYOUT ─────────────────────────────────────────── */
+  .cols{display:grid;grid-template-columns:296px 1fr;gap:22px;margin-top:26px;align-items:start}
+  @media(max-width:900px){.cols{grid-template-columns:1fr}}
+
+  .panel{background:linear-gradient(180deg,var(--bg2),var(--bg1));border:1px solid var(--line);border-radius:10px}
+  .panel h2{
+    font-family:var(--serif);font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold);margin:0;padding:13px 16px;border-bottom:1px solid var(--line);font-weight:600
+  }
+  .panel .body{padding:15px 16px}
+
+  /* ── CHARACTER ──────────────────────────────────────── */
+  .char{position:sticky;top:16px}
+  .who{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+  .orb{
+    width:56px;height:56px;flex:none;border-radius:50%;
+    background:radial-gradient(circle at 34% 30%,#4a4030,#171310 72%);
+    border:2px solid var(--gold);display:grid;place-items:center;
+    font-family:var(--serif);font-size:24px;color:var(--goldsoft)
+  }
+  .who .nm{font-family:var(--serif);font-size:20px;line-height:1.2}
+  .who .sub{font-size:12px;color:var(--faint)}
+  .lvlbar{height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;margin:6px 0 3px}
+  .lvlbar i{display:block;height:100%;background:linear-gradient(90deg,#8a6c1c,var(--goldsoft))}
+  .lvltxt{font-size:11.5px;color:var(--faint);display:flex;justify-content:space-between}
+
+  .slots{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+  .slot{
+    display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;
+    background:var(--bg1);border:1px solid var(--line);cursor:pointer;text-align:left;width:100%;
+    font:inherit;color:inherit
+  }
+  .slot:hover{border-color:#4a4239;background:var(--bg3)}
+  .slot[aria-pressed=true]{border-color:var(--gold);background:#241f16}
+  .slot .ic{width:24px;height:24px;flex:none;border-radius:5px;background:var(--bg3);display:grid;place-items:center;font-size:13px}
+  .slot .nm{font-size:13px;flex:1;min-width:0}
+  .slot .n{font-size:11.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+
+  /* ── WORLD / GRID ───────────────────────────────────── */
+  .tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+  .search{
+    flex:1;min-width:190px;background:var(--bg1);border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;color:var(--ink);font:inherit
+  }
+  .search:focus{outline:2px solid var(--gold);outline-offset:1px}
+  .chip{
+    background:var(--bg1);border:1px solid var(--line);border-radius:999px;padding:5px 11px;
+    font-size:12px;cursor:pointer;color:var(--dim);font:inherit
+  }
+  .chip[aria-pressed=true]{border-color:currentColor;background:var(--bg3)}
+  .chip .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:10px}
+  .item{
+    background:linear-gradient(180deg,var(--bg2),var(--bg1));border:1px solid var(--line);
+    border-left:3px solid var(--t);border-radius:8px;padding:11px 12px;cursor:pointer;
+    text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column;gap:5px;min-height:96px
+  }
+  .item:hover{border-color:#4a4239;border-left-color:var(--t);transform:translateY(-1px)}
+  .item:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .item .n{font-family:var(--serif);font-size:15px;color:var(--t);line-height:1.25;word-break:break-word}
+  .item .d{font-size:12.2px;color:var(--dim);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .item .f{display:flex;gap:6px;align-items:center;margin-top:auto;font-size:10.5px;color:var(--faint)}
+  .badge{border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+  .badge.live{color:#4cae4c;border-color:#2b4a2b}
+  .badge.rec{color:var(--t-unique);border-color:#4a3826}
+
+  .empty{padding:40px;text-align:center;color:var(--faint)}
+  .seathead{font-family:var(--serif);font-size:19px;color:var(--gold);margin:26px 0 4px}
+  .seatblurb{color:var(--dim);font-size:13px;margin:0 0 13px}
+
+  /* ── DETAIL ─────────────────────────────────────────── */
+  dialog{
+    border:1px solid var(--line);border-left:4px solid var(--t,var(--gold));border-radius:10px;
+    background:linear-gradient(180deg,var(--bg2),var(--bg1));color:var(--ink);
+    max-width:520px;width:calc(100% - 32px);padding:0
+  }
+  dialog::backdrop{background:#000a;backdrop-filter:blur(2px)}
+  .dlg{padding:20px 22px}
+  .dlg h3{font-family:var(--serif);font-size:23px;margin:0 0 3px;color:var(--t)}
+  .dlg .rar{font-size:12px;color:var(--t);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+  .dlg p{margin:0 0 13px;color:var(--ink)}
+  .why{font-size:12.5px;color:var(--dim);border-left:2px solid var(--line);padding-left:10px;margin-bottom:14px}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{
+    background:var(--bg3);border:1px solid var(--line);border-radius:7px;padding:8px 14px;
+    color:var(--ink);text-decoration:none;font-size:13.5px;cursor:pointer;font:inherit
+  }
+  .btn.go{background:linear-gradient(180deg,#3a2f14,#241d0d);border-color:#5c4a1c;color:var(--goldsoft)}
+  .btn:hover{border-color:var(--gold)}
+  .kv{font-size:12px;color:var(--faint);margin-top:14px;display:flex;flex-wrap:wrap;gap:5px}
+
+  /* ── LADDER ─────────────────────────────────────────── */
+  .ladder{margin-top:34px}
+  .rungs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+  .rung{background:var(--bg1);border:1px solid var(--line);border-radius:7px;padding:9px 11px}
+  .rung .n{font-family:var(--serif);color:var(--gold);font-size:13px}
+  .rung .t{font-size:13px;font-weight:600}
+  .rung .d{font-size:12px;color:var(--dim)}
+  .rung.alone{border-left:3px solid var(--t-magic)}
+  .rung.peer{border-left:3px solid var(--t-unique)}
+  footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);color:var(--faint);font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>FALL WORLD</h1>
+  <p class="tag">Your didy is your character. Every tool you own is a piece of gear.<br>Rarity is proof — not luck.</p>
+  <div class="counts" id="counts"></div>
+</header>
+
+<div class="cols">
+
+  <!-- CHARACTER -->
+  <div class="panel char">
+    <h2>Your character</h2>
+    <div class="body">
+      <div class="who">
+        <div class="orb">◈</div>
+        <div>
+          <div class="nm">your didy</div>
+          <div class="sub">unproven · nothing equipped</div>
+        </div>
+      </div>
+      <div class="lvlbar"><i style="width:0%"></i></div>
+      <div class="lvltxt"><span>Level 0 of 10</span><span>Unproven</span></div>
+      <p style="font-size:12.3px;color:var(--faint);margin:11px 0 0">
+        You cannot set your level. You show what you did, and it is read back to you.
+      </p>
+      <div class="slots" id="slots"></div>
+    </div>
+  </div>
+
+  <!-- WORLD -->
+  <div>
+    <div class="tools">
+      <input class="search" id="q" type="search" placeholder="Search 598 items — try 'ledger', 'legal', 'memory'…" aria-label="Search the world">
+      <button class="chip" id="liveonly" aria-pressed="false">Live only</button>
+    </div>
+    <div class="tools" id="rarities"></div>
+    <div id="out"></div>
+  </div>
+
+</div>
+
+<!-- THE LADDER -->
+<div class="ladder panel">
+  <h2>The ten rungs</h2>
+  <div class="body">
+    <p style="margin:0 0 14px;color:var(--dim);font-size:13.5px">
+      Blue rungs you can reach on your own. <strong style="color:var(--t-unique)">Amber rungs need somebody who is not you</strong> —
+      that is the whole difference between saying you are good and being checked.
+    </p>
+    <div class="rungs" id="rungs"></div>
+  </div>
+</div>
+
+<footer>
+  <p><strong>Generated, never typed.</strong> Every item on this page comes from the estate index — re-run
+  <code>node build-world.mjs</code> and it is true again. Nothing here is hand-maintained, so nothing here can quietly rot.</p>
+  <p id="stamp"></p>
+</footer>
+</div>
+
+<dialog id="dlg"><div class="dlg" id="dlgbody"></div></dialog>
+
+<script type="module">
+const TIERS = {
+  unknown:{c:'var(--t-unknown)',label:'Unidentified',rank:0},
+  normal :{c:'var(--t-normal)', label:'Normal',      rank:1},
+  magic  :{c:'var(--t-magic)',  label:'Magic',       rank:2},
+  rare   :{c:'var(--t-rare)',   label:'Rare',        rank:3},
+  unique :{c:'var(--t-unique)', label:'Unique',      rank:4},
+  set    :{c:'var(--t-set)',    label:'Set',         rank:5},
+};
+const ORDER = ['set','unique','rare','magic','normal','unknown'];
+const ICON = {gateway:'⛩',trust:'✦',brain:'◉',money:'⛁',legal:'§',people:'☗',sales:'➤',admin:'▤',work:'⚒'};
+
+const RUNGS = [
+  [1,'Awake','it runs, and can say what it is',true],
+  [2,'Bounded','it cannot exceed its grant or outspend its budget',true],
+  [3,'Named','an identity it can prove, not a name it asserts',true],
+  [4,'Reading','it reads a tool before trusting it, and refuses',true],
+  [5,'Gated','a machine tried to break its code and failed',false],
+  [6,'Geared','every seat filled with gear that was inspected',false],
+  [7,'Met','a trustless handshake — four results, not two',false],
+  [8,'Wired','across a wire where code cannot travel',false],
+  [9,'Raided','a room of peers, a liar present, the gain kept',false],
+  [10,'Sovereign','it can show a stranger, without asking to be believed',false],
+];
+
+const $ = s => document.querySelector(s);
+let W = null, state = { q:'', live:false, tiers:new Set(), seat:null };
+
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+fetch('world.json').then(r=>r.json()).then(w=>{ W=w; boot(); })
+  .catch(()=>{ $('#out').innerHTML='<div class="empty">world.json did not load. Run <code>node build-world.mjs</code>.</div>'; });
+
+function boot(){
+  const c=W.counts;
+  $('#counts').innerHTML = [
+    `<b>${c.items}</b> items you own`,
+    `<b>${c.live}</b> you can open right now`,
+    `collapsed from <b>${c.indexed}</b> repositories`,
+    `<b>${c.unidentified}</b> still unidentified`,
+  ].map(h=>`<span class="count">${h}</span>`).join('');
+  $('#stamp').textContent = `Estate index generated ${W.generated} · ${W.counts.indexed} repositories → ${W.counts.items} items.`;
+  $('#q').placeholder = `Search ${c.items} items — try 'ledger', 'legal', 'memory'…`;
+
+  $('#rarities').innerHTML = ORDER.map(t=>{
+    const n = W.byTier[t]||0; if(!n) return '';
+    return `<button class="chip" data-t="${t}" aria-pressed="false" style="color:${TIERS[t].c}">
+      <span class="dot" style="background:${TIERS[t].c}"></span>${TIERS[t].label} <b>${n}</b></button>`;
+  }).join('');
+
+  $('#slots').innerHTML = W.seats.map(s=>`
+    <button class="slot" data-seat="${s.id}" aria-pressed="false" title="${esc(s.blurb)}">
+      <span class="ic">${ICON[s.id]||'◆'}</span>
+      <span class="nm">${esc(s.name)}</span>
+      <span class="n">${W.bySeat[s.id]||0}</span>
+    </button>`).join('');
+
+  $('#rungs').innerHTML = RUNGS.map(([n,t,d,alone])=>`
+    <div class="rung ${alone?'alone':'peer'}"><div class="n">${n}</div><div class="t">${t}</div><div class="d">${esc(d)}</div></div>`).join('');
+
+  $('#q').addEventListener('input', e=>{ state.q=e.target.value.toLowerCase(); render(); });
+  $('#liveonly').addEventListener('click', e=>{
+    state.live=!state.live; e.currentTarget.setAttribute('aria-pressed',String(state.live)); render();
+  });
+  $('#rarities').addEventListener('click', e=>{
+    const b=e.target.closest('[data-t]'); if(!b) return;
+    const t=b.dataset.t; state.tiers.has(t)?state.tiers.delete(t):state.tiers.add(t);
+    b.setAttribute('aria-pressed',String(state.tiers.has(t))); render();
+  });
+  $('#slots').addEventListener('click', e=>{
+    const b=e.target.closest('[data-seat]'); if(!b) return;
+    state.seat = state.seat===b.dataset.seat ? null : b.dataset.seat;
+    document.querySelectorAll('[data-seat]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.seat===state.seat)));
+    render();
+  });
+  render();
+}
+
+function match(i){
+  if(state.live && !i.live) return false;
+  if(state.tiers.size && !state.tiers.has(i.tier)) return false;
+  if(state.seat && i.seat!==state.seat) return false;
+  if(state.q && !(i.name+' '+i.desc).toLowerCase().includes(state.q)) return false;
+  return true;
+}
+
+function render(){
+  const hits = W.items.filter(match)
+    .sort((a,b)=> TIERS[b.tier].rank-TIERS[a.tier].rank || a.name.localeCompare(b.name));
+  if(!hits.length){ $('#out').innerHTML='<div class="empty">Nothing matches. Clear a filter.</div>'; return; }
+
+  const groups = state.seat ? [[state.seat,hits]]
+    : W.seats.map(s=>[s.id, hits.filter(i=>i.seat===s.id)]).filter(([,v])=>v.length);
+
+  $('#out').innerHTML = groups.map(([sid,list])=>{
+    const s = W.seats.find(x=>x.id===sid) || {name:sid,blurb:''};
+    return `<h3 class="seathead">${ICON[sid]||'◆'} ${esc(s.name)} <span style="color:var(--faint);font-size:14px">${list.length}</span></h3>
+      <p class="seatblurb">${esc(s.blurb)}</p>
+      <div class="grid">${list.map(card).join('')}</div>`;
+  }).join('');
+
+  $('#out').querySelectorAll('[data-i]').forEach(el=>el.addEventListener('click',()=>open(W.items[+el.dataset.i])));
+}
+
+function card(i){
+  const t=TIERS[i.tier];
+  return `<button class="item" data-i="${W.items.indexOf(i)}" style="--t:${t.c}">
+    <span class="n">${esc(i.title)}</span>
+    <span class="d">${esc(i.desc||'Nothing anywhere says what this does.')}</span>
+    <span class="f">
+      <span class="badge" style="color:${t.c}">${t.label}</span>
+      ${i.live?'<span class="badge live">live</span>':''}
+      ${i.recovered?'<span class="badge rec">from memory</span>':''}
+      ${i.set.length?`<span class="badge">${i.set.length}-pc set</span>`:''}
+    </span></button>`;
+}
+
+function open(i){
+  const t=TIERS[i.tier];
+  $('#dlg').style.setProperty('--t',t.c);
+  $('#dlgbody').innerHTML = `
+    <h3>${esc(i.title)}</h3>
+    <div class="rar">${t.label}${i.set.length?` · ${i.set.length}-piece set`:''}</div>
+    <p>${esc(i.desc||'Nothing anywhere says what this does — not the repository, not the estate memory. Identifying it is a job worth doing.')}</p>
+    ${i.recovered?`<div class="why">This description was recovered from the estate's memory. The repository itself still says nothing, so anyone searching GitHub cannot find it.</div>`:''}
+    <div class="why"><strong style="color:${t.c}">Why ${t.label}:</strong> ${esc(i.why)}</div>
+    <div class="acts">
+      ${i.live&&i.url?`<a class="btn go" href="${esc(i.url)}" target="_blank" rel="noopener">Open it →</a>`:''}
+      <a class="btn" href="${esc(i.repo)}" target="_blank" rel="noopener">Source</a>
+      <button class="btn" onclick="document.getElementById('dlg').close()">Close</button>
+    </div>
+    ${i.set.length?`<div class="kv">Ships: ${i.set.map(s=>`<span class="badge">${esc(s)}</span>`).join('')}</div>`:''}`;
+  $('#dlg').showModal();
+}
+$('#dlg').addEventListener('click',e=>{ if(e.target.id==='dlg') $('#dlg').close(); });
+</script>
+</body>
+</html>
