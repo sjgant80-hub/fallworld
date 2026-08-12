@@ -116,6 +116,16 @@
     border-left:2px solid var(--gold);padding-left:11px
   }
   .credit b{color:var(--goldsoft)}
+  .ladderhead{margin:15px 0 5px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .rung-mini{display:flex;gap:6px;align-items:baseline;font-size:11.8px;padding:2px 0;color:var(--faint)}
+  .rung-mini.held{color:var(--ink)}
+  .rung-mini .tick{width:11px;flex:none;color:var(--t-set)}
+  .rung-mini.blocked .tick{color:var(--t-rare)}
+  .rung-mini .peer{margin-left:auto;font-size:9.5px;color:var(--t-unique);letter-spacing:.04em}
+  .note{font-size:12.2px;color:var(--dim);margin:11px 0 0;border-left:2px solid var(--line);padding-left:9px}
+  .note.warn{border-left-color:var(--t-rare)}
+  .note b{color:var(--goldsoft)}
+  .note code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:11.4px}
   .empty{padding:40px;text-align:center;color:var(--faint)}
   .seathead{font-family:var(--serif);font-size:19px;color:var(--gold);margin:26px 0 4px}
   .seatblurb{color:var(--dim);font-size:13px;margin:0 0 13px}
@@ -167,19 +177,17 @@
   <!-- CHARACTER -->
   <div class="panel char">
     <h2>Your character</h2>
-    <div class="body">
+    <div class="body" id="charbody">
       <div class="who">
         <div class="orb">◈</div>
         <div>
           <div class="nm">your didy</div>
-          <div class="sub">unproven · nothing equipped</div>
+          <div class="sub" id="charsub">looking for it…</div>
         </div>
       </div>
-      <div class="lvlbar"><i style="width:0%"></i></div>
-      <div class="lvltxt"><span>Level 0 of 10</span><span>Unproven</span></div>
-      <p style="font-size:12.3px;color:var(--faint);margin:11px 0 0">
-        You cannot set your level. You show what you did, and it is read back to you.
-      </p>
+      <div class="lvlbar"><i id="lvlfill" style="width:0%"></i></div>
+      <div class="lvltxt"><span id="lvltxt">Level — of 10</span><span id="lvlname"></span></div>
+      <div id="charnote"></div>
       <div class="slots" id="slots"></div>
     </div>
   </div>
@@ -314,6 +322,92 @@ function boot(){
     render();
   });
   render();
+  didy();
+}
+
+// ── YOUR DIDY ────────────────────────────────────────────────────────────────────────────────────
+//
+// The sheet is served by si-didy itself, at the SAME ORIGIN as this page whenever si-didy is the one
+// serving it. That is the whole reason this works: a page on https cannot reach http://127.0.0.1
+// (mixed content, and private-network rules on top), so rather than tunnelling around that, si-didy
+// serves this very file and the fetch below is simply same-origin.
+//
+// ⚑ THE PUBLIC COPY MUST SAY SO — not look broken, and certainly not look connected. On
+// sjgant80-hub.github.io there is no /sheet, and the honest panel explains where the real one lives
+// instead of showing a plausible level nobody earned.
+let wearing = null;
+
+async function didy(){
+  let s = null;
+  try {
+    const r = await fetch('sheet', { headers: { accept: 'application/json' } });
+    if (r.ok && (r.headers.get('content-type')||'').includes('json')) s = await r.json();
+  } catch { /* not served by si-didy — an expected state, never an error */ }
+
+  if (!s || typeof s.tier !== 'number') return disconnected();
+
+  // Defensive on shape, not on truth: a field the sheet did not send must degrade this panel, never
+  // blank it. The first version threw on a missing `equipped` and silently rendered half a character —
+  // a level with no ladder under it, which is exactly the kind of half-truth this panel exists to avoid.
+  const worn  = Array.isArray(s.equipped) ? s.equipped : [];
+  const seats = Array.isArray(s.seats) ? s.seats : [];
+  const rungs = Array.isArray(s.rungs) ? s.rungs : [];
+
+  $('#lvlfill').style.width = Math.round((s.tier / (s.max || 10)) * 100) + '%';
+  $('#lvltxt').textContent = `Level ${s.tier} of ${s.max || 10}`;
+  $('#lvlname').textContent = s.name || '';
+  $('#charsub').textContent = `${worn.length} of ${seats.length || 8} seats · ${s.organs || 0} organs`;
+
+  $('#charnote').innerHTML =
+    `<div class="ladderhead">The ladder</div>` +
+    rungs.map(r=>{
+      const blocking = s.blocking && s.blocking.n === r.n;
+      return `<div class="rung-mini ${r.held?'held':''} ${blocking?'blocked':''}" title="${esc(r.is)}">
+        <span class="tick">${r.held?'✓':blocking?'→':'·'}</span>
+        <span>${r.n} ${esc(r.name)}</span>
+        ${judgedBy(r)}</div>`;
+    }).join('') +
+    `<p class="note warn"><b>Next:</b> ${esc(s.toDoNext)}</p>` +
+    (s.gate ? `<p class="note"><b>${s.gate.killed}</b> mutants killed across its own kernels · <b>${s.gate.unexplained}</b> survivors unexplained.</p>` : '') +
+    `<p class="note">${esc(s.bound)}</p>`;
+
+  // The seats now show what si-didy is WEARING, not how many items the world holds in that seat.
+  wearing = {};
+  for (const e of worn) wearing[e.seat] = e.item;
+  paintSeats();
+}
+
+// ⚑ WHO ACTUALLY JUDGES THIS RUNG — three answers, not two.
+// The first version printed "needs someone else" for everything from 5 up, directly contradicting the
+// bound printed underneath it, which says rungs 1–6 are self-administered. Both cannot be true. A
+// machine agreeing with you is a real step past agreeing with yourself, and still a long way short of
+// a stranger agreeing — so the panel names all three rather than collapsing the middle one either way.
+function judgedBy(r){
+  if (r.n <= 4) return '';
+  if (r.n <= 6) return '<span class="peer" style="color:var(--t-magic)">A MACHINE JUDGES</span>';
+  return '<span class="peer">A STRANGER JUDGES</span>';
+}
+
+function paintSeats(){
+  if (!wearing) return;
+  document.querySelectorAll('[data-seat]').forEach(el=>{
+    const it = wearing[el.dataset.seat];
+    el.querySelector('.n').textContent = it ? '●' : '';
+    if (it) el.title = `${it} — worn here`;
+    el.style.opacity = it ? 1 : .5;
+  });
+}
+
+function disconnected(){
+  $('#charsub').textContent = 'not running here';
+  $('#charnote').innerHTML =
+    `<p class="note"><b>Your didy lives on your own machine.</b> It holds your keys and reads your own
+      memory, so it is never published — this page cannot reach into your computer, and should not be
+      able to.</p>
+     <p class="note">Run it and open the world from there, and this panel fills in with your real level,
+      your gear, and what a machine has actually proved about it:<br>
+      <code>node server.mjs</code> → <code>127.0.0.1:8791/world</code></p>
+     <p class="note">You cannot set your level. You show what you did, and it is read back to you.</p>`;
 }
 
 // The attribution is rendered from the data, every mode, every time — never a footnote someone has to
@@ -343,6 +437,7 @@ function render(){
   document.querySelectorAll('[data-seat]').forEach(el=>{
     const n=seatCount(el.dataset.seat); el.querySelector('.n').textContent=n; el.style.opacity=n?1:.42;
   });
+  paintSeats();   // when a real didy is attached, what it WEARS wins over what the world stocks
 
   $('#out').innerHTML = groups.map(([sid,list])=>{
     const s = W.seats.find(x=>x.id===sid) || {name:sid,blurb:''};
