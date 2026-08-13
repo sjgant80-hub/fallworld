@@ -436,7 +436,9 @@ function match(i){
   if(state.tiers.size && !state.tiers.has(i.tier)) return false;
   if(state.proof.size && !state.proof.has(i.proof?.tier)) return false;
   if(state.seat && i.seat!==state.seat) return false;
-  if(state.q && !(i.name+' '+i.desc).toLowerCase().includes(state.q)) return false;
+  // Members are searched too. The vertical families fold six real tools into one card, and a search
+  // for "practice management" has to keep finding fallclinicpractice or the fold became a hide.
+  if(state.q && !(i.name+' '+i.desc+' '+(i.find||'')).toLowerCase().includes(state.q)) return false;
   return true;
 }
 
@@ -499,6 +501,7 @@ function open(i){
     <div class="rar">${t.label}${i.set.length?` · ${i.set.length}-piece set`:''} · built by ${esc(i.by)}</div>
     <p>${esc(i.desc||'Nothing anywhere says what this does — not the repository, not the estate memory. Identifying it is a job worth doing.')}</p>
     ${i.recovered?`<div class="why">This description was recovered from the estate's memory. The repository itself still says nothing, so anyone searching GitHub cannot find it.</div>`:''}
+    ${i.members&&i.members.length?`<div class="why"><strong>Ships as one, made of ${i.members.length}:</strong> ${i.members.map(esc).join(' · ')}</div>`:''}
     <div class="why"><strong style="color:${t.c}">Why ${t.label}:</strong> ${esc(i.why)}</div>
     ${i.proof?`<div class="why"><strong style="color:${PROOF[i.proof.tier].c}">${PROOF[i.proof.tier].label}:</strong> ${esc(i.proof.why)}${i.proof.workflow?` <em>(${esc(i.proof.workflow)}${i.proof.sha?` at ${esc(String(i.proof.sha).slice(0,7))}`:''})</em>`:''}</div>`:''}
     <div class="acts">

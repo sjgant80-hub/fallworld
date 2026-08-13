@@ -88,11 +88,27 @@ const RECOVERED = {
 const items = [];
 // Repos that are not part of any trio stand alone.
 for (const r of all) if (!consumed.has(r.name)) items.push({ root: r, base: r.name, set: [] });
+// ⚑ A COMPANION CANNOT ALSO BE A BASE. mint-all was once pointed at a companion, so `fallpx-sdk`
+// grew its own -api/-mcp/-sdk and ended up heading a group while already being a part of fallpx's.
+// It therefore surfaced as its own item — a piece of plumbing shown as a product. A group whose base
+// is itself somebody else's part is folded into that parent instead.
+const partNames = new Set();
+for (const g of groups.values()) for (const p of Object.values(g.parts)) partNames.add(p.name);
+
 // Each trio becomes one item. If no root repo exists, the trio ITSELF is the item.
 for (const [base, g] of groups) {
+  if (partNames.has(base)) continue;                 // it is plumbing under another build
   const parts = Object.keys(g.parts).sort();
   const root = g.root || g.parts.sdk || g.parts.api || g.parts.mcp;
-  items.push({ root, base, set: parts, synthetic: !g.root });
+  // ⚑ COLLAPSE, NOT HIDE. Thirty of the folded names are REAL hand-described tools — clinic practice
+  // management, SRA-shaped onboarding — not minted plumbing. Folding them stops the double count
+  // (they were showing both inside the vertical AND as their own item), but the names have to travel
+  // on the parent or a search for "practice management" stops finding anything.
+  const members = Object.values(g.parts).map(p => p.name).sort();
+  // Their DESCRIPTIONS travel too, for search only. Names alone still lost "practice management",
+  // which is how a person actually looks for fallclinicpractice.
+  const memberText = Object.values(g.parts).map(p => p.name + " " + (p.desc || "")).join(" ");
+  items.push({ root, base, set: parts, members, memberText, synthetic: !g.root });
 }
 
 // ── THE NINE SEATS. First hit wins, so specific patterns come first. ─────────────────────────────
@@ -130,7 +146,7 @@ function rarity(desc, live, setCount) {
   return { tier:'magic', label:'Magic', why:'live, described, and you can open it right now' };
 }
 
-const out = items.map(({ root, base, set, synthetic }) => {
+const out = items.map(({ root, base, set, members, memberText, synthetic }) => {
   const own = (root.desc || '').trim();
   const recovered = !own && RECOVERED[base] ? RECOVERED[base] : null;
   const desc = own || recovered || '';
@@ -140,7 +156,7 @@ const out = items.map(({ root, base, set, synthetic }) => {
     desc, recovered: !!recovered, live, private: !!root.private, lang: root.lang || null,
     url: root.url || (live ? `https://sjgant80-hub.github.io/${root.name}/` : null),
     repo: `https://github.com/${ORG}/${root.name}`,
-    set, synthetic: !!synthetic,
+    set, members: members || [], find: ((members||[]).length ? (memberText||"") : ""), synthetic: !!synthetic,
     seat: seatOf(base + ' ' + desc),
     // Which of the three this is, and who to credit for it. `by` travels ON the item so no surface
     // can render one of these without the attribution attached.
