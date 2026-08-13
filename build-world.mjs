@@ -6,7 +6,14 @@
 // The estate mints companions systematically: <thing>-api, <thing>-mcp, <thing>-sdk. Those are not
 // three items, they are ONE item that ships a full SET. Collapsing them is what turns 1,624 rows into
 // a world a person can actually walk around.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { tierOf, tally as tallyTier } from './tier.mjs';
+
+// What GitHub's own runners recorded about each repo — gathered by scan-workflows.mjs, never edited
+// by hand. Missing file means no evidence for anybody, and every build honestly reads as prototype.
+const EVIDENCE = existsSync('tier-evidence.json')
+  ? JSON.parse(readFileSync('tier-evidence.json', 'utf8'))
+  : {};
 
 const IDX = process.argv[2] || 'C:/Users/sjgan/.claude/projects/C--Users-sjgan--claude/memory/estate-index.json';
 const idx = JSON.parse(readFileSync(IDX, 'utf8'));
@@ -142,6 +149,11 @@ const out = items.map(({ root, base, set, synthetic }) => {
         : 'mine',
     by: foundation.has(root.name) ? 'Thomas' : 'Simon Gant',
     ...rarity(desc, live, set.length),
+    // ⚑ HOW FINISHED IS IT — nested under `proof` on purpose, because rarity() already spreads a
+    // `tier` of its own, and two different meanings sharing one key is a bug waiting for a reader.
+    // Rarity says how much evidence the build carries; proof says whether a machine checked the code.
+    proof: tierOf(EVIDENCE[root.name], { live }),
+    pushed: root.pushed || null,
   };
 }).sort((a, b) => a.name.localeCompare(b.name));
 
@@ -155,7 +167,10 @@ const world = {
   counts: { indexed: all.length, items: mine.length, live: mine.filter(i => i.live).length,
             unidentified: mine.filter(i => i.tier === 'unknown').length,
             collapsed: all.length - out.length,
-            external: of('external').length, foundation: of('foundation').length },
+            external: of('external').length, foundation: of('foundation').length,
+            // Move 4: how many of your builds a machine has actually checked. Every rung is reported
+            // even at zero, so "none proven yet" can never be mistaken for "not measured".
+            proof: tallyTier(mine.map(i => ({ tier: i.proof.tier }))) },
   credits: {
     mine:       { by: 'Simon Gant', label: 'Your builds',        n: mine.length },
     foundation: { by: 'Thomas',     label: 'Foundations',        n: of('foundation').length,

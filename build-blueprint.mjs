@@ -2,7 +2,11 @@
 //
 // ⚑ EVERY NUMBER ON THIS PAGE IS COUNTED HERE, NEVER TYPED. The whole point of the page is to be the
 // honest picture, so a hand-typed total would defeat it on the first day it drifted.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { tierOf, tally, primaryOf } from './tier.mjs';
+
+const EVIDENCE = existsSync('tier-evidence.json') ? JSON.parse(readFileSync('tier-evidence.json', 'utf8')) : {};
+const PROOF = { proven: 'g', works: 'w', prototype: 'p' };
 
 const idx = JSON.parse(readFileSync('C:/Users/sjgan/.claude/projects/C--Users-sjgan--claude/memory/estate-index.json', 'utf8'));
 const N = idx.nodes.filter(n => !n.fork);
@@ -39,11 +43,19 @@ const SHELVES = [
   ['Thinking tools', 'Research fan-out, autopilot, the odd experiments.', /^(fall-raas|fall-substrate|fall-autopilot-kit|fall-cube|fall-bloom|fall-palette|fall127agents|falllearn)$/],
 ];
 
+// Every build carries the rung a machine put it on. Attached BEFORE shelving, so a shelf can never
+// show a count the tier data disagrees with.
+for (const r of real) { const t = tierOf(EVIDENCE[r.name], { live: r.live }); r.tier = t.tier; r.tierWhy = t.why; }
+
 const taken = new Set();
 const shelves = SHELVES.map(([title, blurb, re]) => {
   const rows = real.filter(r => !taken.has(r.name) && re.test(r.name));
   rows.forEach(r => taken.add(r.name));
-  return { title, blurb, rows: rows.sort((a, b) => a.name.localeCompare(b.name)) };
+  return {
+    title, blurb,
+    rows: rows.sort((a, b) => a.name.localeCompare(b.name)),
+    counts: tally(rows),
+  };
 });
 const unshelved = real.filter(r => !taken.has(r.name));
 
@@ -57,7 +69,14 @@ const DUPES = [
   ['One disk, seven apps', 'Keeping bytes somewhere', /^(fallstore|fallpod|fallvault|fallecho|fallcdn|fallsync|fallcube-api)$/],
   ['One passport, six apps', 'Proving who you are', /^(fallid|fallshield|fallsignature|falltrust|falldns|fallineage)$/],
 ];
-const dupes = DUPES.map(([label, job, re]) => ({ label, job, rows: real.filter(r => re.test(r.name)).map(r => r.name) }));
+// Move 2 in one line: for each cluster, the first choice is whichever is furthest up the ladder.
+// primaryOf keeps the rest — a cluster that quietly loses members reads exactly like one that got
+// finished, and only one of those is true.
+const dupes = DUPES.map(([label, job, re]) => {
+  const rows = real.filter(r => re.test(r.name));
+  const p = primaryOf(rows);
+  return { label, job, primary: p && p.primary, rest: p ? p.rest : [], n: rows.length };
+});
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pc = (a, b) => Math.round((a / b) * 100);
@@ -108,7 +127,16 @@ const html = `<!doctype html>
  .dupe{display:grid;grid-template-columns:1fr;gap:.35rem;background:var(--panel);border:1px solid var(--line);
    border-left:3px solid var(--warn);border-radius:0 10px 10px 0;padding:.8rem 1.05rem;margin:.5rem 0}
  .dupe .t{font-weight:600}.dupe .j{color:var(--faint);font-size:.82rem}
- .dupe .l{font-family:var(--mono);font-size:.73rem;color:var(--dim);word-break:break-word}
+ .dupe .l{font-family:var(--mono);font-size:.74rem;color:var(--dim);word-break:break-word;display:grid;gap:.2rem}
+ .dupe .lead b{color:var(--ink)}
+ .dupe .lead i{font-style:normal;font-size:.68rem;border:1px solid currentColor;border-radius:4px;padding:0 .3rem;margin-left:.3rem}
+ .dupe .rest{color:var(--faint)}
+ .mix{font-family:var(--mono);font-size:.7rem;color:var(--faint);margin-left:auto}
+ .mix b{font-weight:600}
+ .g{color:var(--ok)}.w{color:var(--warn)}.p{color:var(--faint)}
+ .tags a.g{border-color:var(--ok);color:var(--ok)}
+ .tags a.w{border-color:var(--warn)}
+ .tags a.p{opacity:.72}
  .move{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:1rem 1.15rem;margin:.6rem 0}
  .move h3{margin:0 0 .3rem;font-size:1.06rem}
  .move h3 em{font-style:normal;color:var(--gold);font-family:var(--mono);font-size:.8rem;margin-right:.5rem}
@@ -136,6 +164,7 @@ const html = `<!doctype html>
   <div class="num"><b>${real.length}</b><span>someone said what it does</span></div>
   <div class="num"><b>${blank.length}</b><span>no description yet</span></div>
   <div class="num"><b>${roots.filter(r => r.live).length}</b><span>you can open right now</span></div>
+  <div class="num"><b style="color:var(--ok)">${tally(real).proven}</b><span>a machine could not break</span></div>
  </div>
 </header>
 
@@ -157,9 +186,10 @@ const html = `<!doctype html>
 
 <h2>The shelves — every described build, on exactly one</h2>
 ${shelves.map(s => `<div class="shelf">
- <div class="hd"><h3>${esc(s.title)}</h3><span class="ct">${s.rows.length} build${s.rows.length === 1 ? '' : 's'} · ${s.rows.filter(r => r.live).length} live</span></div>
+ <div class="hd"><h3>${esc(s.title)}</h3><span class="ct">${s.rows.length} build${s.rows.length === 1 ? '' : 's'}</span>
+  <span class="mix"><b class="g">${s.counts.proven} proven</b> · <b class="w">${s.counts.works} works</b> · <b class="p">${s.counts.prototype} prototype</b></span></div>
  <p class="bl">${esc(s.blurb)}</p>
- <div class="tags">${s.rows.map(r => `<a href="${r.live ? esc(r.url || `https://sjgant80-hub.github.io/${r.name}/`) : `https://github.com/sjgant80-hub/${esc(r.name)}`}">${esc(r.name)}</a>`).join('')}</div>
+ <div class="tags">${s.rows.map(r => `<a class="${PROOF[r.tier]}" title="${esc(r.tierWhy)}" href="${r.live ? esc(r.url || `https://sjgant80-hub.github.io/${r.name}/`) : `https://github.com/sjgant80-hub/${esc(r.name)}`}">${esc(r.name)}</a>`).join('')}</div>
 </div>`).join('')}
 <div class="warn"><b>${unshelved.length} described builds are not on a shelf yet.</b> They are mostly guild
 tools, the konomi test suite, one-off experiments and the prior-art filings. They are not lost — they
@@ -172,8 +202,12 @@ one job to do is shown seven answers, and no way to tell which one is finished.<
 ${dupes.map(d => `<div class="dupe">
  <div class="t">${esc(d.label)}</div>
  <div class="j">${esc(d.job)}</div>
- <div class="l">${d.rows.map(esc).join(' · ')}</div>
+ <div class="l"><span class="lead">First choice: <b>${esc(d.primary ? d.primary.name : '—')}</b>${d.primary ? ` <i class="${PROOF[d.primary.tier]}">${esc(d.primary.tier)}</i>` : ''}</span>
+  <span class="rest">also here: ${d.rest.map(r => esc(r.name)).join(' · ') || 'nothing'}</span></div>
 </div>`).join('')}
+<p class="lede" style="font-size:.92rem">The first choice is not a preference — it is whichever build is
+furthest up the ladder, ties broken by most recently touched. When a runner-up gets gated and passes,
+it becomes the first choice on its own, without anybody editing this page.</p>
 <div class="warn">On top of that, <b>${companions.length} companion repos</b> (<code>-api</code>,
 <code>-mcp</code>, <code>-sdk</code>) sit behind ${roots.length} real ones — ${pc(companions.length, N.length)}% of
 everything, and not one of them is a thing a person opens.</div>

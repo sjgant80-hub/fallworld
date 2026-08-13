@@ -204,6 +204,7 @@
     <div class="tools">
     </div>
     <div class="tools" id="rarities"></div>
+    <div class="tools" id="proofs" aria-label="How finished"></div>
     <div id="out"></div>
   </div>
 
@@ -260,7 +261,7 @@ const $ = s => document.querySelector(s);
 // people's services are your code but not your ideas, and mixing them in inflates the number.
 // `mode` starts on your own work, and the three never blend: showing someone else's build as yours
 // takes credit you did not earn, and burying the work your estate was built on erases whoever did it.
-let W = null, state = { q:'', live:false, mode:'mine', tiers:new Set(), seat:null };
+let W = null, state = { q:'', live:false, mode:'mine', tiers:new Set(), proof:new Set(), seat:null };
 
 const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -284,6 +285,17 @@ function boot(){
     return `<button class="chip" data-t="${t}" aria-pressed="false" style="color:${TIERS[t].c}">
       <span class="dot" style="background:${TIERS[t].c}"></span>${TIERS[t].label} <b>${n}</b></button>`;
   }).join('');
+
+  // How finished, as a filter. Counted from the items on screen, so it can never disagree with them.
+  $('#proofs').innerHTML = ['proven','works','prototype'].map(t=>{
+    const n = W.items.filter(i=>i.kind===state.mode && i.proof?.tier===t).length; if(!n) return '';
+    return `<button class="chip" data-p="${t}" aria-pressed="false" style="color:${PROOF[t].c}">
+      <span class="dot" style="background:${PROOF[t].c}"></span>${PROOF[t].label} <b>${n}</b></button>`;
+  }).join('');
+  $('#proofs').querySelectorAll('[data-p]').forEach(b=>b.addEventListener('click',()=>{
+    const p=b.dataset.p; state.proof.has(p)?state.proof.delete(p):state.proof.add(p);
+    b.setAttribute('aria-pressed',String(state.proof.has(p))); render();
+  }));
 
   $('#slots').innerHTML = W.seats.map(s=>`
     <button class="slot" data-seat="${s.id}" aria-pressed="false" title="${esc(s.blurb)}">
@@ -422,6 +434,7 @@ function match(i){
   if(i.kind !== state.mode) return false;   // one kind at a time, never a blend
   if(state.live && !i.live) return false;
   if(state.tiers.size && !state.tiers.has(i.tier)) return false;
+  if(state.proof.size && !state.proof.has(i.proof?.tier)) return false;
   if(state.seat && i.seat!==state.seat) return false;
   if(state.q && !(i.name+' '+i.desc).toLowerCase().includes(state.q)) return false;
   return true;
@@ -450,6 +463,20 @@ function render(){
   $('#out').querySelectorAll('[data-i]').forEach(el=>el.addEventListener('click',()=>open(W.items[+el.dataset.i])));
 }
 
+// ⚑ HOW FINISHED IS IT. Worked out in tier.mjs from what GitHub's runners actually did, and carried
+// on the item — this only paints what the build already earned. Prototype is shown too: a rung you
+// only see when it is good news is a badge, not a measurement.
+const PROOF={
+  proven   :{c:'var(--ok,#48b98a)', label:'Proven'},
+  works    :{c:'var(--warn,#e0a33f)',label:'Works'},
+  prototype:{c:'var(--dim,#8b93a1)',label:'Prototype'},
+};
+function proofBadge(i){
+  const p=i.proof&&PROOF[i.proof.tier];
+  if(!p) return '';
+  return `<span class="badge" style="color:${p.c};border-color:${p.c}">${p.label}</span>`;
+}
+
 function card(i){
   const t=TIERS[i.tier];
   return `<button class="item" data-i="${W.items.indexOf(i)}" style="--t:${t.c}">
@@ -457,6 +484,7 @@ function card(i){
     <span class="d">${esc(i.desc||'Nothing anywhere says what this does.')}</span>
     <span class="f">
       <span class="badge" style="color:${t.c}">${t.label}</span>
+      ${proofBadge(i)}
       ${i.live?'<span class="badge live">live</span>':''}
       ${i.recovered?'<span class="badge rec">from memory</span>':''}
       ${i.set.length?`<span class="badge">${i.set.length}-pc set</span>`:''}
@@ -472,6 +500,7 @@ function open(i){
     <p>${esc(i.desc||'Nothing anywhere says what this does — not the repository, not the estate memory. Identifying it is a job worth doing.')}</p>
     ${i.recovered?`<div class="why">This description was recovered from the estate's memory. The repository itself still says nothing, so anyone searching GitHub cannot find it.</div>`:''}
     <div class="why"><strong style="color:${t.c}">Why ${t.label}:</strong> ${esc(i.why)}</div>
+    ${i.proof?`<div class="why"><strong style="color:${PROOF[i.proof.tier].c}">${PROOF[i.proof.tier].label}:</strong> ${esc(i.proof.why)}${i.proof.workflow?` <em>(${esc(i.proof.workflow)}${i.proof.sha?` at ${esc(String(i.proof.sha).slice(0,7))}`:''})</em>`:''}</div>`:''}
     <div class="acts">
       ${i.live&&i.url?`<a class="btn go" href="${esc(i.url)}" target="_blank" rel="noopener">Open it →</a>`:''}
       <a class="btn" href="${esc(i.repo)}" target="_blank" rel="noopener">Source</a>
