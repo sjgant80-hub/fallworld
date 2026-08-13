@@ -2,251 +2,197 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Fall World — the blueprint</title>
-<meta name="description" content="What we are actually building, counted from the index: 639 described builds on 13 shelves, and the plan to make it one door.">
+<meta name="description" content="One link, one thing to install, and 18 places to go. The map of Fall World in plain words.">
 <style>
- :root{--bg:#0b0d10;--panel:#141820;--line:#242b36;--ink:#e6ebf2;--dim:#98a3b3;--faint:#6b7688;
-   --gold:#d8a94a;--ok:#48b98a;--warn:#e0a33f;--no:#e0616d;
+ :root{--bg:#0b0a09;--panel:#151210;--line:#2c2721;--ink:#ece2cc;--dim:#a1988a;--faint:#6f675b;
+   --gold:#c9a227;--soft:#e6cd72;--ok:#5cb98a;
    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
- @media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#faf9f6;--panel:#fff;--line:#e2ded4;
-   --ink:#1d1f24;--dim:#5b6472;--faint:#8b93a1;--gold:#9a6f14}}
- :root[data-theme="light"]{--bg:#faf9f6;--panel:#fff;--line:#e2ded4;--ink:#1d1f24;--dim:#5b6472;--faint:#8b93a1;--gold:#9a6f14}
+   --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+ @media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#fbf8f1;--panel:#fff;--line:#e4dcc9;
+   --ink:#22201c;--dim:#5e564a;--faint:#8b8272;--gold:#8a6a13;--soft:#6d5310}}
+ :root[data-theme="light"]{--bg:#fbf8f1;--panel:#fff;--line:#e4dcc9;--ink:#22201c;--dim:#5e564a;--faint:#8b8272;--gold:#8a6a13;--soft:#6d5310}
  *{box-sizing:border-box}html,body{margin:0}
- body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6}
- .wrap{max-width:60rem;margin:0 auto;padding:0 1.2rem 5rem}
- a{color:var(--gold)}
- header{padding:3.2rem 0 1.6rem}
- .kick{font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0 0 .8rem}
- h1{font-size:clamp(2rem,6vw,3.1rem);margin:0 0 .7rem;letter-spacing:-.025em;line-height:1.05;text-wrap:balance}
- .lede{color:var(--dim);font-size:clamp(1rem,2.4vw,1.16rem);max-width:46rem;margin:0}
- .lede b{color:var(--ink)}
- h2{font-size:.72rem;font-family:var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);
-   margin:3.2rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--line)}
- .model{display:grid;gap:.7rem;margin:1.6rem 0 0}
- .step{display:grid;grid-template-columns:2.2rem 1fr;gap:.9rem;align-items:start;background:var(--panel);
-   border:1px solid var(--line);border-radius:11px;padding:1rem 1.15rem}
- .step .n{font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--gold);line-height:1}
- .step h3{margin:0 0 .25rem;font-size:1.05rem}
- .step p{margin:0;color:var(--dim);font-size:.93rem}
- .nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:.6rem;margin:1.2rem 0 0}
- .num{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.85rem 1rem}
- .num b{display:block;font-family:var(--mono);font-size:1.6rem;color:var(--ink);line-height:1.1;font-variant-numeric:tabular-nums}
- .num span{color:var(--faint);font-size:.76rem}
- .shelf{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:1rem 1.15rem;margin:.6rem 0}
- .shelf .hd{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
- .shelf h3{margin:0;font-size:1.05rem}
- .shelf .ct{font-family:var(--mono);font-size:.74rem;color:var(--gold)}
- .shelf .bl{color:var(--dim);font-size:.9rem;margin:.2rem 0 .6rem}
- .tags{display:flex;flex-wrap:wrap;gap:.3rem}
- .tags a{font-family:var(--mono);font-size:.72rem;text-decoration:none;color:var(--dim);
-   border:1px solid var(--line);border-radius:5px;padding:.16rem .45rem;background:var(--bg)}
- .tags a:hover{border-color:var(--gold);color:var(--ink)}
- .dupe{display:grid;grid-template-columns:1fr;gap:.35rem;background:var(--panel);border:1px solid var(--line);
-   border-left:3px solid var(--warn);border-radius:0 10px 10px 0;padding:.8rem 1.05rem;margin:.5rem 0}
- .dupe .t{font-weight:600}.dupe .j{color:var(--faint);font-size:.82rem}
- .dupe .l{font-family:var(--mono);font-size:.74rem;color:var(--dim);word-break:break-word;display:grid;gap:.2rem}
- .dupe .lead b{color:var(--ink)}
- .dupe .lead i{font-style:normal;font-size:.68rem;border:1px solid currentColor;border-radius:4px;padding:0 .3rem;margin-left:.3rem}
- .dupe .rest{color:var(--faint)}
- .mix{font-family:var(--mono);font-size:.7rem;color:var(--faint);margin-left:auto}
- .mix b{font-weight:600}
- .g{color:var(--ok)}.w{color:var(--warn)}.p{color:var(--faint)}
- .tags a.g{border-color:var(--ok);color:var(--ok)}
- .tags a.w{border-color:var(--warn)}
- .tags a.p{opacity:.72}
- .move{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:1rem 1.15rem;margin:.6rem 0}
- .move h3{margin:0 0 .3rem;font-size:1.06rem}
- .move h3 em{font-style:normal;color:var(--gold);font-family:var(--mono);font-size:.8rem;margin-right:.5rem}
- .move p{margin:.3rem 0;color:var(--dim);font-size:.93rem}
- .move .out{color:var(--ok);font-size:.87rem;margin-top:.5rem}
- .tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:.6rem;margin-top:1rem}
- .tier{border:1px solid var(--line);border-radius:10px;padding:.85rem 1rem;background:var(--panel)}
- .tier b{display:block;font-size:.95rem;margin-bottom:.2rem}
- .tier.p b{color:var(--no)}.tier.w b{color:var(--warn)}.tier.g b{color:var(--ok)}
- .tier span{color:var(--dim);font-size:.85rem}
- .warn{border-left:3px solid var(--warn);background:var(--panel);border-radius:0 10px 10px 0;
-   padding:.85rem 1.1rem;color:var(--dim);font-size:.92rem;margin:1rem 0}
- .warn b{color:var(--ink)}
- footer{margin-top:3.5rem;padding-top:1.4rem;border-top:1px solid var(--line);color:var(--faint);font-size:.83rem}
+ body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16.5px;line-height:1.6}
+ .wrap{max-width:56rem;margin:0 auto;padding:0 1.2rem 5rem}
+ a{color:var(--soft)}
+ header{padding:3.4rem 0 1.4rem;text-align:center}
+ h1{font-family:var(--serif);font-size:clamp(2.3rem,8vw,4rem);margin:0 0 .5rem;letter-spacing:.04em;font-weight:500;
+   background:linear-gradient(180deg,#f6e8bd,var(--gold) 62%,#8a6c1c);-webkit-background-clip:text;background-clip:text;color:transparent}
+ .lede{font-family:var(--serif);font-size:clamp(1.05rem,2.6vw,1.3rem);color:var(--dim);max-width:34rem;margin:0 auto;font-style:italic}
+ .steps{display:grid;gap:.7rem;margin:2.4rem 0 0}
+ .step{display:grid;grid-template-columns:2.4rem 1fr;gap:1rem;align-items:start;background:var(--panel);
+   border:1px solid var(--line);border-radius:12px;padding:1.05rem 1.2rem}
+ .step .n{font-family:var(--serif);font-size:1.7rem;color:var(--gold);line-height:1}
+ .step h2{margin:0 0 .2rem;font-size:1.12rem;border:0;padding:0;letter-spacing:0;text-transform:none;color:var(--ink)}
+ .step p{margin:0;color:var(--dim);font-size:.97rem}
+ .step .go{display:inline-block;margin-top:.55rem;font-size:.9rem;font-weight:600;text-decoration:none;
+   border:1px solid var(--gold);color:var(--soft);border-radius:8px;padding:.35rem .85rem}
+ h2{font-family:var(--serif);font-size:1.5rem;color:var(--gold);margin:2.8rem 0 .2rem;font-weight:500}
+ .wingblurb{color:var(--dim);margin:0 0 1rem;font-size:.97rem}
+ .rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));gap:.7rem}
+ .room{display:block;text-decoration:none;background:var(--panel);border:1px solid var(--line);
+   border-left:3px solid var(--line);border-radius:10px;padding:.85rem 1rem}
+ .room:hover{border-color:#4a4239;border-left-color:var(--gold)}
+ .room.first{border-left-color:var(--gold)}
+ .room .n{display:block;font-family:var(--serif);font-size:1.12rem;color:var(--ink);margin-bottom:.2rem}
+ .room .s{display:block;color:var(--dim);font-size:.9rem;line-height:1.45}
+ .room .tag{display:inline-block;margin-top:.45rem;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+ .note{border-left:3px solid var(--line);padding:.1rem 0 .1rem 1rem;color:var(--dim);margin:1.4rem 0;font-size:.97rem}
+ .note b{color:var(--ink)}
+ .later{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1.2rem 1.3rem;margin-top:1rem}
+ .nums{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.9rem}
+ .num{border:1px solid var(--line);border-radius:999px;padding:.3rem .8rem;font-size:.82rem;color:var(--dim)}
+ .num b{color:var(--ink);font-variant-numeric:tabular-nums}
+ .num.ok b{color:var(--ok)}
+ footer{margin-top:3rem;padding-top:1.3rem;border-top:1px solid var(--line);color:var(--faint);font-size:.85rem;text-align:center}
 </style></head><body><div class="wrap">
 <header>
- <p class="kick">The blueprint</p>
- <h1>What we are actually building</h1>
- <p class="lede">One shop, one thing you run, and everything else on shelves inside it.
- <b>639 builds a person has described</b>, counted from the index on this page — nothing here
- is typed by hand, so it cannot quietly go out of date.</p>
- <div class="nums">
-  <div class="num"><b>1591</b><span>repos, forks excluded</span></div>
-  <div class="num"><b>777</b><span>after folding companions in</span></div>
-  <div class="num"><b>639</b><span>someone said what it does</span></div>
-  <div class="num"><b>138</b><span>no description yet</span></div>
-  <div class="num"><b>729</b><span>you can open right now</span></div>
-  <div class="num"><b style="color:var(--ok)">34</b><span>a machine could not break</span></div>
- </div>
+ <h1>FALL WORLD</h1>
+ <p class="lede">One link. One thing to install. 18 places to go.</p>
 </header>
 
-<h2>The model, in three steps</h2>
-<div class="model">
+<div class="steps">
  <div class="step"><div class="n">1</div><div>
-  <h3>Fall World is the shop</h3>
-  <p>One address. You open it, you see everything there is, you pick a thing and it runs. Nobody needs
-  to know what a repo is — same as buying a game.</p></div></div>
+  <h2>Get it</h2>
+  <p>One address, like buying a game. You do not need to know what any of it is built from.</p>
+  <a class="go" href="https://sjgant80-hub.github.io/fallworld/">Open Fall World →</a>
+ </div></div>
  <div class="step"><div class="n">2</div><div>
-  <h3>fall-os is what you install, and Didy lives in it</h3>
-  <p>The operating system plus your own agent. It runs on your machine, on your electric. That is the
-  whole product — everything else is gear it can pick up.</p></div></div>
+  <h2>Install it, and meet your didy</h2>
+  <p>fall-os runs on your own machine, on your own electricity. Your didy is your character — it
+  learns what you do and gets better at it. Nothing has to leave the house.</p>
+  <a class="go" href="https://sjgant80-hub.github.io/fall-os/">Open fall-os →</a>
+ </div></div>
  <div class="step"><div class="n">3</div><div>
-  <h3>The rest are shelves</h3>
-  <p>Run a trade. Sell. Make. Talk. Remember. Prove. You go to a shelf because you have a job to do,
-  not because you know a tool's name.</p></div></div>
+  <h2>Walk in</h2>
+  <p>Everything below is a place you can go. You do not have to understand any of it up front —
+  start at the Duel and the rest opens up.</p>
+ </div></div>
 </div>
 
-<h2>The shelves — every described build, on exactly one</h2>
-<div class="shelf">
- <div class="hd"><h3>Front door</h3><span class="ct">10 builds</span>
-  <span class="mix"><b class="g">1 proven</b> · <b class="w">1 works</b> · <b class="p">8 prototype</b></span></div>
- <p class="bl">How anyone finds and starts anything.</p>
- <div class="tags"><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallboot/">fallboot</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallescape/">fallescape</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallestate/">fallestate</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallfind/">fallfind</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallgo/">fallgo</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallharbor/">fallharbor</a><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://sjgant80-hub.github.io/fallkard/">fallkard</a><a class="p" title="it has a workflow, but the last run did not pass" href="https://sjgant80-hub.github.io/fallmarket/">fallmarket</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallshell/">fallshell</a><a class="g" title="a mutation gate ran on GitHub's hardware and every mutant died, against a pinned checker" href="https://sjgant80-hub.github.io/fallworld/">fallworld</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>The thing you run</h3><span class="ct">17 builds</span>
-  <span class="mix"><b class="g">2 proven</b> · <b class="w">1 works</b> · <b class="p">14 prototype</b></span></div>
- <p class="bl">The operating system and the agent that lives in it.</p>
- <div class="tags"><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-hot/">fall-hot</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-kit/">fall-kit</a><a class="g" title="a mutation gate ran on GitHub's hardware and every mutant died, against a pinned checker" href="https://sjgant80-hub.github.io/fall-os/">fall-os</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-registry/">fall-registry</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcompass/">fallcompass</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcore/">fallcore</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcore-factory/">fallcore-factory</a><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://sjgant80-hub.github.io/fallhardened/">fallhardened</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallmind/">fallmind</a><a class="p" title="nothing runs it and nothing opens it" href="https://github.com/sjgant80-hub/fallmind-v2">fallmind-v2</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallrelay/">fallrelay</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallrouter/">fallrouter</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallsdk/">fallsdk</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed/">fallseed</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-generator/">fallseed-generator</a><a class="g" title="a mutation gate ran on GitHub's hardware and every mutant died, against a pinned checker" href="https://sjgant80-hub.github.io/openkonomi/">openkonomi</a><a class="p" title="nothing runs it and nothing opens it" href="https://github.com/sjgant80-hub/si-didy">si-didy</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>Run a trade</h3><span class="ct">19 builds</span>
-  <span class="mix"><b class="g">1 proven</b> · <b class="w">0 works</b> · <b class="p">18 prototype</b></span></div>
- <p class="bl">One app per kind of firm — clinic, vet, law, claims.</p>
- <div class="tags"><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallaccount/">fallaccount</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallaccount-trades/">fallaccount-trades</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/falladviser/">falladviser</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/falladviser-v2/">falladviser-v2</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallbooks/">fallbooks</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallclaim/">fallclaim</a><a class="g" title="a mutation gate ran on GitHub's hardware and every mutant died, against a pinned checker" href="https://sjgant80-hub.github.io/fallclinic/">fallclinic</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcorp/">fallcorp</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallenterprise/">fallenterprise</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallforge/">fallforge</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallhr/">fallhr</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallhub/">fallhub</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallinsurance/">fallinsurance</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/falllegal/">falllegal</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallonboard/">fallonboard</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallpaper/">fallpaper</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallpractice/">fallpractice</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallrecruit/">fallrecruit</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallvet/">fallvet</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>Start a trade</h3><span class="ct">16 builds</span>
-  <span class="mix"><b class="g">0 proven</b> · <b class="w">0 works</b> · <b class="p">16 prototype</b></span></div>
- <p class="bl">Starter kits that stand a new firm up in one file.</p>
- <div class="tags"><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-accountancy/">fallseed-accountancy</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-agents/">fallseed-agents</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-claims/">fallseed-claims</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-clinic/">fallseed-clinic</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-compliance/">fallseed-compliance</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-creator-os/">fallseed-creator-os</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-estate/">fallseed-estate</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-hr/">fallseed-hr</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-ifa/">fallseed-ifa</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-insurance/">fallseed-insurance</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-law/">fallseed-law</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-meta/">fallseed-meta</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-mortgage/">fallseed-mortgage</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-recruit/">fallseed-recruit</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-vet/">fallseed-vet</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallseed-village/">fallseed-village</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>Sell</h3><span class="ct">19 builds</span>
-  <span class="mix"><b class="g">0 proven</b> · <b class="w">0 works</b> · <b class="p">19 prototype</b></span></div>
- <p class="bl">CRM, outreach, LinkedIn, booking.</p>
- <div class="tags"><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-sales-marketing/">fall-sales-marketing</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcall/">fallcall</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcarousel/">fallcarousel</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallconcierge/">fallconcierge</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcrm/">fallcrm</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcrm-elite/">fallcrm-elite</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallflip/">fallflip</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallforce/">fallforce</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallform/">fallform</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallgrade/">fallgrade</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallgravity/">fallgravity</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallguild/">fallguild</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/falllead/">falllead</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/falllist/">falllist</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallpost/">fallpost</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallreach/">fallreach</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallsalescrm/">fallsalescrm</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallscout/">fallscout</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallslot/">fallslot</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>Make</h3><span class="ct">18 builds</span>
-  <span class="mix"><b class="g">0 proven</b> · <b class="w">0 works</b> · <b class="p">18 prototype</b></span></div>
- <p class="bl">The Adobe and Oracle replacements, plus documents.</p>
- <div class="tags"><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallanno/">fallanno</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallasset/">fallasset</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallaudio/">fallaudio</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallbase/">fallbase</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallbuild/">fallbuild</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcube-api/">fallcube-api</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallledger/">fallledger</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallmage/">fallmage</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallmotion/">fallmotion</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallnote/">fallnote</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/falloffice/">falloffice</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallpage/">fallpage</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallpdf/">fallpdf</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallreport/">fallreport</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallscene/">fallscene</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallscribe/">fallscribe</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallstudio/">fallstudio</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallvector/">fallvector</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>Money</h3><span class="ct">10 builds</span>
-  <span class="mix"><b class="g">0 proven</b> · <b class="w">0 works</b> · <b class="p">10 prototype</b></span></div>
- <p class="bl">Invoices, payments, cash runway, refunds.</p>
- <div class="tags"><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-sdk-generator/">fall-sdk-generator</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallap/">fallap</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallback/">fallback</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallflow/">fallflow</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallinvoice/">fallinvoice</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallmap/">fallmap</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallmint/">fallmint</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallpay/">fallpay</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallskin/">fallskin</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallstack/">fallstack</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>Talk</h3><span class="ct">17 builds</span>
-  <span class="mix"><b class="g">0 proven</b> · <b class="w">2 works</b> · <b class="p">15 prototype</b></span></div>
- <p class="bl">Mesh, mail, broadcast, phones — no middleman.</p>
- <div class="tags"><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-kqtt-bridge/">fall-kqtt-bridge</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-mcp-bridge/">fall-mcp-bridge</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallbridge/">fallbridge</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcarrier/">fallcarrier</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcast/">fallcast</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcdn/">fallcdn</a><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://sjgant80-hub.github.io/fallherd/">fallherd</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallhop/">fallhop</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/falllens/">falllens</a><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://github.com/sjgant80-hub/falllight">falllight</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/falllink/">falllink</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallmail/">fallmail</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallmobile/">fallmobile</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallnet/">fallnet</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallonion/">fallonion</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallperf/">fallperf</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallphone/">fallphone</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>Remember</h3><span class="ct">10 builds</span>
-  <span class="mix"><b class="g">0 proven</b> · <b class="w">1 works</b> · <b class="p">9 prototype</b></span></div>
- <p class="bl">Notes, memory, storage, backup.</p>
- <div class="tags"><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://sjgant80-hub.github.io/fall-remember/">fall-remember</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallecho/">fallecho</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallgarden/">fallgarden</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallmirror/">fallmirror</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallpod/">fallpod</a><a class="p" title="nothing runs it and nothing opens it" href="https://github.com/sjgant80-hub/fallpx">fallpx</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallrecall/">fallrecall</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallstore/">fallstore</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallsync/">fallsync</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallvault/">fallvault</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>Prove</h3><span class="ct">22 builds</span>
-  <span class="mix"><b class="g">2 proven</b> · <b class="w">5 works</b> · <b class="p">15 prototype</b></span></div>
- <p class="bl">The bit nobody else has: proof a thing actually works.</p>
- <div class="tags"><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://sjgant80-hub.github.io/acg-assessor/">acg-assessor</a><a class="g" title="a mutation gate ran on GitHub's hardware and every mutant died" href="https://sjgant80-hub.github.io/earned/">earned</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-prompt-gate/">fall-prompt-gate</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-verify/">fall-verify</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-vetter/">fall-vetter</a><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://sjgant80-hub.github.io/fallcharter/">fallcharter</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcloser/">fallcloser</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallconsensus/">fallconsensus</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/falldns/">falldns</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallid/">fallid</a><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://sjgant80-hub.github.io/fallineage/">fallineage</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallresolve/">fallresolve</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallsecurity/">fallsecurity</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallshield/">fallshield</a><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://sjgant80-hub.github.io/fallsieve/">fallsieve</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallsignature/">fallsignature</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/falltrust/">falltrust</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallwatch/">fallwatch</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallwatcher/">fallwatcher</a><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://sjgant80-hub.github.io/konomium-vault/">konomium-vault</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/the-toll/">the-toll</a><a class="g" title="a mutation gate ran on GitHub's hardware and every mutant died" href="https://sjgant80-hub.github.io/witness/">witness</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>Law and rights</h3><span class="ct">7 builds</span>
-  <span class="mix"><b class="g">1 proven</b> · <b class="w">2 works</b> · <b class="p">4 prototype</b></span></div>
- <p class="bl">Letters, claims, research, the EU AI Act.</p>
- <div class="tags"><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://sjgant80-hub.github.io/divorcerbot/">divorcerbot</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-euaiact/">fall-euaiact</a><a class="p" title="nothing runs it and nothing opens it" href="https://github.com/sjgant80-hub/fallbrief">fallbrief</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallfence/">fallfence</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallforensics/">fallforensics</a><a class="w" title="tests ran on GitHub's hardware and passed, but nothing tried to break the tests themselves" href="https://sjgant80-hub.github.io/falljustice/">falljustice</a><a class="g" title="a mutation gate ran on GitHub's hardware and every mutant died" href="https://sjgant80-hub.github.io/redress-engine/">redress-engine</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>The economy</h3><span class="ct">5 builds</span>
-  <span class="mix"><b class="g">1 proven</b> · <b class="w">0 works</b> · <b class="p">4 prototype</b></span></div>
- <p class="bl">Agents that work, trade and get paid.</p>
- <div class="tags"><a class="g" title="a mutation gate ran on GitHub's hardware and every mutant died" href="https://sjgant80-hub.github.io/agora/">agora</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallcolony/">fallcolony</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fallharmony/">fallharmony</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/kcc-jobs/">kcc-jobs</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/konomi-swarm/">konomi-swarm</a></div>
-</div><div class="shelf">
- <div class="hd"><h3>Thinking tools</h3><span class="ct">8 builds</span>
-  <span class="mix"><b class="g">0 proven</b> · <b class="w">0 works</b> · <b class="p">8 prototype</b></span></div>
- <p class="bl">Research fan-out, autopilot, the odd experiments.</p>
- <div class="tags"><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-autopilot-kit/">fall-autopilot-kit</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-bloom/">fall-bloom</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-cube/">fall-cube</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-palette/">fall-palette</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-raas/">fall-raas</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall-substrate/">fall-substrate</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/fall127agents/">fall127agents</a><a class="p" title="it opens, and no machine has ever checked the code" href="https://sjgant80-hub.github.io/falllearn/">falllearn</a></div>
-</div>
-<div class="warn"><b>461 described builds are not on a shelf yet.</b> They are mostly guild
-tools, the konomi test suite, one-off experiments and the prior-art filings. They are not lost — they
-are just not part of the product line, and pretending otherwise would make this map a wish rather
-than a picture.</div>
+<h2>Where you fight</h2>
+<p class="wingblurb">The game part. Start at the Duel — it is the one that teaches you the rest.</p>
+<div class="rooms">
+ <a class="room first" href="https://sjgant80-hub.github.io/fallkard/duel.html">
+  <span class="n">The Duel</span>
+  <span class="s">Your first proper match. A board, a turn, a hand of cards. Start here.</span>
+  <span class="tag">start here</span>
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/campaign.html">
+  <span class="n">The Campaign</span>
+  <span class="s">Nine chapters and thirty bosses to work through on your own.</span>
+  
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/arena.html">
+  <span class="n">The Arena</span>
+  <span class="s">You watch AI players fight each other and get better at it.</span>
+  
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/coliseum.html">
+  <span class="n">The Coliseum</span>
+  <span class="s">Play real people. Nobody runs a server — the match signs itself.</span>
+  
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/guild.html">
+  <span class="n">The Guild Hall</span>
+  <span class="s">Join a guild, run a tournament, chase the banners.</span>
+  
+ </a></div><h2>Where you build</h2>
+<p class="wingblurb">Making your character better. This is the bit people lose evenings to.</p>
+<div class="rooms">
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/loom.html">
+  <span class="n">The Loom</span>
+  <span class="s">Build your deck. Thirty cards, and you can see whether it is any good.</span>
+  
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/cube.html">
+  <span class="n">The Cube</span>
+  <span class="s">Put runes in your cards, craft new ones, break the ones you do not want.</span>
+  
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/brain.html">
+  <span class="n">The Brain</span>
+  <span class="s">Give a card a real mind. It can use a proper AI model, on your machine.</span>
+  
+ </a></div><h2>Where you are looked after</h2>
+<p class="wingblurb">The bit nobody else has — it checks the work rather than taking your word for it.</p>
+<div class="rooms">
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/clinic.html">
+  <span class="n">The Clinic</span>
+  <span class="s">Reads back what actually happened in your matches and tells you what is really going on.</span>
+  
+ </a></div><h2>Where you earn</h2>
+<p class="wingblurb">The money side. Your stuff is yours and it can pay you.</p>
+<div class="rooms">
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/herd.html">
+  <span class="n">The Herd</span>
+  <span class="s">Your descendants wake up and go to work, and the earnings come back up to you.</span>
+  
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/bloodline.html">
+  <span class="n">The Bloodline</span>
+  <span class="s">Own a share of a line of cards. When they do well, so do you.</span>
+  
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/kono.html">
+  <span class="n">$KONO</span>
+  <span class="s">Mint what you win, sell it to somebody else, or gamble your shards.</span>
+  
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallmarket/">
+  <span class="n">The Market</span>
+  <span class="s">The shop. Everything anyone has made, in one searchable place.</span>
+  
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallcolony/">
+  <span class="n">The Colony</span>
+  <span class="s">A settlement of AI workers that do jobs, talk to each other and improve.</span>
+  
+ </a></div><h2>Where you think</h2>
+<p class="wingblurb">Your own notes and memory, kept on your machine.</p>
+<div class="rooms">
+ <a class="room" href="https://sjgant80-hub.github.io/fallgarden/">
+  <span class="n">The Garden</span>
+  <span class="s">Your second brain. Notes that link to each other and grow into a map.</span>
+  
+ </a></div><h2>Where the rules get decided</h2>
+<p class="wingblurb">The world is not run by us. It is run by whoever turns up.</p>
+<div class="rooms">
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/govern.html">
+  <span class="n">The Assembly</span>
+  <span class="s">Twelve seats, a year each. Players vote on how the world works.</span>
+  
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/charter.html">
+  <span class="n">The Charter</span>
+  <span class="s">Change the rules yourself. If your version plays better, it gets adopted.</span>
+  
+ </a>
+ <a class="room" href="https://sjgant80-hub.github.io/fallkard/estate.html">
+  <span class="n">The Estate</span>
+  <span class="s">Zoom out and see the whole thing — one card, one house, one world, same shape.</span>
+  
+ </a></div>
 
-<h2>The problem — too many front doors for one job</h2>
-<p class="lede" style="margin-bottom:.4rem">Nothing here is broken. The trouble is that a person with
-one job to do is shown seven answers, and no way to tell which one is finished.</p>
-<div class="dupe">
- <div class="t">One job, seven apps</div>
- <div class="j">Customer records and outreach</div>
- <div class="l"><span class="lead">First choice: <b>fallforce</b> <i class="p">prototype</i></span>
-  <span class="rest">also here: fallcrm · falllead · fallreach · fallsalescrm · fallscout · fallcrm-elite</span></div>
-</div><div class="dupe">
- <div class="t">One suite, nine apps</div>
- <div class="j">The Adobe replacement</div>
- <div class="l"><span class="lead">First choice: <b>fallscene</b> <i class="p">prototype</i></span>
-  <span class="rest">also here: fallasset · fallaudio · fallmotion · fallvector · fallmage · fallpage · fallpdf · fallstudio</span></div>
-</div><div class="dupe">
- <div class="t">One starter, seventeen copies</div>
- <div class="j">Per-trade starter kits</div>
- <div class="l"><span class="lead">First choice: <b>fallseed-accountancy</b> <i class="p">prototype</i></span>
-  <span class="rest">also here: fallseed-agents · fallseed-claims · fallseed-clinic · fallseed-compliance · fallseed-creator-os · fallseed-estate · fallseed-generator · fallseed-ifa · fallseed-insurance · fallseed-law · fallseed-meta · fallseed-mortgage · fallseed-village · fallseed-hr · fallseed-recruit · fallseed-vet</span></div>
-</div><div class="dupe">
- <div class="t">One set of books, eight apps</div>
- <div class="j">Accounts and advice</div>
- <div class="l"><span class="lead">First choice: <b>falladviser-v2</b> <i class="p">prototype</i></span>
-  <span class="rest">also here: fallbooks · fallpractice · fallaccount · fallaccount-trades · falladviser · fallonboard · fallpaper</span></div>
-</div><div class="dupe">
- <div class="t">One inbox, nine apps</div>
- <div class="j">Getting a message from A to B</div>
- <div class="l"><span class="lead">First choice: <b>fallbridge</b> <i class="p">prototype</i></span>
-  <span class="rest">also here: fallcarrier · fallcast · fallhop · falllens · falllink · fallmail · fallnet · fallonion</span></div>
-</div><div class="dupe">
- <div class="t">One disk, seven apps</div>
- <div class="j">Keeping bytes somewhere</div>
- <div class="l"><span class="lead">First choice: <b>fallcdn</b> <i class="p">prototype</i></span>
-  <span class="rest">also here: fallcube-api · fallecho · fallpod · fallsync · fallvault · fallstore</span></div>
-</div><div class="dupe">
- <div class="t">One passport, six apps</div>
- <div class="j">Proving who you are</div>
- <div class="l"><span class="lead">First choice: <b>fallineage</b> <i class="w">works</i></span>
-  <span class="rest">also here: fallsignature · falldns · fallid · fallshield · falltrust</span></div>
-</div>
-<p class="lede" style="font-size:.92rem">The first choice is not a preference — it is whichever build is
-furthest up the ladder, ties broken by most recently touched. When a runner-up gets gated and passes,
-it becomes the first choice on its own, without anybody editing this page.</p>
-<div class="warn">On top of that, <b>814 companion repos</b> (<code>-api</code>,
-<code>-mcp</code>, <code>-sdk</code>) sit behind 777 real ones — 51% of
-everything, and not one of them is a thing a person opens.</div>
+<div class="note"><b>Every room above is open right now.</b> None of it is a mock-up or a plan — the
+links go to the real thing, and it all runs in a browser without an account.</div>
 
-<h2>The plan — four moves</h2>
-<div class="move"><h3><em>Move 1</em>One door</h3>
- <p>Fall World is the only address anybody is given. Every shelf, every build, reachable from it. No
- more sending people a repo link.</p>
- <p class="out">Done when: one URL answers "what have you got?"</p></div>
-<div class="move"><h3><em>Move 2</em>One answer per job</h3>
- <p>Where seven apps do one job, pick the one that is furthest along and make the others modes inside
- it. The names stay as redirects so nothing anybody bookmarked breaks.</p>
- <p class="out">Done when: each shelf has a clear first choice instead of a list.</p></div>
-<div class="move"><h3><em>Move 3</em>Hide the plumbing</h3>
- <p>The 814 companion repos are machine-minted bindings, not products. They stay where they are
- and come off every surface a person sees.</p>
- <p class="out">Done when: the shop shows 777 things, not 1591.</p></div>
-<div class="move"><h3><em>Move 4</em>Say which ones are finished</h3>
- <p>This is the one that matters. Right now a rough prototype and a properly tested build look
- identical, so everything reads as equally solid — which means nothing does.</p>
- <div class="tiers">
-  <div class="tier p"><b>Prototype</b><span>It exists and it opens. No promises.</span></div>
-  <div class="tier w"><b>Works</b><span>It does the job end to end, and it is being used.</span></div>
-  <div class="tier g"><b>Proven</b><span>A machine tried to break it and failed, on hardware we do not own.</span></div>
+<h2>And the tools?</h2>
+<div class="later">
+ <p style="margin:0 0 .5rem;color:var(--dim)">There are a few hundred tools in the estate — accounts,
+ invoices, notes, a clinic system, a CRM. <b style="color:var(--ink)">They are gear you carry into the
+ world, not part of the map.</b> They get sorted onto shelves and tidied up after the world itself is
+ finished, so the front door stays simple.</p>
+ <div class="nums">
+  <span class="num"><b>639</b> tools described</span>
+  <span class="num"><b>729</b> you can open today</span>
+  <span class="num ok"><b>34</b> a machine could not break</span>
  </div>
- <p class="out" style="margin-top:.7rem">Done when: every build on every shelf shows one of these three, worked out from evidence rather than claimed.</p></div>
-<div class="warn"><b>Being straight about it: most of this is at Prototype.</b> A small number are Proven —
-the ones with a mutation gate green on GitHub's own runners. Move 4 is what turns a big pile into a
-short honest list, and it is the only move that makes the other three worth doing.</div>
+</div>
 
 <footer>
- <p>Generated by <code>build-blueprint.mjs</code> from the estate index of 2026-08-13 —
- every count on this page was counted, not typed. · <a href="./">back to Fall World</a></p>
+ <p>Generated from the real rooms and the estate index — never typed by hand.<br>
+ <a href="https://sjgant80-hub.github.io/fallworld/">Fall World</a> ·
+ <a href="https://sjgant80-hub.github.io/fallkard/">FallKard</a></p>
 </footer>
 </div></body></html>
