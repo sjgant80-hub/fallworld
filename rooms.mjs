@@ -30,11 +30,8 @@ export const WINGS = [
       { n: 'The Loom', u: K + 'loom.html', s: 'Build your deck. Thirty cards, and you can see whether it is any good.' },
       { n: 'The Cube', u: K + 'cube.html', s: 'Put runes in your cards, craft new ones, break the ones you do not want.' },
       { n: 'The Brain', u: K + 'brain.html', s: 'Give a card a real mind. It can use a proper AI model, on your machine.' },
-      // ⚑ THE FORGE IS NOT HERE YET, AND THAT IS WHY IT IS NOT LISTED. fallkard-forge is real and
-      // finished — a picture that openly carries a runnable build — but it has no page anyone can
-      // open, because its kernel needs zlib and a real hash, which is a proper build rather than a
-      // wrapper. A door on the map that does not open is worse than an honest gap, so it goes on the
-      // map the day it has one.
+      // It went on the map the day it had a door — 2026-08-13.
+      { n: 'The Forge', u: G('fallkard-forge'), s: 'Put a working build inside a picture. Send the picture; they get the build.' },
     ],
   },
   {
