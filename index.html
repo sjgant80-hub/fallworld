@@ -130,6 +130,31 @@
   .seathead{font-family:var(--serif);font-size:19px;color:var(--gold);margin:26px 0 4px}
   .seatblurb{color:var(--dim);font-size:13px;margin:0 0 13px}
 
+
+  /* ── THE WORLD ──────────────────────────────────────── */
+  .world{margin-top:26px}
+  .wayin{display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:10px;margin-bottom:8px}
+  .wayin a{display:block;text-decoration:none;background:linear-gradient(180deg,var(--bg2),var(--bg1));
+    border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:13px 15px}
+  .wayin a:hover{border-color:#4a4239;border-left-color:var(--goldsoft)}
+  .wayin .n{display:block;font-family:var(--serif);font-size:17px;color:var(--goldsoft);margin-bottom:3px}
+  .wayin .s{display:block;font-size:12.6px;color:var(--dim);line-height:1.5}
+  .wing{margin-top:22px}
+  .wing h3{font-family:var(--serif);font-size:19px;color:var(--gold);margin:0 0 2px;font-weight:500}
+  .wing h3 .ic{margin-right:8px;opacity:.85}
+  .wing .wb{margin:0 0 10px;color:var(--dim);font-size:12.8px}
+  .rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:9px}
+  .room{display:block;text-decoration:none;background:linear-gradient(180deg,var(--bg2),var(--bg1));
+    border:1px solid var(--line);border-left:3px solid var(--line);border-radius:9px;padding:10px 12px}
+  .room:hover{border-color:#4a4239;border-left-color:var(--gold);transform:translateY(-1px)}
+  .room:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .room.first{border-left-color:var(--gold)}
+  .room .n{display:block;font-family:var(--serif);font-size:15.5px;color:var(--ink);margin-bottom:2px}
+  .room .s{display:block;font-size:12.2px;color:var(--dim);line-height:1.45}
+  .room .tag{display:inline-block;margin-top:5px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .gearhead{font-family:var(--serif);font-size:19px;color:var(--gold);margin:34px 0 2px;font-weight:500}
+  .gearsub{color:var(--dim);font-size:12.8px;margin:0 0 4px}
+
   /* ── DETAIL ─────────────────────────────────────────── */
   dialog{
     border:1px solid var(--line);border-left:4px solid var(--t,var(--gold));border-radius:10px;
@@ -172,6 +197,153 @@
   <p class="tag"><a href="blueprint.html" style="color:#d8a94a;font-weight:600">▸ The blueprint</a> — what we are building, on shelves, and the plan to make it one door.</p>
   <div class="counts" id="counts"></div>
 </header>
+
+<!-- ⚑ THE WORLD COMES FIRST. Fall World used to open on a gear browser, which reads as an
+     inventory rather than somewhere you are. The rooms are what make it a place, so they are the
+     first thing you meet; the gear is below, where gear belongs. Generated from rooms.mjs — the
+     same source the blueprint reads, so the two can never describe different worlds. -->
+<div class="world" id="world">
+<div class="wayin">
+  <a href="https://sjgant80-hub.github.io/fallworld/"><span class="n">Get it</span><span class="s">One address, like buying a game. You do not need to know what any of it is built from.</span></a>
+  <a href="https://sjgant80-hub.github.io/fall-os/"><span class="n">Install it, meet your didy</span><span class="s">fall-os runs on your machine, on your electricity. Your didy is your character — it learns what you do. Nothing has to leave the house.</span></a>
+</div>
+
+<div class="wing">
+  <h3><span class="ic">⚔</span>Where you fight</h3>
+  <p class="wb">The game part. Start at the Duel — it is the one that teaches you the rest.</p>
+  <div class="rooms">
+    <a class="room first" href="https://sjgant80-hub.github.io/fallkard/duel.html">
+      <span class="n">The Duel</span>
+      <span class="s">Your first proper match. A board, a turn, a hand of cards. Start here.</span><span class="tag">start here</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/campaign.html">
+      <span class="n">The Campaign</span>
+      <span class="s">Nine chapters and thirty bosses to work through on your own.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/arena.html">
+      <span class="n">The Arena</span>
+      <span class="s">You watch AI players fight each other and get better at it.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/coliseum.html">
+      <span class="n">The Coliseum</span>
+      <span class="s">Play real people. Nobody runs a server — the match signs itself.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/guild.html">
+      <span class="n">The Guild Hall</span>
+      <span class="s">Join a guild, run a tournament, chase the banners.</span>
+    </a>
+  </div>
+</div>
+<div class="wing">
+  <h3><span class="ic">⚙</span>Where you build</h3>
+  <p class="wb">Making your character better. This is the bit people lose evenings to.</p>
+  <div class="rooms">
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/loom.html">
+      <span class="n">The Loom</span>
+      <span class="s">Build your deck. Thirty cards, and you can see whether it is any good.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/cube.html">
+      <span class="n">The Cube</span>
+      <span class="s">Put runes in your cards, craft new ones, break the ones you do not want.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/brain.html">
+      <span class="n">The Brain</span>
+      <span class="s">Give a card a real mind. It can use a proper AI model, on your machine.</span>
+    </a>
+  </div>
+</div>
+<div class="wing">
+  <h3><span class="ic">◈</span>Where the work gets checked</h3>
+  <p class="wb">The bit nobody else has. Nothing here takes your word for it.</p>
+  <div class="rooms">
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/clinic.html">
+      <span class="n">The Clinic</span>
+      <span class="s">Reads back what actually happened in your matches and tells you what is really going on.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/earned/">
+      <span class="n">The Proving Ground</span>
+      <span class="s">You cannot say you can do a thing. You show it, and it gets checked.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/the-toll/">
+      <span class="n">The Gate</span>
+      <span class="s">The wall on the edge of the world. Costs you a moment, costs a scraper months.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/sovereign-browser/">
+      <span class="n">The Watchtower</span>
+      <span class="s">Look at the outside world, and judge what it did rather than what it said.</span>
+    </a>
+  </div>
+</div>
+<div class="wing">
+  <h3><span class="ic">◊</span>Where you earn</h3>
+  <p class="wb">The money side. Your stuff is yours and it can pay you.</p>
+  <div class="rooms">
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/herd.html">
+      <span class="n">The Herd</span>
+      <span class="s">Your descendants wake up and go to work, and the earnings come back up to you.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/bloodline.html">
+      <span class="n">The Bloodline</span>
+      <span class="s">Own a share of a line of cards. When they do well, so do you.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/kono.html">
+      <span class="n">$KONO</span>
+      <span class="s">Mint what you win, sell it to somebody else, or gamble your shards.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallmarket/">
+      <span class="n">The Market</span>
+      <span class="s">The shop. Everything anyone has made, in one searchable place.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/agora/">
+      <span class="n">The Agora</span>
+      <span class="s">The trading floor, running for real — agents buying and selling work.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallcolony/">
+      <span class="n">The Colony</span>
+      <span class="s">A settlement of AI workers that do jobs, talk to each other and improve.</span>
+    </a>
+  </div>
+</div>
+<div class="wing">
+  <h3><span class="ic">❦</span>Where you think</h3>
+  <p class="wb">Your own notes and memory, kept on your machine and nobody else’s.</p>
+  <div class="rooms">
+    <a class="room" href="https://sjgant80-hub.github.io/fallgarden/">
+      <span class="n">The Garden</span>
+      <span class="s">Your second brain. Notes that link to each other and grow into a map.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fall-remember/">
+      <span class="n">The Library</span>
+      <span class="s">Everything you have told it, filed so it can be found again.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallvault/">
+      <span class="n">The Vault</span>
+      <span class="s">Lock your things in one file. Only your password opens it.</span>
+    </a>
+  </div>
+</div>
+<div class="wing">
+  <h3><span class="ic">⚖</span>Where the rules get decided</h3>
+  <p class="wb">The world is not run by us. It is run by whoever turns up.</p>
+  <div class="rooms">
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/govern.html">
+      <span class="n">The Assembly</span>
+      <span class="s">Twelve seats, a year each. Players vote on how the world works.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/charter.html">
+      <span class="n">The Charter</span>
+      <span class="s">Change the rules yourself. If your version plays better, it gets adopted.</span>
+    </a>
+    <a class="room" href="https://sjgant80-hub.github.io/fallkard/estate.html">
+      <span class="n">The Estate</span>
+      <span class="s">Zoom out and see the whole thing — one card, one house, one world, same shape.</span>
+    </a>
+  </div>
+</div>
+<h3 class="gearhead">And everything you carry</h3>
+<p class="gearsub">24 places above. Below is the gear — every tool in the estate, and how
+finished each one actually is.</p>
+</div>
 
 <div class="cols">
 

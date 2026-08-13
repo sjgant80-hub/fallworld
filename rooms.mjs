@@ -1,0 +1,91 @@
+// rooms.mjs — THE WORLD, in one place.
+//
+// ⚑ ONE SOURCE. The blueprint page and the world's own front page both read this. Written twice, they
+// would disagree within a week and a visitor would meet two different worlds depending which link
+// they followed.
+//
+// ⚑ PLAIN WORDS ON THE DOOR. Each room's own page describes itself in the estate's language —
+// chambers, seals, shards, A7 rule-forking. That is right inside the room and wrong on a map. Every
+// line here says what a PERSON DOES there, and somebody's mum should be able to read it.
+
+const K = 'https://sjgant80-hub.github.io/fallkard/';
+const G = (n) => `https://sjgant80-hub.github.io/${n}/`;
+
+export const WINGS = [
+  {
+    id: 'fight', icon: '⚔', title: 'Where you fight',
+    blurb: 'The game part. Start at the Duel — it is the one that teaches you the rest.',
+    rooms: [
+      { n: 'The Duel', u: K + 'duel.html', s: 'Your first proper match. A board, a turn, a hand of cards. Start here.', first: true },
+      { n: 'The Campaign', u: K + 'campaign.html', s: 'Nine chapters and thirty bosses to work through on your own.' },
+      { n: 'The Arena', u: K + 'arena.html', s: 'You watch AI players fight each other and get better at it.' },
+      { n: 'The Coliseum', u: K + 'coliseum.html', s: 'Play real people. Nobody runs a server — the match signs itself.' },
+      { n: 'The Guild Hall', u: K + 'guild.html', s: 'Join a guild, run a tournament, chase the banners.' },
+    ],
+  },
+  {
+    id: 'build', icon: '⚙', title: 'Where you build',
+    blurb: 'Making your character better. This is the bit people lose evenings to.',
+    rooms: [
+      { n: 'The Loom', u: K + 'loom.html', s: 'Build your deck. Thirty cards, and you can see whether it is any good.' },
+      { n: 'The Cube', u: K + 'cube.html', s: 'Put runes in your cards, craft new ones, break the ones you do not want.' },
+      { n: 'The Brain', u: K + 'brain.html', s: 'Give a card a real mind. It can use a proper AI model, on your machine.' },
+      // ⚑ THE FORGE IS NOT HERE YET, AND THAT IS WHY IT IS NOT LISTED. fallkard-forge is real and
+      // finished — a picture that openly carries a runnable build — but it has no page anyone can
+      // open, because its kernel needs zlib and a real hash, which is a proper build rather than a
+      // wrapper. A door on the map that does not open is worse than an honest gap, so it goes on the
+      // map the day it has one.
+    ],
+  },
+  {
+    id: 'proof', icon: '◈', title: 'Where the work gets checked',
+    blurb: 'The bit nobody else has. Nothing here takes your word for it.',
+    rooms: [
+      { n: 'The Clinic', u: K + 'clinic.html', s: 'Reads back what actually happened in your matches and tells you what is really going on.' },
+      { n: 'The Proving Ground', u: G('earned'), s: 'You cannot say you can do a thing. You show it, and it gets checked.' },
+      { n: 'The Gate', u: G('the-toll'), s: 'The wall on the edge of the world. Costs you a moment, costs a scraper months.' },
+      { n: 'The Watchtower', u: G('sovereign-browser'), s: 'Look at the outside world, and judge what it did rather than what it said.' },
+    ],
+  },
+  {
+    id: 'earn', icon: '◊', title: 'Where you earn',
+    blurb: 'The money side. Your stuff is yours and it can pay you.',
+    rooms: [
+      { n: 'The Herd', u: K + 'herd.html', s: 'Your descendants wake up and go to work, and the earnings come back up to you.' },
+      { n: 'The Bloodline', u: K + 'bloodline.html', s: 'Own a share of a line of cards. When they do well, so do you.' },
+      { n: '$KONO', u: K + 'kono.html', s: 'Mint what you win, sell it to somebody else, or gamble your shards.' },
+      { n: 'The Market', u: G('fallmarket'), s: 'The shop. Everything anyone has made, in one searchable place.' },
+      { n: 'The Agora', u: G('agora'), s: 'The trading floor, running for real — agents buying and selling work.' },
+      { n: 'The Colony', u: G('fallcolony'), s: 'A settlement of AI workers that do jobs, talk to each other and improve.' },
+    ],
+  },
+  {
+    id: 'think', icon: '❦', title: 'Where you think',
+    blurb: 'Your own notes and memory, kept on your machine and nobody else’s.',
+    rooms: [
+      { n: 'The Garden', u: G('fallgarden'), s: 'Your second brain. Notes that link to each other and grow into a map.' },
+      { n: 'The Library', u: G('fall-remember'), s: 'Everything you have told it, filed so it can be found again.' },
+      { n: 'The Vault', u: G('fallvault'), s: 'Lock your things in one file. Only your password opens it.' },
+    ],
+  },
+  {
+    id: 'rules', icon: '⚖', title: 'Where the rules get decided',
+    blurb: 'The world is not run by us. It is run by whoever turns up.',
+    rooms: [
+      { n: 'The Assembly', u: K + 'govern.html', s: 'Twelve seats, a year each. Players vote on how the world works.' },
+      { n: 'The Charter', u: K + 'charter.html', s: 'Change the rules yourself. If your version plays better, it gets adopted.' },
+      { n: 'The Estate', u: K + 'estate.html', s: 'Zoom out and see the whole thing — one card, one house, one world, same shape.' },
+    ],
+  },
+];
+
+/** The two things you do before any of the rooms mean anything. */
+export const WAY_IN = [
+  { n: 'Get it', u: G('fallworld'), s: 'One address, like buying a game. You do not need to know what any of it is built from.' },
+  { n: 'Install it, meet your didy', u: G('fall-os'), s: 'fall-os runs on your machine, on your electricity. Your didy is your character — it learns what you do. Nothing has to leave the house.' },
+];
+
+export const ROOM_COUNT = WINGS.reduce((n, w) => n + w.rooms.length, 0);
+export const ALL_ROOMS = WINGS.flatMap(w => w.rooms.map(r => ({ ...r, wing: w.id, wingTitle: w.title, icon: w.icon })));
+
+export default { WINGS, WAY_IN, ROOM_COUNT, ALL_ROOMS };

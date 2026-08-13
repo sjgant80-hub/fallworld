@@ -8,6 +8,7 @@
 // index — nothing on this page is typed by hand, so it cannot quietly go out of date.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tierOf, tally } from './tier.mjs';
+import { WINGS, WAY_IN, ROOM_COUNT } from './rooms.mjs';
 
 const EVIDENCE = existsSync('tier-evidence.json') ? JSON.parse(readFileSync('tier-evidence.json', 'utf8')) : {};
 const idx = JSON.parse(readFileSync('C:/Users/sjgan/.claude/projects/C--Users-sjgan--claude/memory/estate-index.json', 'utf8'));
@@ -26,71 +27,8 @@ const real = roots.filter(r => r.desc && !MINTED.some(re => re.test(r.desc)));
 for (const r of real) r.tier = tierOf(EVIDENCE[r.name], { live: r.live }).tier;
 const counts = tally(real);
 
-const K = 'https://sjgant80-hub.github.io/fallkard/';
-const G = (n) => `https://sjgant80-hub.github.io/${n}/`;
-
-// ⚑ PLAIN WORDS. Each room's own page describes itself in the estate's language (chambers, seals,
-// shards, A7 rule-forking). That is right for inside the room and wrong for a map, so every line
-// here says what a person DOES there. Somebody's mum should be able to read this list.
-const WINGS = [
-  {
-    title: 'Where you fight',
-    blurb: 'The game part. Start at the Duel — it is the one that teaches you the rest.',
-    rooms: [
-      { n: 'The Duel', u: K + 'duel.html', s: 'Your first proper match. A board, a turn, a hand of cards. Start here.', first: true },
-      { n: 'The Campaign', u: K + 'campaign.html', s: 'Nine chapters and thirty bosses to work through on your own.' },
-      { n: 'The Arena', u: K + 'arena.html', s: 'You watch AI players fight each other and get better at it.' },
-      { n: 'The Coliseum', u: K + 'coliseum.html', s: 'Play real people. Nobody runs a server — the match signs itself.' },
-      { n: 'The Guild Hall', u: K + 'guild.html', s: 'Join a guild, run a tournament, chase the banners.' },
-    ],
-  },
-  {
-    title: 'Where you build',
-    blurb: 'Making your character better. This is the bit people lose evenings to.',
-    rooms: [
-      { n: 'The Loom', u: K + 'loom.html', s: 'Build your deck. Thirty cards, and you can see whether it is any good.' },
-      { n: 'The Cube', u: K + 'cube.html', s: 'Put runes in your cards, craft new ones, break the ones you do not want.' },
-      { n: 'The Brain', u: K + 'brain.html', s: 'Give a card a real mind. It can use a proper AI model, on your machine.' },
-    ],
-  },
-  {
-    title: 'Where you are looked after',
-    blurb: 'The bit nobody else has — it checks the work rather than taking your word for it.',
-    rooms: [
-      { n: 'The Clinic', u: K + 'clinic.html', s: 'Reads back what actually happened in your matches and tells you what is really going on.' },
-    ],
-  },
-  {
-    title: 'Where you earn',
-    blurb: 'The money side. Your stuff is yours and it can pay you.',
-    rooms: [
-      { n: 'The Herd', u: K + 'herd.html', s: 'Your descendants wake up and go to work, and the earnings come back up to you.' },
-      { n: 'The Bloodline', u: K + 'bloodline.html', s: 'Own a share of a line of cards. When they do well, so do you.' },
-      { n: '$KONO', u: K + 'kono.html', s: 'Mint what you win, sell it to somebody else, or gamble your shards.' },
-      { n: 'The Market', u: G('fallmarket'), s: 'The shop. Everything anyone has made, in one searchable place.' },
-      { n: 'The Colony', u: G('fallcolony'), s: 'A settlement of AI workers that do jobs, talk to each other and improve.' },
-    ],
-  },
-  {
-    title: 'Where you think',
-    blurb: 'Your own notes and memory, kept on your machine.',
-    rooms: [
-      { n: 'The Garden', u: G('fallgarden'), s: 'Your second brain. Notes that link to each other and grow into a map.' },
-    ],
-  },
-  {
-    title: 'Where the rules get decided',
-    blurb: 'The world is not run by us. It is run by whoever turns up.',
-    rooms: [
-      { n: 'The Assembly', u: K + 'govern.html', s: 'Twelve seats, a year each. Players vote on how the world works.' },
-      { n: 'The Charter', u: K + 'charter.html', s: 'Change the rules yourself. If your version plays better, it gets adopted.' },
-      { n: 'The Estate', u: K + 'estate.html', s: 'Zoom out and see the whole thing — one card, one house, one world, same shape.' },
-    ],
-  },
-];
-
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const roomCount = WINGS.reduce((n, w) => n + w.rooms.length, 0);
+const roomCount = ROOM_COUNT;
 
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
