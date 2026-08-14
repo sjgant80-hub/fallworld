@@ -53,6 +53,13 @@ async function lane() {
   }
 }
 await Promise.all(Array.from({ length: 6 }, lane));
+
+// ⚑ WRITE WHAT WAS LEARNED. The loop only saved every twentieth repo, so the last batch — up to
+// nineteen of them — was computed, counted in the totals printed below, and then thrown away. The
+// next run silently rescanned them, and anything looked up straight from the file simply was not
+// there. A cache that drops its tail is worse than no cache: the number on screen and the number on
+// disk disagree, and only one of them is ever read again.
+writeFileSync(OUT, JSON.stringify(done));
 writeFileSync(OUT, JSON.stringify(done));
 
 let anyReal = 0, greenReal = 0, mut = 0, mutGreen = 0;
