@@ -35,8 +35,8 @@ jobs:
           node .witness/witness.mjs mutate tier.mjs \
             --cap 400 \
             --baseline witness.tier.baseline.json \
-            --test "node tier.test.mjs" | tee gate.out
-          node .witness/witness.mjs mutate pass.mjs             --cap 400             --test "node --test pass.test.mjs" | tee -a gate.out
+            --test node tier.test.mjs | tee gate.out
+          node .witness/witness.mjs mutate pass.mjs --cap 400 --test node --test pass.test.mjs | tee -a gate.out
 
       # A gate that reports "not clean" and exits zero is decorative. This line is what makes the
       # workflow's own conclusion mean something.
