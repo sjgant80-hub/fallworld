@@ -136,10 +136,19 @@ const seatOf = (hay) => (SEATS.find(s => s.re.test(hay)) || SEATS[8]).id;
 // ── RARITY IS PROOF-STRENGTH, NOT SCARCITY ───────────────────────────────────────────────────────
 // Every tier is computed from evidence in the index. None of it is a taste judgement, and the reason
 // is carried on the item so a person can see WHY it is gold rather than being told that it is.
-function rarity(desc, live, setCount) {
+// ⚑ `gated` USED TO BE READ OFF THE REPOSITORY'S OWN DESCRIPTION — a regex for the words "witness",
+// "gated", "CI green" in text the author wrote about himself. The gold tier then carried the sentence
+// "a machine tried to break it and it held", which is a claim about a machine derived from a claim by
+// a person. That is precisely the thing this ladder exists to refuse: rarity is proof-strength, and a
+// description is not proof of anything.
+//
+// It now comes from `proven` — computed by tier.mjs from what GitHub's runners actually recorded, and
+// passed in by the caller. A repository can say whatever it likes about itself and the badge will not
+// move.
+function rarity(desc, live, setCount, proven) {
   if (!desc.trim())  return { tier:'unknown', label:'Unidentified', why:'this exists and nothing anywhere says what it does' };
   if (!live)         return { tier:'normal',  label:'Normal',       why:'described, but there is nothing live to open' };
-  const gated = /witness|proof-of-play|mutation-gated|\bgated\b|tests? clean|\d+ tests|CI green|clean \d+\/\d+/i.test(desc);
+  const gated = proven === true;
   if (gated && setCount >= 3) return { tier:'set',    label:'Set',    why:'gated AND ships the full api/mcp/sdk set — it combos' };
   if (gated)                  return { tier:'unique', label:'Unique', why:'a machine tried to break it and it held' };
   if (setCount >= 3)          return { tier:'rare',   label:'Rare',   why:'live, and ships the full api/mcp/sdk set' };
@@ -148,6 +157,7 @@ function rarity(desc, live, setCount) {
 
 const out = items.map(({ root, base, set, members, memberText, synthetic }) => {
   const own = (root.desc || '').trim();
+  const proofTier = tierOf(EVIDENCE[root.name], { live: root.live === true });
   const recovered = !own && RECOVERED[base] ? RECOVERED[base] : null;
   const desc = own || recovered || '';
   const live = !!root.live;
@@ -164,11 +174,14 @@ const out = items.map(({ root, base, set, members, memberText, synthetic }) => {
         : /sovereign (api |mcp |sdk )?wrapper|real bindings|wrapper for target/i.test(desc) ? 'external'
         : 'mine',
     by: foundation.has(root.name) ? 'Thomas' : 'Simon Gant',
-    ...rarity(desc, live, set.length),
+    // ⚑ ONE COMPUTATION, READ TWICE. `proof` is the tier a runner earned; rarity now reads that same
+    // value instead of pattern-matching the author's own description. Computed once here so the two
+    // cannot drift into disagreeing about the same repository.
+    ...rarity(desc, live, set.length, proofTier.tier === 'proven'),
     // ⚑ HOW FINISHED IS IT — nested under `proof` on purpose, because rarity() already spreads a
     // `tier` of its own, and two different meanings sharing one key is a bug waiting for a reader.
     // Rarity says how much evidence the build carries; proof says whether a machine checked the code.
-    proof: tierOf(EVIDENCE[root.name], { live }),
+    proof: proofTier,
     pushed: root.pushed || null,
   };
 }).sort((a, b) => a.name.localeCompare(b.name));

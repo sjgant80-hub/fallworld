@@ -44,7 +44,20 @@ async function lane() {
       out.push({
         name: f.name, path: f.path, state: f.state,
         conclusion: run.conclusion || null, sha: run.sha || null, at: run.at || null,
-        mutation: /witness|mutate|mutation|stryker|pitest|mutmut/i.test(text),
+        // ⚑ A MENTION IS NOT A GATE. This was a substring match for the word "witness" anywhere in
+        // the workflow YAML, and `mutation` is the single field that promotes a repo to PROVEN —
+        // which tier.mjs then renders as "a mutation gate ran on GitHub's hardware and every mutant
+        // died". A comment saying the word was enough to earn that sentence.
+        //
+        // Two things are now required, and they are the two that today proved are separately missing
+        // in real repositories:
+        //   1. an actual INVOCATION, not the word — `witness.mjs mutate`, or the Action by uses:
+        //   2. a step that READS THE VERDICT. witness exits 0 even when mutants survive, so a
+        //      workflow that runs it and never checks cannot fail on a survivor. proof-of-play ran
+        //      that way for months and its gate had never tested anything at all.
+        // Without both, the run being green says nothing about mutants, so it is not PROVEN.
+        mutation: /witness(\.mjs)?\s+mutate\b|uses:\s*\S*witness|stryker\s+run|pitest|mutmut\s+run/i.test(text)
+                  && /"clean"|\bclean\b\s*[:=]|--fail-on|exit\s+1/.test(text),
         pinned: /witness@v?\d|--branch\s+v\d|ref:\s*v\d/i.test(text),
       });
     }
