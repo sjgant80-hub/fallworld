@@ -25,7 +25,8 @@ jobs:
         run: git clone --depth 1 --branch v0.2 https://github.com/sjgant80-hub/witness.git .witness
 
       - name: Tests must pass before anything is mutated
-        run: node tier.test.mjs
+        run: |
+          node --test tier.test.mjs pass.test.mjs
 
       # The mutation gate attacks the TESTS. A green suite sitting over a broken line is test-theatre,
       # and this is the step that catches it.
@@ -35,6 +36,7 @@ jobs:
             --cap 400 \
             --baseline witness.tier.baseline.json \
             --test "node tier.test.mjs" | tee gate.out
+          node .witness/witness.mjs mutate pass.mjs             --cap 400             --test "node --test pass.test.mjs" | tee -a gate.out
 
       # A gate that reports "not clean" and exits zero is decorative. This line is what makes the
       # workflow's own conclusion mean something.
@@ -42,8 +44,12 @@ jobs:
         run: |
           node -e "
             const out = require('fs').readFileSync('gate.out','utf8');
-            const m = /\"clean\":\s*(true|false)/.exec(out);
-            if (!m) { console.error('the gate produced no verdict at all'); process.exit(1); }
-            if (m[1] !== 'true') { console.error('mutants survived — those lines are test-theatre'); process.exit(1); }
-            console.log('gate clean');
+            // EVERY verdict in the file, not the first. Two kernels are gated into this one output,
+            // and .exec() stops at the first match — so a clean tier.mjs would have covered a dirty
+            // pass.mjs completely silently.
+            const all = [...out.matchAll(/\"clean\":\s*(true|false)/g)].map(m => m[1]);
+            if (all.length === 0) { console.error('the gate produced no verdict at all'); process.exit(1); }
+            if (all.length !== 2) { console.error('expected 2 gate verdicts, saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
+            if (all.some(v => v !== 'true')) { console.error('mutants survived — those lines are test-theatre'); process.exit(1); }
+            console.log(all.length + ' gates clean');
           "

@@ -143,6 +143,28 @@
   .wing h3{font-family:var(--serif);font-size:19px;color:var(--gold);margin:0 0 2px;font-weight:500}
   .wing h3 .ic{margin-right:8px;opacity:.85}
   .wing .wb{margin:0 0 10px;color:var(--dim);font-size:12.8px}
+  /* what a wing costs — read off the gated kernel, never typed into the page */
+  .wing h3 .price{float:right;font-family:var(--mono,ui-monospace,monospace);font-size:10.5px;
+    letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border-radius:999px;
+    border:1px solid var(--line);color:var(--dim);font-weight:400;margin-top:4px}
+  .wing h3 .price.free{color:#8fa98a;border-color:#3c4a39}
+  .wing h3 .price.pass{color:var(--gold);border-color:#4a4239;background:rgba(190,160,90,.07)}
+
+  /* ── pricing ─────────────────────────────────────────────────────────────── */
+  .pricing{margin:38px 0 4px;padding-top:26px;border-top:1px solid var(--line)}
+  .pricing h3{font-family:var(--serif);font-size:19px;color:var(--gold);margin:0 0 2px;font-weight:500}
+  .psub{margin:0 0 14px;color:var(--dim);font-size:12.8px}
+  .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(15.5rem,1fr));gap:10px}
+  .plan{background:linear-gradient(180deg,var(--bg2),var(--bg1));border:1px solid var(--line);
+    border-left:3px solid var(--line);border-radius:9px;padding:13px 15px}
+  .plan.featured{border-left-color:var(--gold)}
+  .plan .pn{display:block;font-family:var(--serif);font-size:16.5px;color:var(--goldsoft);margin-bottom:1px}
+  .plan .pp{display:block;font-family:var(--mono,ui-monospace,monospace);font-size:10.5px;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+  .plan .pd{display:block;font-size:12.6px;color:var(--dim);line-height:1.55}
+  .cancel{margin:14px 0 0;padding:12px 15px;border:1px solid var(--line);border-radius:9px;
+    background:rgba(190,160,90,.045);color:var(--dim);font-size:12.6px;line-height:1.6}
+  .cancel strong{color:var(--goldsoft);font-weight:500}
   .rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:9px}
   .room{display:block;text-decoration:none;background:linear-gradient(180deg,var(--bg2),var(--bg1));
     border:1px solid var(--line);border-left:3px solid var(--line);border-radius:9px;padding:10px 12px}
@@ -209,7 +231,7 @@
 </div>
 
 <div class="wing">
-  <h3><span class="ic">⚔</span>Where you fight</h3>
+  <h3><span class="ic">⚔</span>Where you fight<span class="price free">free</span></h3>
   <p class="wb">The game part. Start at the Duel — it is the one that teaches you the rest.</p>
   <div class="rooms">
     <a class="room first" href="https://sjgant80-hub.github.io/fallkard/duel.html">
@@ -235,7 +257,7 @@
   </div>
 </div>
 <div class="wing">
-  <h3><span class="ic">⚙</span>Where you build</h3>
+  <h3><span class="ic">⚙</span>Where you build<span class="price free">free</span></h3>
   <p class="wb">Making your character better. This is the bit people lose evenings to.</p>
   <div class="rooms">
     <a class="room" href="https://sjgant80-hub.github.io/fallkard/loom.html">
@@ -257,7 +279,7 @@
   </div>
 </div>
 <div class="wing">
-  <h3><span class="ic">◈</span>Where the work gets checked</h3>
+  <h3><span class="ic">◈</span>Where the work gets checked<span class="price pass">Guild Pass</span></h3>
   <p class="wb">The bit nobody else has. Nothing here takes your word for it.</p>
   <div class="rooms">
     <a class="room" href="https://sjgant80-hub.github.io/fallkard/clinic.html">
@@ -279,7 +301,7 @@
   </div>
 </div>
 <div class="wing">
-  <h3><span class="ic">◊</span>Where you earn</h3>
+  <h3><span class="ic">◊</span>Where you earn<span class="price free">free</span></h3>
   <p class="wb">The money side. Your stuff is yours and it can pay you.</p>
   <div class="rooms">
     <a class="room" href="https://sjgant80-hub.github.io/fallkard/herd.html">
@@ -309,7 +331,7 @@
   </div>
 </div>
 <div class="wing">
-  <h3><span class="ic">❦</span>Where you think</h3>
+  <h3><span class="ic">❦</span>Where you think<span class="price free">free</span></h3>
   <p class="wb">Your own notes and memory, kept on your machine and nobody else’s.</p>
   <div class="rooms">
     <a class="room" href="https://sjgant80-hub.github.io/fallgarden/">
@@ -327,7 +349,7 @@
   </div>
 </div>
 <div class="wing">
-  <h3><span class="ic">⚖</span>Where the rules get decided</h3>
+  <h3><span class="ic">⚖</span>Where the rules get decided<span class="price free">free</span></h3>
   <p class="wb">The world is not run by us. It is run by whoever turns up.</p>
   <div class="rooms">
     <a class="room" href="https://sjgant80-hub.github.io/fallkard/govern.html">
@@ -344,6 +366,33 @@
     </a>
   </div>
 </div>
+<div class="pricing" id="pricing">
+  <h3>What costs money</h3>
+  <p class="psub">Most of it doesn't. Here is the whole of it, in three lines.</p>
+  <div class="plans">
+    <div class="plan">
+      <span class="pn">Free</span>
+      <span class="pp">£0</span>
+      <span class="pd">The games, your notes, your machine, and a say in the rules. Install it, own your didy, play forever. No account needed.</span>
+    </div>
+    <div class="plan">
+      <span class="pn">Buy a tool</span>
+      <span class="pp">once</span>
+      <span class="pd">Want one premium tool and nothing else? Buy it. It is yours, it works offline, and nobody can switch it off — including us.</span>
+    </div>
+    <div class="plan featured">
+      <span class="pn">Guild Pass</span>
+      <span class="pp">monthly</span>
+      <span class="pd">Checking that keeps running, build credit each month, and guild standing. The Pass buys the flow, never the things you already have.</span>
+    </div>
+  </div>
+  <p class="cancel"><strong>If you cancel</strong> you keep 6 kinds of thing —
+  your didy and everything it has learned, every tool you bought, every card you minted, your notes,
+  and the $KONO you earned. You stop 4: the monthly credit, the active checking,
+  guild standing, and the herd earning while you sleep. Nothing you own is behind the Pass. That is
+  the difference, and the code that enforces it is checked by a machine, not promised here.</p>
+</div>
+
 <h3 class="gearhead">And everything you carry</h3>
 <p class="gearsub">25 places above. Below is the gear — every tool in the estate, and how
 finished each one actually is.</p>
