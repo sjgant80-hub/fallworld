@@ -42,6 +42,10 @@ export const WINGS = [
       { n: 'The Proving Ground', u: G('earned'), s: 'You cannot say you can do a thing. You show it, and it gets checked.' },
       { n: 'The Gate', u: G('the-toll'), s: 'The wall on the edge of the world. Costs you a moment, costs a scraper months.' },
       { n: 'The Watchtower', u: G('sovereign-browser'), s: 'Look at the outside world, and judge what it did rather than what it said.' },
+      { n: 'The Witness', u: G('witness'), s: 'Breaks your code on purpose, one piece at a time, to find the tests that were only pretending to check it.' },
+      { n: 'The Receipt', u: G('proof-of-play'), s: 'Nothing gets listed on somebody saying it is good. It gets listed on a receipt anyone can re-run themselves.' },
+      { n: 'The Assessor', u: G('acg-assessor'), s: 'Marks a piece of work against the same rubric every time, and passes its own marking.' },
+      { n: 'The Mint', u: G('kcc-mint'), s: 'Stamps a build with where it came from — and every badge has to be earned by a check that actually ran.' },
     ],
   },
   {
