@@ -1,0 +1,59 @@
+name: refresh
+# ⚑ WHY THIS EXISTS. Every scanner in this repo was run by hand, so the hub only knew what somebody
+# remembered to re-run it for. Four organs of the trust rail shipped and the front page said nothing
+# about them for two days. A hub that has to be reminded is a hub that is wrong most of the time.
+#
+# This re-scans the estate on a schedule, rebuilds every generated surface, and commits only when
+# something actually moved — so a new build reaches the world without anybody chasing it.
+on:
+  schedule:
+    - cron: '17 6 * * *'      # daily, early
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+
+permissions:
+  contents: write
+
+jobs:
+  rescan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      # The live state of the estate, read from GitHub rather than from a file somebody edited.
+      - name: re-scan CI evidence, tiers and workflows
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          node scan-ci.mjs    || echo "scan-ci did not complete — keeping the previous evidence"
+          node scan-tiers.mjs || echo "scan-tiers did not complete — keeping the previous evidence"
+
+      # ⚑ Generated, never typed. If any of these disagree with what is committed, the committed
+      # page was stale — which is the whole failure this job exists to end.
+      - name: rebuild every generated surface
+        run: |
+          node build-index.mjs
+          node build-world.mjs
+          node build-blueprint.mjs
+
+      - name: the kernels still hold
+        run: node --test pass.test.mjs tier.test.mjs
+
+      # Only commit a real change. A no-op commit every morning teaches everyone to ignore the log.
+      - name: publish only if something actually moved
+        run: |
+          git config user.name  "fallworld-refresh"
+          git config user.email "noreply@github.com"
+          if git diff --quiet; then
+            echo "nothing moved — the hub is already current"
+          else
+            git add -A
+            git commit -m "refresh: the estate moved, so the hub did
+
+Re-scanned and regenerated. Committed by the scheduled refresh, not by hand — the hub used to
+know only what somebody remembered to re-run it for."
+            git push
+            echo "hub updated"
+          fi
