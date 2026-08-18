@@ -25,8 +25,15 @@
 // Pure and total. No clock, no I/O, no randomness.
 // ══════════════════════════════════════════════════════════════════════════════════════════════
 
+import { text, num, list, field, isThing } from './safe.mjs';
+
 /** What a thing has actually been shown to do. Computed from its CI, never declared. */
 export const TIER = Object.freeze({ prototype: 'prototype', works: 'works', proven: 'proven' });
+
+/** How rare a thing is, in the estate's own grading. Two different questions, deliberately kept
+ *  apart: rarity is what KIND of thing it is; the tier is whether it has been shown to work. A
+ *  legendary that nobody has ever checked is still a legendary nobody has ever checked. */
+export const RARITY = Object.freeze(['normal', 'magic', 'rare', 'set', 'unique']);
 const LADDER = [TIER.prototype, TIER.works, TIER.proven];
 export const tierRank = (t) => LADDER.indexOf(String(t));
 
@@ -57,9 +64,6 @@ const TOGETHER = Object.freeze([
   { needs: ['write', 'publish'], say: 'change your files AND publish the result' },
 ]);
 
-const text = (v) => { try { return String(v ?? ''); } catch { return ''; } };
-const list = (v) => (Array.isArray(v) ? v.map(text).filter(Boolean) : []);
-const num = (v, d = 0) => (Number.isFinite(v) ? v : d);
 
 /**
  * Declare an addon. `tier` and `evidence` are not the author's opinion — they come from what the
@@ -69,7 +73,7 @@ export function addon(spec) {
   // Read every field through one shield. A getter that throws would otherwise take the shop down
   // at the property access, before any check could run — and the shield also makes a type-guard in
   // front of it dead code, since a number or a string simply yields undefined.
-  const get = (k) => { try { return spec[k]; } catch { return undefined; } };
+  const get = (k) => field(spec, k);
   const id = text(get('id'));
   const price = num(get('price'), 0);
   const rawTier = text(get('tier'));
@@ -87,6 +91,8 @@ export function addon(spec) {
     mind: [0, 1, 2].includes(get('mind')) ? get('mind') : 0,
     price: Math.max(0, price),
     needs: list(get('needs')),
+    // How the estate itself grades it. Carried, never invented here.
+    rarity: RARITY.includes(text(get('rarity'))) ? text(get('rarity')) : 'normal',
   });
 }
 

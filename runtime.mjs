@@ -25,6 +25,8 @@
 // Pure and total: no clock, no I/O, no randomness.
 // ══════════════════════════════════════════════════════════════════════════════════════════════
 
+import { text, num, list, field, isThing } from './safe.mjs';
+
 /** What an addon can ask the host to do. One name per real capability, and no others exist. */
 export const ASKS = Object.freeze({
   read: 'read your notes and memory',
@@ -44,7 +46,6 @@ export const NEVER = Object.freeze({
 });
 const NEVER_NAMES = Object.keys(NEVER);
 
-const text = (v) => { try { return String(v ?? ''); } catch { return ''; } };
 
 /**
  * Judge one ask against the grant given at install time. Returns a decision, never a suggestion —

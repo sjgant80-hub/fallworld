@@ -21,6 +21,7 @@
 // Pure and total: no clock, no I/O, no randomness.
 // ══════════════════════════════════════════════════════════════════════════════════════════════
 import { node, walk } from './vendor/fall-os/walk.mjs';
+import { text, num, list, field, isThing } from './safe.mjs';
 
 /** The rungs, bottom (cheapest to you) first. `holds` is the largest job the rung can carry. */
 export const RUNGS = Object.freeze([
@@ -40,8 +41,6 @@ export const DEFAULT_PURSE = 20;
 // Shorter than this is somebody testing the box, not a key. Both providers' keys are far longer.
 export const KEY_MIN = 9;
 
-const text = (v) => { try { return String(v ?? ''); } catch { return ''; } };
-const num = (v, d = 0) => (Number.isFinite(v) ? v : d);
 
 /**
  * What you can actually reach right now. Deliberately blunt: a model you own but have not started
@@ -51,7 +50,7 @@ export function reach(state) {
   // Every field read through one shield: a getter that throws must not take the client down, and
   // the shield also makes a type-guard in front of it dead code — a number or a string just yields
   // undefined either way.
-  const get = (k) => { try { return state[k]; } catch { return undefined; } };
+  const get = (k) => field(state, k);
   const keys = (() => {
     const k = get('keys');
     if (!k || typeof k !== 'object') return [];

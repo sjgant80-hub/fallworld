@@ -176,7 +176,11 @@ test('⚑ the wings priced here are the wings the world actually has', async () 
   // "proof". Every lookup missed, every wing silently fell back to free, and the page cheerfully
   // told visitors the subscription zone was free. Two lists meaning the same thing is one bug
   // waiting for the case that separates them — the third time that shape has cost something here.
-  const { WINGS: WORLD } = await import('./rooms.mjs');
+  // The world is data now rather than a module — see the note at the top of rooms.test.mjs. The
+  // check is the same one: two lists meaning the same thing is a bug waiting for the case that
+  // separates them, and it has cost something here three times.
+  const { readFileSync } = await import('node:fs');
+  const { wings: WORLD } = JSON.parse(readFileSync(new URL('./rooms.json', import.meta.url), 'utf8'));
   const worldIds = WORLD.map(w => w.id).sort();
   assert.deepEqual([...WINGS].sort(), worldIds,
     'the price list and the world must name the same six wings');

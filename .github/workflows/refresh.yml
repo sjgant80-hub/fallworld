@@ -40,7 +40,7 @@ jobs:
           # independent reasons it could never refresh anything — while sitting in the repo looking
           # like a scheduled refresh that did. Those two are regenerated locally and committed; the
           # client is generated from world.json, which is in the repo, so it can and does run here.
-          node build-client.mjs
+          node scripts/build-client.mjs
 
       - name: the kernels still hold
         run: node --test pass.test.mjs tier.test.mjs client.test.mjs

@@ -13,6 +13,8 @@
   --ink:#e2e8f0; --mid:#8d99a8; --faint:#5b6675;
   --gold:#dcb264; --gold-deep:#7d6224;
   --mine:#54d199; --rent:#e08a45; --stop:#dd6055; --cool:#5fa8e8;
+  /* the estate's own grades, coloured the way a loot game colours them */
+  --r-normal:#c8cdd6; --r-magic:#6f9df0; --r-rare:#e2cf62; --r-set:#4fd18f; --r-unique:#d0a05f;
   --mono:ui-monospace,'SF Mono',Menlo,Consolas,'Cascadia Mono',monospace;
   --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 }
@@ -48,6 +50,29 @@ a{color:var(--cool)}
 #topRight button:hover{border-color:var(--gold);color:var(--gold)}
 @media (max-width:720px){ #top{grid-template-columns:1fr auto} .xp{grid-column:1/-1} }
 
+/* the guide: one voice, one line, always skippable */
+#npc{background:linear-gradient(180deg,var(--deck),var(--sunk));border-bottom:1px solid var(--edge);
+  padding:12px 16px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:start;flex:0 0 auto}
+#npc.gone{display:none}
+#npc .face{width:30px;height:30px;border-radius:50%;border:1px solid var(--gold-deep);display:grid;place-items:center;
+  font-size:15px;background:var(--void);flex:0 0 auto}
+#npc .said{min-width:0}
+#npc .said .l{font-size:15px;line-height:1.5}
+#npc .said .a{font-size:12.5px;color:var(--faint);margin-top:4px}
+#npc .said .n{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-top:6px}
+#npc .x{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+#npc .x button{background:none;border:1px solid var(--edge);color:var(--faint);border-radius:3px;padding:2px 8px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+#npc .x button:hover{border-color:var(--gold);color:var(--gold)}
+#npc .x .step{font-family:var(--mono);font-size:9.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+.unlocked{position:fixed;left:50%;bottom:54px;transform:translateX(-50%);z-index:20;
+  background:var(--deck);border:1px solid var(--gold);border-radius:5px;padding:9px 16px;
+  display:flex;gap:10px;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.5);
+  animation:rise .35s ease}
+.unlocked .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+@keyframes rise{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.lockedNote{border:1px dashed var(--edge);border-radius:5px;padding:14px 16px;color:var(--faint);font-size:13.5px}
+
 #body{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:auto minmax(0,1fr)}
 nav{background:var(--deck);border-right:1px solid var(--edge);display:flex;flex-direction:column;padding:8px 6px;gap:3px;overflow-y:auto}
 nav button{display:flex;align-items:center;gap:9px;background:none;border:1px solid transparent;border-radius:4px;
@@ -69,6 +94,16 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .card.proven{border-left-color:var(--mine)} .card.works{border-left-color:var(--cool)} .card.prototype{border-left-color:var(--faint)}
 .card .r1{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .card .nm{font-weight:650}
+.card.n-normal .nm{color:var(--r-normal)} .card.n-magic .nm{color:var(--r-magic)}
+.card.n-rare .nm{color:var(--r-rare)} .card.n-set .nm{color:var(--r-set)} .card.n-unique .nm{color:var(--r-unique)}
+.card.n-magic{border-left-color:var(--r-magic)} .card.n-rare{border-left-color:var(--r-rare)}
+.card.n-set{border-left-color:var(--r-set)} .card.n-unique{border-left-color:var(--r-unique)}
+.rar{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.rar.n-normal{color:var(--r-normal)} .rar.n-magic{color:var(--r-magic)} .rar.n-rare{color:var(--r-rare)}
+.rar.n-set{color:var(--r-set)} .rar.n-unique{color:var(--r-unique)}
+.tool.n-magic{border-left-color:var(--r-magic)} .tool.n-rare{border-left-color:var(--r-rare)}
+.tool.n-set{border-left-color:var(--r-set)} .tool.n-unique{border-left-color:var(--r-unique)}
+.slot .fn{color:var(--ink)}
 .card .d{font-size:12.5px;color:var(--mid)}
 .tag{font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;border:1px solid var(--edge);
   border-radius:99px;padding:1px 7px;color:var(--faint);white-space:nowrap}
@@ -135,8 +170,40 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .wing{margin-bottom:22px} .wing .wh{display:flex;align-items:baseline;gap:9px;margin-bottom:6px}
 .wing .ic{font-size:17px} .wing .wb{font-size:13px;color:var(--mid);margin:0 0 9px}
 
+
+/* ── the cockpit: talk on the left, your didy and its kit on the right ───── */
+.cockpit{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,330px);gap:14px;align-items:start}
+@media (max-width:900px){ .cockpit{grid-template-columns:1fr} }
+.rig{border:1px solid var(--edge);border-radius:8px;background:var(--deck);padding:14px;position:sticky;top:0}
+.rig .who{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);text-align:center}
+.rig .ring{width:74px;height:74px;margin:10px auto;border-radius:50%;border:2px solid var(--gold-deep);
+  display:grid;place-items:center;font-size:28px;background:var(--void);transition:box-shadow .3s,border-color .3s}
+.rig.powered .ring{border-color:var(--mine);box-shadow:0 0 20px color-mix(in srgb,var(--mine) 35%,transparent)}
+.rig .can{font-size:12.5px;color:var(--mid);text-align:center;line-height:1.45}
+.rig .can b{color:var(--mine)}
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 0}
+.slot{border:1px dashed var(--edge);border-radius:6px;min-height:58px;display:grid;place-items:center;padding:7px;
+  text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+  transition:border-color .15s,background .15s}
+.slot.over{border-color:var(--gold);border-style:solid;background:color-mix(in srgb,var(--gold) 12%,transparent)}
+.slot.filled{border-style:solid;border-color:var(--mine);background:var(--sunk)}
+.slot .fn{font-family:var(--sans);font-size:12.5px;font-weight:650;letter-spacing:0;text-transform:none;color:var(--mine)}
+.slot .pull{background:none;border:none;color:var(--faint);cursor:pointer;font-size:9.5px;text-decoration:underline;margin-top:2px}
+.stats{display:grid;gap:5px;border-top:1px solid var(--edge-soft);padding-top:10px;margin-top:4px}
+.stat{display:flex;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:11px;color:var(--faint)}
+.stat b{color:var(--ink);font-variant-numeric:tabular-nums}
+.stat b.m{color:var(--mine)} .stat b.r{color:var(--rent)}
+.tools{display:grid;gap:6px;margin-top:10px;border-top:1px solid var(--edge-soft);padding-top:10px}
+.tool{border:1px solid var(--edge);border-left-width:3px;border-radius:5px;background:var(--sunk);padding:7px 9px;cursor:grab;user-select:none}
+.tool:active{cursor:grabbing}
+.tool.dragging{opacity:.45}
+.tool.proven{border-left-color:var(--mine)} .tool.works{border-left-color:var(--cool)} .tool.prototype{border-left-color:var(--faint)}
+.tool .tn{font-weight:650;font-size:12.5px}
+.tool .grab{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
 #log{border-top:1px solid var(--edge);background:var(--deck);flex:0 0 auto;display:flex;gap:9px;align-items:center;
   padding:8px 14px;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+#log .by{font-family:var(--mono);font-size:10px;color:var(--faint);white-space:nowrap;letter-spacing:.06em}
+#log .by b{color:var(--gold)}
 #log .line{flex:1 1 auto;min-width:0;font-size:12.5px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -152,12 +219,17 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
   <div id="topRight"><button type="button" id="install">install</button></div>
 </div>
 
+<div id="npc"></div>
+
 <div id="body">
   <nav id="nav"></nav>
   <main><div class="panel" id="panel"></div></main>
 </div>
 
-<div id="log"><span class="line" id="logline">loading…</span></div>
+<div id="log">
+  <span class="line" id="logline">loading…</span>
+  <span class="by">powered by <b>fall&middot;os</b></span>
+</div>
 
 <script type="module">
 /*__KERNEL__*/
@@ -170,13 +242,15 @@ const $ = (s) => document.querySelector(s);
 const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; };
 
 const SAVE = 'fallworld.character.v1';
-const blank = () => ({ name: 'you', bags: [], keys: {}, ran: [], localUp: false, last: '' });
+const blank = () => ({ name: 'you', bags: [], slots: [null, null, null, null, null, null], keys: {}, ran: [], localUp: false, last: '', picked: 0 });
 const load = () => { try {
   const c = JSON.parse(localStorage.getItem(SAVE) || '{}');
   const b = blank();
   return {
     name: typeof c.name === 'string' && c.name.trim() ? c.name.trim().slice(0, 24) : b.name,
     bags: Array.isArray(c.bags) ? c.bags.filter(x => typeof x === 'string') : [],
+    slots: Array.isArray(c.slots) ? c.slots.slice(0, 6) : [null, null, null, null, null, null],
+    picked: Number.isFinite(c.picked) ? c.picked : 0,
     keys: (c.keys && typeof c.keys === 'object') ? c.keys : {},
     ran: Array.isArray(c.ran) ? c.ran.filter(x => x && typeof x === 'object') : [],
     localUp: c.localUp === true,
@@ -214,14 +288,58 @@ const PANELS = [
 ];
 let at = 'didy';
 
+// ⚑ ONE THING AT A TIME. A screen of panels nobody has a reason for yet is a manual, only harder to
+// read. Each opens when the thing that makes it make sense has been done — and a shut one says what
+// would open it, so nothing is ever mysteriously missing.
+// ⚑ WHAT IS NOT OPEN IS NOT DRAWN. Greying out six panels is the same as showing somebody six
+// panels: they still have to look at each one and work out that they cannot have it. At level one
+// you do not see the raid finder faded — it is not there, and it arrives with a moment.
+let shown = new Set();
 function drawNav() {
   const n = $('#nav'); n.replaceChildren();
+  const open = new Set(where(me).open);
   for (const p of PANELS) {
-    const b = el('button', p.id === at ? 'on' : ''); b.type = 'button'; b.title = `${p.lb} (${p.key})`;
+    if (!open.has(p.id)) continue;
+    const b = el('button', p.id === at ? 'on' : '');
+    b.type = 'button'; b.title = `${p.lb} (${p.key})`;
     b.append(el('span', 'ic', p.ic), el('span', 'lb', p.lb), el('span', 'k', p.key));
     b.addEventListener('click', () => { at = p.id; draw(); });
     n.append(b);
   }
+  // The moment. Nothing arrives silently — you are told what you just got, once.
+  const fresh = [...open].filter(x => !shown.has(x));
+  if (shown.size && fresh.length) {
+    const names = fresh.map(x => (PANELS.find(p => p.id === x) || {}).lb).filter(Boolean);
+    if (names.length) unlockFlash(names);
+  }
+  shown = open;
+}
+
+function unlockFlash(names) {
+  const f = el('div', 'unlocked');
+  f.append(el('span', 'k', 'opened'), el('span', null, names.join(' · ')));
+  document.body.append(f);
+  setTimeout(() => f.remove(), 3200);
+}
+
+function drawNpc() {
+  const strip = $('#npc');
+  const line = speak(me);
+  if (!line) { strip.classList.add('gone'); return; }
+  strip.classList.remove('gone');
+  strip.replaceChildren();
+  strip.append(el('div', 'face', '◈'));
+  const said = el('div', 'said');
+  said.append(el('div', 'l', line.says));
+  if (line.aside) said.append(el('div', 'a', line.aside));
+  said.append(el('div', 'n', '→ ' + line.next));
+  strip.append(said);
+  const x = el('div', 'x');
+  x.append(el('div', 'step', `${line.step}/${line.of}`));
+  const off = el('button', null, line.last ? 'thanks' : 'I am fine'); off.type = 'button';
+  off.addEventListener('click', () => { me.guideOff = true; save(); draw(); });
+  x.append(off);
+  strip.append(x);
 }
 
 function head(title, lead) {
@@ -235,22 +353,32 @@ function head(title, lead) {
 const P = {
   didy() {
     const f = document.createDocumentFragment();
-    f.append(head('Your didy',
-      'Tell it what you are trying to decide or get done. It reads your own words for signals, lays out the ways you could go, keeps the ones worth keeping and shows you the ones it set aside. You pick. It never picks for you.'));
+    // On the very first visit the guide has just said all this. Repeating it underneath is the
+    // wall of text this whole thing is trying not to be.
+    const first = standing(me).runs === 0;
+    if (!first) {
+      f.append(head('Your didy',
+        'It reads your own words, lays out the ways you could go, and shows the ones it set aside. You pick — it never picks for you.'));
+    }
 
     const ta = el('textarea'); ta.id = 'ask'; ta.value = me.last;
     ta.placeholder = 'e.g. should we stop Saturday deliveries — it saves money but the weekly customers will notice';
     ta.setAttribute('aria-label', 'What are you deciding');
-    f.append(ta);
 
     const row = el('div', 'row');
     const go = el('button', 'go', 'think it through'); go.type = 'button'; go.id = 'go';
     const where = el('span', 'where'); where.id = 'where';
     row.append(go, where);
-    f.append(row);
 
     const out = el('div'); out.id = 'out'; out.style.marginTop = '16px';
-    f.append(out);
+
+    // Talk on the left, your didy and its kit on the right — the same shape as the window Simon
+    // actually works in, so the tools, the stats and the conversation are never on separate screens.
+    const talk = el('div');
+    talk.append(ta, row, out);
+    const cockpit = el('div', 'cockpit');
+    cockpit.append(talk, drawRig());
+    f.append(cockpit);
 
     const have = reach(me);
     where.innerHTML = have.t1 ? 'ready · <b>your machine</b>'
@@ -264,7 +392,7 @@ const P = {
   keys() {
     const f = document.createDocumentFragment();
     f.append(head('Power',
-      'Everyone starts renting. Paste a key you already have and it works right now. Then build your own, and the same jobs start staying home — that is the only thing that really levels up here.'));
+      'Everyone starts out renting. Paste a key you already have and it works straight away. Later you can run your own, and the same jobs stop costing you anything.'));
 
     const have = reach(me);
     const rungs = el('div', 'rungs');
@@ -326,7 +454,7 @@ const P = {
 
   world() {
     const f = document.createDocumentFragment();
-    f.append(head('The world', 'Everything the estate has built, in the place it belongs. Your character comes with you.'));
+    f.append(head('The world', 'Other places you can go. Your didy comes with you.'));
     for (const w of WINGS) {
       const s = el('div', 'wing');
       const wh = el('div', 'wh'); wh.append(el('span', 'ic', w.icon), el('h2', null, w.title)); s.append(wh);
@@ -346,8 +474,9 @@ const P = {
   store() {
     const f = document.createDocumentFragment();
     f.append(head('The store',
-      'Every listing carries a rank worked out from what its own tests actually did on a machine — not what anybody said about it. Anything with no evidence is not listed, at any price.'));
-    f.append(el('div', 'note', `${SHOP.listed.length} listed · ${SHOP.refused.length} refused, because nothing runs a check on them. A shop that lists everything is a shop whose listings mean nothing.`));
+      'Every tool here is ranked by what it has actually been shown to do, not by what its maker says. Anything nobody has checked is not listed, at any price.'));
+    f.append(el('div', 'note', `${SHOP.listed.length} to be had · ${SHOP.refused.length} not good enough to list. `
+      + `Colour is how rare it is; the tag next to it is whether anybody has ever shown it works. They are different questions.`));
     const g = el('div', 'grid');
     for (const a of SHOP.listed.slice(0, 90)) g.append(card(a, me.bags.includes(a.id)));
     f.append(g);
@@ -358,7 +487,7 @@ const P = {
   bags() {
     const f = document.createDocumentFragment();
     const mine = owned();
-    f.append(head('Bags', 'What you have, and — the bit no app shop shows you — what they can do between them.'));
+    f.append(head('Bags', 'Everything you own, and what they can do between them.'));
     const h = held(mine);
     const emergent = h.combined.filter(c => c.emergent);
     if (emergent.length) {
@@ -380,7 +509,7 @@ const P = {
   sandbox() {
     const f = document.createDocumentFragment();
     f.append(head('Sandbox',
-      'An addon runs in a box with no way out: no network of its own, no access to this page, no keys, no storage. It can only ASK, and every ask is judged against what you allowed when you installed it. Here is one trying things, so you can watch the wall work.'));
+      'A tool you add runs in a box it cannot get out of. It can only ask for things, and it only gets what you allowed. Watch three of them try.'));
 
     const DEMO = [
       { id: 'polite', name: 'A well-behaved one', reach: ['read'],
@@ -449,9 +578,13 @@ const P = {
 };
 
 function card(a, installed) {
-  const c = el('div', 'card ' + (a.tier || 'prototype'));
+  const c = el('div', 'card ' + (a.tier || 'prototype') + ' n-' + (a.rarity || 'normal'));
   const r1 = el('div', 'r1');
-  r1.append(el('span', 'nm', a.name), el('span', 'tag ' + a.tier, a.tier));
+  r1.append(el('span', 'nm', a.name));
+  // Two different facts, side by side and never blurred: what KIND of thing it is, and whether
+  // anybody has ever shown it works. A legendary nobody has checked is still unchecked.
+  r1.append(el('span', 'rar n-' + (a.rarity || 'normal'), a.rarity || 'normal'));
+  r1.append(el('span', 'tag ' + a.tier, a.tier));
   if (a.price > 0) r1.append(el('span', 'tag price', '£' + a.price));
   if (installed) r1.append(el('span', 'tag on', 'installed'));
   c.append(r1, el('div', 'd', a.does));
@@ -571,6 +704,104 @@ async function askModel(providerId, system, user) {
   return out.text;
 }
 
+
+// ⚑ FITTING A TOOL IS REGISTERING AN ORGAN. Not a metaphor and not a picture of one: this calls the
+// same function fall-os names `train` — you train a didy by registering its organs. Take one out and
+// the didy genuinely cannot do that thing any more, because the conductor is rebuilt without it.
+function fit(id, slot) {
+  const a = byId.get(id);
+  if (!a || !me.bags.includes(id)) { say('You do not own that one yet.'); return; }
+  me.slots = me.slots || [null, null, null, null, null, null];
+  if (me.slots.includes(id)) { say(a.name + ' is already fitted.'); return; }
+  me.slots[slot] = id;
+  save(); draw();
+  say(a.name + ' fitted — your didy can do that now.');
+}
+
+// Built fresh every time, so a tool you pulled out is really gone. A didy that remembers an organ
+// you removed is lying about what it can do.
+function myDidy(asked) {
+  const d = makeDidy('fallworld');
+  register(d, 't0', t0Organ(asked));
+  for (const id of (me.slots || []).filter(Boolean)) {
+    const a = byId.get(id);
+    if (a) register(d, a.id, { phase: 'explore', from: a.name, does: a.does });
+  }
+  return d;
+}
+
+// The right-hand side of the cockpit: what your didy is, what it is carrying, and what it has cost.
+function drawRig() {
+  const fitted = (me.slots || []).map(id => (id ? byId.get(id) : null));
+  const on = fitted.filter(Boolean);
+  const rig = el('div', 'rig' + (on.length ? ' powered' : ''));
+  rig.append(el('div', 'who', 'your didy'));
+  const ring = el('div', 'ring'); ring.textContent = '\u25c8'; rig.append(ring);
+
+  const can = el('div', 'can');
+  can.innerHTML = on.length
+    ? 'it can also <b>' + on.map(a => esc(a.does.split(/[.\u00b7]/)[0].trim().toLowerCase()).slice(0, 46)).join('</b>, <b>') + '</b>'
+    : 'right now it reads your words and lays out your options. Drag something in to give it more.';
+  rig.append(can);
+
+  const slots = el('div', 'slots');
+  fitted.forEach((a, i) => {
+    const d = el('div', 'slot' + (a ? ' filled' : ''));
+    if (a) {
+      d.append(el('div', 'fn', a.name));
+      const pull = el('button', 'pull', 'take out'); pull.type = 'button';
+      pull.addEventListener('click', () => {
+        me.slots[i] = null; save(); draw();
+        say(a.name + ' taken out. Your didy cannot do that any more.');
+      });
+      d.append(pull);
+    } else d.textContent = 'empty';
+    d.addEventListener('dragover', (ev) => { ev.preventDefault(); d.classList.add('over'); });
+    d.addEventListener('dragleave', () => d.classList.remove('over'));
+    d.addEventListener('drop', (ev) => { ev.preventDefault(); d.classList.remove('over'); fit(ev.dataTransfer.getData('text/plain'), i); });
+    slots.append(d);
+  });
+  rig.append(slots);
+
+  // stats, read off what actually happened
+  const t = tally(me.ran);
+  const st = el('div', 'stats');
+  const line = (k, v, cls) => { const r = el('div', 'stat'); r.append(el('span', null, k)); const b = el('b', cls || null, v); r.append(b); return r; };
+  st.append(line('jobs run', String(t.runs)));
+  st.append(line('on your machine', String(t.yours), 'm'));
+  st.append(line('rented', String(t.rented), t.rented ? 'r' : null));
+  st.append(line('spent', String(t.spent), t.spent ? 'r' : null));
+  st.append(line('tools fitted', on.length + '/6'));
+  // ⚑ THE NUMBER THAT GOES UP. Power is what you have assembled: each tool your didy carries is one
+  // more thing it can do without renting. It is the reason to keep adding, and it is honest — it
+  // counts what is actually in the slots, not what you own and left in a drawer.
+  st.append(line('power', String(on.length * 10 + t.yours), 'm'));
+  rig.append(st);
+
+  // what you own but have not fitted — the things you drag
+  const spare = owned().filter(a => !(me.slots || []).includes(a.id));
+  const tools = el('div', 'tools');
+  if (!spare.length) {
+    tools.append(el('div', 'quiet', owned().length ? 'Everything you own is fitted.' : 'Nothing to fit yet — the store fills this.'));
+  }
+  for (const a of spare) {
+    const tl = el('div', 'tool ' + (a.tier || 'prototype') + ' n-' + (a.rarity || 'normal'));
+    tl.draggable = true;
+    tl.append(el('div', 'tn', a.name), el('div', 'grab', 'drag into a slot'));
+    tl.addEventListener('dragstart', (ev) => { ev.dataTransfer.setData('text/plain', a.id); tl.classList.add('dragging'); });
+    tl.addEventListener('dragend', () => tl.classList.remove('dragging'));
+    // No drag on a phone: a tap drops it into the first free slot instead.
+    tl.addEventListener('click', () => {
+      const free = (me.slots || []).findIndex(x => !x);
+      if (free < 0) { say('Every slot is full — take one out first.'); return; }
+      fit(a.id, free);
+    });
+    tools.append(tl);
+  }
+  rig.append(tools);
+  return rig;
+}
+
 // ── running the real conductor ────────────────────────────────────────────────────────────────
 async function probeLocal() {
   try {
@@ -590,17 +821,18 @@ function runDidy(what, out, where) {
 
   // ⚑ The conductor itself needs no model at all: t0 is deterministic. So the page always works,
   // key or no key — and the rung only decides whether it can also be put into better words.
-  const didy = makeDidy('fallworld');
   const organ = t0Organ(asked);
-  register(didy, 't0', organ);
+  const didy = myDidy(asked);
   const run = conduct(didy, asked, { n: 6 });
+  const carrying = Object.keys(didy.organs).filter(k => k !== 't0');
   const ev = organ.evidence;
 
   me.ran.push({ rung: 't0', mind: 0, cost: 0 });
   save();
 
   const note = el('div', 'note');
-  note.textContent = summarise(run.field, ev);
+  note.textContent = summarise(run.field, ev)
+    + (carrying.length ? ' Your didy used ' + carrying.length + ' of your own tools on this.' : '');
   out.append(note);
 
   if (!ev.found) {
@@ -660,7 +892,7 @@ function runDidy(what, out, where) {
     });
   }
 
-  drawTop();
+  drawTop(); drawNav(); drawNpc();
   where.innerHTML = decision.refused
     ? `<b class="r">${decision.refused}</b>`
     : decision.yours ? 'ran on <b>your machine</b> · free'
@@ -696,6 +928,7 @@ function stanceCard(branch, kind, ev) {
   if (kind !== 'road') {
     const b = el('button', 'pick', 'take this one'); b.type = 'button';
     b.addEventListener('click', () => {
+      me.picked = (Number.isFinite(me.picked) ? me.picked : 0) + 1; save(); draw();
       say(`You took "${v.label || v.stance}". Nothing was decided for you — that was yours.`);
       d.classList.add('top');
       b.disabled = true; b.textContent = 'taken';
@@ -706,8 +939,19 @@ function stanceCard(branch, kind, ev) {
 }
 
 function draw() {
-  drawTop(); drawNav();
+  drawTop(); drawNav(); drawNpc();
   const p = $('#panel'); p.replaceChildren();
+  if (!isOpen(me, at)) {
+    // Never a dead end: it says exactly what would open it, and takes you back to doing that.
+    const shutList = locked(me);
+    const box = el('div', 'lockedNote');
+    box.append(el('div', null, `Not open yet — ${shutList.opener[at] || 'keep going'}.`));
+    const b = el('button', 'act', 'back to your didy'); b.type = 'button'; b.style.marginTop = '10px';
+    b.addEventListener('click', () => { at = 'didy'; draw(); });
+    box.append(b);
+    p.append(box);
+    return;
+  }
   p.append((P[at] || P.didy)());
   document.querySelector('main').scrollTop = 0;
 }

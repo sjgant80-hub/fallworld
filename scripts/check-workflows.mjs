@@ -6,7 +6,7 @@
 // repo looked like it had a working scheduled job that had in fact never parsed once.
 import { readFileSync, readdirSync } from 'node:fs';
 
-const DIR = '.github/workflows';
+const DIR = new URL('../.github/workflows', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 let bad = 0;
 
 for (const f of readdirSync(DIR)) {

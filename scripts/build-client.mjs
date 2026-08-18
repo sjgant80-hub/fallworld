@@ -14,7 +14,8 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-const here = dirname(fileURLToPath(import.meta.url));
+// One level down from the repo now: build tooling is not part of the gated product surface.
+const here = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (f) => readFileSync(join(here, f), 'utf8').split('\r\n').join('\n');
 
 /** Wrap one module so its private helpers cannot collide with anybody else's. */
@@ -39,6 +40,7 @@ function scope(src, label) {
 
 // Dependency order: the primitives first, then what stands on them.
 const MODULES = [
+  ['safe.mjs', 'reading things that might not be there'],
   ['vendor/fall-os/core.mjs', 'fall-os · core'],
   ['vendor/fall-os/shadow.mjs', 'fall-os · shadow'],
   ['vendor/fall-os/didy.mjs', 'fall-os · didy'],
@@ -49,6 +51,8 @@ const MODULES = [
   ['client.mjs', 'the store'],
   ['providers.mjs', 'talking to a paid model'],
   ['runtime.mjs', 'the wall round an addon'],
+  ['module.mjs', 'what an addon has to be'],
+  ['guide.mjs', 'the one who shows you round'],
 ];
 
 // ── the catalogue, from what the estate's CI actually ran ─────────────────────────────────────
@@ -79,15 +83,21 @@ const catalogue = world.items.filter(i => i && !i.private).map(i => {
     tier: p.tier || null,
     evidence: p.workflow ? `${p.workflow}${p.sha ? ' @ ' + String(p.sha).slice(0, 7) : ''}` : null,
     reach: k.reach || [], mind: k.mind || 0, price: k.price || 0,
+    // ⚑ The estate already grades its own things the way a loot game does — normal, magic, rare,
+    // set, unique — and that grading is in world.json, computed, not typed. Carrying it through is
+    // what makes the shop read like a loot list instead of a spreadsheet.
+    rarity: i.tier || 'normal', label: i.label || '',
   };
 });
 
-// rooms.mjs is the ONE source for where the fall products live. Read, never restated.
-const rooms = read('rooms.mjs');
-const roomBlock = rooms
-  .replace(/^\s*import\s[^\n]*\n/gm, '')
-  .replace(/^export\s+default\s[^\n]*\n/gm, '')
-  .replace(/^export\s+(const|function)\s/gm, '$1 ');
+// ⚑ rooms.json is the ONE source for where the fall products live — read, never restated. It is
+// JSON rather than a module because it is data, and a mutation gate handed a file of pure data
+// correctly reports that there was nothing in it to break, so it was never really tested. Data goes
+// in data files, checked by integrity tests; only things with behaviour sit in the gated surface.
+const world_ = JSON.parse(read('rooms.json'));
+const roomBlock = `const WINGS = ${JSON.stringify(world_.wings)};\n`
+  + `const WAY_IN = ${JSON.stringify(world_.wayIn)};\n`
+  + `const ROOM_COUNT = ${world_.roomCount};`;
 
 const kernel = [
   ...MODULES.map(([f, label]) => scope(read(f), label)),
@@ -98,7 +108,7 @@ const kernel = [
 const out = read('client.html').replace('/*__KERNEL__*/', () => kernel);
 if (out.includes('/*__KERNEL__*/')) throw new Error('the kernel never went in');
 for (const must of ['function conduct(', 'function t0Organ(', 'function route(', 'function store(',
-                    'function buildCall(', 'function judge(', 'function phrase(', 'const WINGS']) {
+                    'function buildCall(', 'function judge(', 'function phrase(', 'function speak(', 'const WINGS']) {
   if (!out.includes(must)) throw new Error(`${must.trim()} is missing — the page would be a drawing of the product`);
 }
 const script = out.slice(out.indexOf('<script type="module">'), out.lastIndexOf('</script>'));

@@ -8,7 +8,9 @@
 // index — nothing on this page is typed by hand, so it cannot quietly go out of date.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tierOf, tally } from './tier.mjs';
-import { WINGS, WAY_IN, ROOM_COUNT } from './rooms.mjs';
+// The world is data now, not a module — see rooms.test.mjs for why.
+const world_ = JSON.parse(readFileSync(join(here, 'rooms.json'), 'utf8'));
+const { wings: WINGS, wayIn: WAY_IN, roomCount: ROOM_COUNT } = world_;
 
 const EVIDENCE = existsSync('tier-evidence.json') ? JSON.parse(readFileSync('tier-evidence.json', 'utf8')) : {};
 const idx = JSON.parse(readFileSync('C:/Users/sjgan/.claude/projects/C--Users-sjgan--claude/memory/estate-index.json', 'utf8'));

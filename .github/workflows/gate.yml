@@ -29,16 +29,16 @@ jobs:
       # Catches the mistake that reports itself as nothing: a line pasted into a run: | block at the
       # wrong indent ends the block, and GitHub says only "a workflow file issue".
       - name: the workflows still parse as workflows
-        run: node check-workflows.mjs
+        run: node scripts/check-workflows.mjs
 
       # ⚑ fallworld does not own an engine. If fall-os has moved and this repo has not, the game is
       # quietly running last month's OS — so the copies are checked, not trusted.
       - name: still in step with fall-os
-        run: node sync-fallos.mjs --check
+        run: node scripts/sync-fallos.mjs --check
 
       - name: Tests must pass before anything is mutated
         run: |
-          node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs providers.test.mjs runtime.test.mjs
+          node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs providers.test.mjs runtime.test.mjs module.test.mjs guide.test.mjs safe.test.mjs rooms.test.mjs
 
       # The mutation gate attacks the TESTS. A green suite sitting over a broken line is test-theatre,
       # and this is the step that catches it.
@@ -53,14 +53,17 @@ jobs:
           node .witness/witness.mjs mutate ladder.mjs --test node --test ladder.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate providers.mjs --test node --test providers.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate runtime.mjs --test node --test runtime.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate module.mjs --test node --test module.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate guide.mjs --test node --test guide.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate safe.mjs --test node --test safe.test.mjs | tee -a gate.out
 
       # ⚑ The page a visitor gets must be the page this build makes. Regenerate and diff: a stale
       # index.html means the shop on screen and the shop that was gated are two different shops.
       - name: the client is the kernel
         run: |
-          node build-client.mjs
+          node scripts/build-client.mjs
           git diff --exit-code -- index.html manifest.webmanifest sw.js || {
-            echo 'index.html is stale — run: node build-client.mjs && git add index.html'; exit 1; }
+            echo 'index.html is stale — run: node scripts/build-client.mjs && git add index.html'; exit 1; }
 
       # A gate that reports "not clean" and exits zero is decorative. This line is what makes the
       # workflow's own conclusion mean something.
@@ -76,7 +79,7 @@ jobs:
             // Counted from the kernels this job actually gates, never typed. A hard-coded 2 went
             // stale the moment a third kernel arrived, and a count nobody updates fails a build
             // that was perfectly clean — which is how a real check gets deleted.
-            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'providers.mjs', 'runtime.mjs'];
+            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'providers.mjs', 'runtime.mjs', 'module.mjs', 'guide.mjs', 'safe.mjs'];
             if (all.length !== KERNELS.length) { console.error('expected ' + KERNELS.length + ' gate verdicts (' + KERNELS.join(', ') + '), saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
             if (all.some(v => v !== 'true')) { console.error('mutants survived — those lines are test-theatre'); process.exit(1); }
             console.log(all.length + ' gates clean');

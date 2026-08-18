@@ -18,6 +18,8 @@
 // which keeps everything worth gating gateable.
 // ══════════════════════════════════════════════════════════════════════════════════════════════
 
+import { text, num, list, field, isThing } from './safe.mjs';
+
 /** Every provider this client knows, with the ONE host each key may ever be sent to. */
 export const PROVIDERS = Object.freeze({
   anthropic: Object.freeze({
@@ -36,7 +38,6 @@ export const PROVIDERS = Object.freeze({
 
 export const providerOf = (id) => PROVIDERS[String(id)] || null;
 
-const text = (v) => { try { return String(v ?? ''); } catch { return ''; } };
 
 /**
  * Does this look like a key for this provider? A warning, never a gate — providers change their
