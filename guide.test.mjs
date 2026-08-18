@@ -11,15 +11,18 @@ const ran = (n, rung = 't0') => ({ ran: Array.from({ length: n }, () => ({ rung 
 
 test('EVERY BEAT OPENS PANELS THAT ACTUALLY EXIST', () => {
   // A name no panel answers to is an unlock that never happens and never reports itself.
-  const real = new Set(['didy', 'keys', 'store', 'bags', 'sandbox', 'learn']);
+  const real = new Set(['didy', 'world', 'keys', 'store', 'bags', 'sandbox', 'learn']);
   for (const b of BEATS) {
     for (const o of b.opens) assert.ok(real.has(o), `beat "${b.id}" opens "${o}", which is not a panel`);
   }
 });
 
-test('a brand new arrival has exactly one thing open, and it is the one that works with nothing', () => {
+test('A BRAND NEW ARRIVAL CAN DO SOMETHING AND CAN LOOK AROUND', () => {
+  // ⚑ Only the things you earn are gated. The world itself is never shut — hiding it left a
+  // newcomer in an empty room with six blank slots and nothing at all to look at, which is not
+  // gradual, it is bare.
   const w = where(fresh);
-  assert.deepEqual(w.open, ['didy']);
+  assert.deepEqual([...w.open].sort(), ['didy', 'world']);
   assert.equal(w.beat.id, 'arrive');
   assert.equal(isOpen(fresh, 'store'), false);
   assert.equal(isOpen(fresh, 'keys'), false);
@@ -84,7 +87,7 @@ test('reading a player state survives anything at all', () => {
     assert.doesNotThrow(() => where(junk));
     assert.doesNotThrow(() => speak(junk));
     assert.doesNotThrow(() => locked(junk));
-    assert.deepEqual(where(junk).open, ['didy'], 'junk unlocked something');
+    assert.deepEqual([...where(junk).open].sort(), ['didy', 'world'], 'junk unlocked something it should not have');
   }
 });
 
@@ -99,6 +102,7 @@ test('THE SHOP OPENS BEFORE ANYTHING TECHNICAL DOES', () => {
   const justPicked = { ...ran(1), picked: 1 };
   assert.ok(isOpen(justPicked, 'store'), 'the shop was shut to somebody who had already used it once');
   assert.equal(isOpen(justPicked, 'keys'), false, 'the key panel arrived before there was any reason for it');
+  assert.ok(isOpen(justPicked, 'world'), 'the world was shut to somebody standing in it');
 });
 
 test('fitting a tool is its own beat, and it opens the key panel', () => {

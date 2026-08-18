@@ -125,6 +125,16 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .good{border-color:var(--mine);color:var(--mine)} .good b{color:var(--mine)}
 .quiet{color:var(--faint);font-style:italic;font-size:13px}
 
+
+/* ── the opening: what this is, said once, to somebody who has never seen it ─────────── */
+.opening{border:1px solid var(--edge);border-radius:8px;background:var(--deck);padding:18px 20px;margin-bottom:16px}
+.opening h2{font-size:23px;margin:0 0 10px}
+.opening p{margin:0 0 10px;color:var(--mid);max-width:66ch;font-size:15px}
+.opening p b{color:var(--ink);font-weight:650}
+.opening .three{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px}
+.opening .one{border-left:2px solid var(--gold-deep);padding-left:11px}
+.opening .one .t{font-weight:650;font-size:14px;margin-bottom:2px}
+.opening .one .d{font-size:13px;color:var(--faint);line-height:1.45}
 /* the didy */
 #ask{width:100%;min-height:90px;background:var(--sunk);border:1px solid var(--edge);border-radius:5px;
   padding:11px 13px;font-size:15px;resize:vertical}
@@ -229,6 +239,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 <div id="log">
   <span class="line" id="logline">loading…</span>
   <span class="by">powered by <b>fall&middot;os</b></span>
+  <a class="by" id="who" href="https://www.ai-nativesolutions.com/" target="_blank" rel="noopener"></a>
 </div>
 
 <script type="module">
@@ -280,7 +291,7 @@ function drawTop() {
 const PANELS = [
   { id: 'didy', ic: '◈', lb: 'Your didy', key: 'D' },
   { id: 'keys', ic: '🔑', lb: 'Power', key: 'P' },
-  { id: 'world', ic: '🗺', lb: 'World', key: 'M' },
+  { id: 'world', ic: '🗺', lb: 'The world', key: 'M' },
   { id: 'store', ic: '⚖', lb: 'Store', key: 'S' },
   { id: 'bags', ic: '🎒', lb: 'Bags', key: 'B' },
   { id: 'learn', ic: '❦', lb: 'Learn', key: 'L' },
@@ -353,12 +364,38 @@ function head(title, lead) {
 const P = {
   didy() {
     const f = document.createDocumentFragment();
-    // On the very first visit the guide has just said all this. Repeating it underneath is the
-    // wall of text this whole thing is trying not to be.
+    // ⚑ SAY WHAT THIS IS. An earlier version hid this on the first visit, on the theory that the
+    // guide had already said it — and a newcomer landed on six empty slots, six zeros and nothing
+    // explaining any of it. Gradual means you are eased into DOING the thing; it does not mean
+    // there is nothing on the screen to read. Games explain constantly — they just do it in
+    // context, while you are already playing.
     const first = standing(me).runs === 0;
-    if (!first) {
+    if (first) {
+      const o = el('div', 'opening');
+      o.append(el('h2', null, 'This is a didy. It is yours, and it runs on your machine.'));
+      const p1 = el('p');
+      p1.innerHTML = 'A didy is a helper you <b>assemble</b> rather than rent. Right now it can read what you '
+        + 'write and lay out the ways a decision could go — with no account, no key, and nothing sent anywhere. '
+        + 'Everything it works out traces back to words you actually typed.';
+      const p2 = el('p');
+      p2.innerHTML = 'It gets better as you add tools to it. Every tool in this world is a real, working thing — '
+        + 'an accountant, a solicitor, an adviser — and you drag them into your didy\u2019s slots to give it what they do.';
+      o.append(p1, p2);
+      const three = el('div', 'three');
+      for (const [t, d] of [
+        ['Start with nothing', 'It works before you set anything up. Type a real decision below and see.'],
+        ['Add tools to it', 'Anything you own drops into a slot and your didy can do that thing. Take it out and it cannot.'],
+        ['Own it, do not rent it', 'You can plug in a paid AI, and it will tell you every time it costs you. Or run your own and it costs nothing.'],
+      ]) {
+        const c = el('div', 'one');
+        c.append(el('div', 't', t), el('div', 'd', d));
+        three.append(c);
+      }
+      o.append(three);
+      f.append(o);
+    } else {
       f.append(head('Your didy',
-        'It reads your own words, lays out the ways you could go, and shows the ones it set aside. You pick — it never picks for you.'));
+        'It reads your own words, lays out the ways you could go, and shows the ones it set aside. You pick \u2014 it never picks for you.'));
     }
 
     const ta = el('textarea'); ta.id = 'ask'; ta.value = me.last;
@@ -755,7 +792,7 @@ function drawRig() {
         say(a.name + ' taken out. Your didy cannot do that any more.');
       });
       d.append(pull);
-    } else d.textContent = 'empty';
+    } else d.textContent = on.length ? 'empty' : 'drop a tool here';
     d.addEventListener('dragover', (ev) => { ev.preventDefault(); d.classList.add('over'); });
     d.addEventListener('dragleave', () => d.classList.remove('over'));
     d.addEventListener('drop', (ev) => { ev.preventDefault(); d.classList.remove('over'); fit(ev.dataTransfer.getData('text/plain'), i); });
@@ -767,6 +804,13 @@ function drawRig() {
   const t = tally(me.ran);
   const st = el('div', 'stats');
   const line = (k, v, cls) => { const r = el('div', 'stat'); r.append(el('span', null, k)); const b = el('b', cls || null, v); r.append(b); return r; };
+  // ⚑ Six zeros is not a scoreboard, it is a broken-looking screen. Numbers arrive when there is
+  // something to count; before that the panel says what it is for instead.
+  if (!t.runs && !on.length) {
+    st.append(el('div', 'quiet', 'Once you have run something, this is where what it cost you shows up.'));
+    rig.append(st);
+    return rigTail(rig, on);
+  }
   st.append(line('jobs run', String(t.runs)));
   st.append(line('on your machine', String(t.yours), 'm'));
   st.append(line('rented', String(t.rented), t.rented ? 'r' : null));
@@ -778,7 +822,12 @@ function drawRig() {
   st.append(line('power', String(on.length * 10 + t.yours), 'm'));
   rig.append(st);
 
-  // what you own but have not fitted — the things you drag
+  return rigTail(rig, on);
+}
+
+// What you own but have not fitted — the things you drag. Split out so the panel can return early
+// when there is nothing worth counting yet and still offer the tools.
+function rigTail(rig, on) {
   const spare = owned().filter(a => !(me.slots || []).includes(a.id));
   const tools = el('div', 'tools');
   if (!spare.length) {
@@ -890,6 +939,19 @@ function runDidy(what, out, where) {
       better.textContent = 'done';
       say(`${r.note}. Nothing it wrote changed a single score — every one of those was fixed before it was asked.`);
     });
+  }
+
+  // ⚑ THE OFFER IS ONLY MADE WHERE IT HAS BEEN EARNED. Every line is attached to a thing this
+  // person has actually just done — telling somebody they watched work come home when they never
+  // ran anything locally is the same lie the rest of this refuses.
+  const b = caption(me);
+  if (b) {
+    const box = el('div', 'bridge');
+    box.append(el('div', 'l', b.says));
+    const a = el('a'); a.href = b.href; a.target = '_blank'; a.rel = 'noopener'; a.textContent = b.then;
+    box.append(a);
+    box.append(el('div', 't', b.terms));
+    out.append(box);
   }
 
   drawTop(); drawNav(); drawNpc();

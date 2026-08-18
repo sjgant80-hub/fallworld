@@ -38,7 +38,7 @@ export const BEATS = Object.freeze([
     says: 'Tell me something you are actually trying to decide. Not a test — a real one. I will lay out the ways it could go.',
     aside: 'I am your didy, powered by fall\u00b7os. No account, no key, nothing to set up — this runs on your own machine.',
     next: 'type it in and press the button',
-    opens: ['didy'],
+    opens: ['didy', 'world'],
   },
   {
     id: 'thought',
@@ -46,7 +46,7 @@ export const BEATS = Object.freeze([
     says: 'That ran on your own machine. No AI, no key, nothing sent anywhere, nothing charged — and it still read your words back and told you which ones counted.',
     aside: 'Everything it scored traces to something you actually typed. If it found nothing, say more about what is at stake.',
     next: 'take one of them, or ignore the lot',
-    opens: ['didy'],
+    opens: ['didy', 'world'],
   },
   {
     id: 'chose',
@@ -54,7 +54,7 @@ export const BEATS = Object.freeze([
     says: 'That was yours. I lay them out and rank them; I never pick. The ones I set aside are kept on purpose — the road you nearly took is the one you want back when the first choice fails.',
     aside: null,
     next: 'now go and get your didy some tools',
-    opens: ['didy', 'store'],
+    opens: ['didy', 'world', 'store'],
   },
   {
     id: 'bought',
@@ -62,7 +62,7 @@ export const BEATS = Object.freeze([
     says: 'That is yours now. Everything in the shop is ranked by what it has actually been shown to do, never by what its maker claims — most are not good enough to list at all, and that is the shop working.',
     aside: 'Anything you own turns up beside your didy, ready to drag in.',
     next: 'drag it into one of your didy\u2019s slots',
-    opens: ['didy', 'store', 'bags'],
+    opens: ['didy', 'world', 'store', 'bags'],
   },
   {
     // ⚑ THE CORE LOOP, and it comes before anything technical. Buy a thing, drag it in, your didy
@@ -72,7 +72,7 @@ export const BEATS = Object.freeze([
     says: 'That is the whole shape of it. You buy a thing, you drag it in, and your didy can do that thing — an accountant, a solicitor, an adviser. Pull it back out and it cannot. The more you fit, the more it does on its own.',
     aside: 'That is how this beats one big rented model: yours is assembled out of specialists, and you own them.',
     next: 'try it with a real AI behind it',
-    opens: ['didy', 'store', 'bags', 'keys'],
+    opens: ['didy', 'world', 'store', 'bags', 'keys'],
   },
   {
     id: 'keyed',
@@ -80,7 +80,7 @@ export const BEATS = Object.freeze([
     says: 'With a key in, I can put those same options into the words of your actual situation. Watch the bar at the top when I do.',
     aside: 'The key stays in this browser and only ever goes to the company that issued it. This site has no server to send it to.',
     next: 'ask for it in your own terms',
-    opens: ['didy', 'store', 'bags', 'keys'],
+    opens: ['didy', 'world', 'store', 'bags', 'keys'],
   },
   {
     id: 'rented',
@@ -88,7 +88,7 @@ export const BEATS = Object.freeze([
     says: 'The bar moved. That one went out to somebody else\u2019s machine and cost you money — and it will say so every single time, because a cost you stop being shown is one you stop noticing.',
     aside: 'It only put things in better words. It could not change the ranking — that was settled before it was asked.',
     next: 'get that work back onto your own machine',
-    opens: ['didy', 'store', 'bags', 'keys'],
+    opens: ['didy', 'world', 'store', 'bags', 'keys'],
   },
   {
     id: 'local',
@@ -96,11 +96,14 @@ export const BEATS = Object.freeze([
     says: 'Now the same jobs stay home. That is the point of the whole thing: your bill goes down as you get better, not up. Nothing else you pay for works that way round.',
     aside: null,
     next: 'you have the run of the place now',
-    opens: ['didy', 'store', 'bags', 'keys', 'sandbox', 'learn'],
+    opens: ['didy', 'world', 'store', 'bags', 'keys', 'sandbox', 'learn'],
   },
 ]);
 
-const ALL = Object.freeze(['didy', 'keys', 'store', 'bags', 'sandbox', 'learn']);
+// ⚑ THE WORLD IS NEVER SHUT. Hiding it left a newcomer in an empty room with six blank slots and
+// nothing to look at — the map IS the place, and locking the place is not gradual, it is bare.
+// Only the things you earn by doing something are gated.
+const ALL = Object.freeze(['didy', 'world', 'keys', 'store', 'bags', 'sandbox', 'learn']);
 
 
 /** Read the player's state into the shape the beats ask about. Total: anything at all goes in. */

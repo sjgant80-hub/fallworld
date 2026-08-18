@@ -56,6 +56,7 @@ jobs:
           node .witness/witness.mjs mutate module.mjs --test node --test module.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate guide.mjs --test node --test guide.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate safe.mjs --test node --test safe.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate bridge.mjs --test node --test | tee -a gate.out
 
       # ⚑ The page a visitor gets must be the page this build makes. Regenerate and diff: a stale
       # index.html means the shop on screen and the shop that was gated are two different shops.
