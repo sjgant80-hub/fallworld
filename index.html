@@ -694,6 +694,214 @@ function summarise(field, ev) {
 return { SIGNALS, evidence, STANCES, scoreStance, t0Organ, summarise };
 })();
 
+// ── fall-os · t1 ──
+const { SYSTEM, buildPrompt, parseReply, deEcho, attach, phrase, unmoved } = (() => {
+// t1.mjs — TIER 1 · a real model, running in the visitor's own tab.
+//
+// Tier 0 gives a scored field of stances but cannot read a sentence. Tier 1 adds a small language
+// model — downloaded once, then run entirely in the browser on WebGPU — whose ONLY job is to say
+// each held stance in the terms of THIS decision. It phrases; it does not decide.
+//
+// ⚑ THE LOAD-BEARING CONSTRAINT. The page tells visitors: "the field, the gate and the shadow are
+// this same code either way." That has to be structurally true, not a promise. So this module never
+// returns a field — it returns PHRASINGS keyed to branches whose score, order, label and index are
+// copied from the tier-0 result. A model that hallucinates a score, invents a stance, reorders the
+// list or tries to award itself the win cannot move anything, because nothing it emits is ever read
+// as a number. The test suite attacks exactly that, with adversarial replies.
+//
+// The model call itself is INJECTED — `phrase(field, decision, generate)` takes an async
+// `generate(prompt) -> string`. Same seam the core uses for generate/score: the kernel stays pure,
+// deterministic and gateable, and WebLLM is wired to it in door.mjs. It can therefore be proven
+// without downloading a gigabyte, and the proof is about the logic rather than about one model's
+// mood on the day.
+
+const SYSTEM =
+  'You rewrite decision-making advice so it speaks to one specific situation. ' +
+  'You never choose between options, never rank them, never add options, and never mention scores. ' +
+  'You only restate the given approach in the words of the situation you are shown.';
+
+const clean = (s) => String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+
+/**
+ * The prompt. Numbered so the reply can be mapped back by position rather than by matching text —
+ * matching on the stance NAME would let a model rename a stance and have its line silently applied
+ * to a different one.
+ *
+ * The evidence is included because it is what makes the phrasing specific: the model is told which
+ * cue words were found, so it grounds its sentence in the visitor's own wording rather than
+ * inventing circumstances that were never mentioned.
+ */
+function buildPrompt(decision, holds, evidence) {
+  const dec = clean(decision) || '(no decision given)';
+  const list = (holds || []).map((h, n) =>
+    `${n + 1}. ${clean(h.value && h.value.label)} — ${clean(h.value && h.value.move)}`).join('\n');
+  const signals = evidence && evidence.found
+    ? evidence.signals.map(s => `${s.label} (${s.cues.join(', ')})`).join('; ')
+    : 'none detected';
+  return [
+    `THE DECISION: ${dec}`,
+    ``,
+    `SIGNALS FOUND IN IT: ${signals}`,
+    ``,
+    `APPROACHES TO RESTATE:`,
+    list,
+    ``,
+    `Rewrite each numbered approach as ONE short sentence naming what to actually do about THIS`,
+    `decision. Keep the same numbers and the same order. Do not add, drop, rank or compare them.`,
+    // Spelled out because repeating the input back is the characteristic small-model failure, and it
+    // is the one that superficially looks like a correct answer. The kernel refuses echoes anyway;
+    // saying it here means fewer of them to refuse.
+    `Do NOT repeat the approach's name or reuse its wording — write a new sentence that mentions the`,
+    `specifics of the situation above.`,
+    `Reply with only the numbered lines.`,
+  ].join('\n');
+}
+
+/**
+ * Read the reply back. Returns `byIndex` (1-based position → sentence) plus `ignored`, every line
+ * that did not parse, kept and reported.
+ *
+ * NOTHING IS SILENTLY DROPPED — the estate's rule, and it matters more here than usual: a small
+ * model preambles, bullets, repeats itself and stops early, and a parser that quietly discards the
+ * mess would report confident phrasings for some stances and leave others bare with no explanation.
+ */
+function parseReply(text, count) {
+  const n = Math.max(0, Math.floor(count || 0));
+  const byIndex = new Map();
+  const ignored = [];
+  for (const raw of String(text == null ? '' : text).split('\n')) {
+    // Small models bullet and bold their lists — `- **1.** do the thing` is a normal reply, not a
+    // malformed one. Strip the decoration before looking for the number, or every phrasing from a
+    // model that likes markdown is thrown away as unparseable.
+    const line = raw.trim().replace(/^[-*•\s]+/, '').replace(/\*\*/g, '').trim();
+    if (!line) continue;
+    const m = line.match(/^(\d{1,2})\s*[).:\]-]\s*(.+)$/);
+    if (!m) { ignored.push(line.slice(0, 120)); continue; }
+    const idx = Number(m[1]);
+    const body = clean(m[2]).replace(/^\*+|\*+$/g, '').trim();
+    // Out of range, or a repeat of a number already answered: kept and reported, never applied.
+    if (idx < 1 || idx > n || byIndex.has(idx) || !body) { ignored.push(line.slice(0, 120)); continue; }
+    byIndex.set(idx, body);
+  }
+  return { byIndex, ignored, parsed: byIndex.size, expected: n };
+}
+
+const norm = (s) => String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+
+/**
+ * Reject a "phrasing" that is just the built-in wording handed back.
+ *
+ * ⚑ FOUND BY RUNNING A REAL MODEL. A 360M model asked to rewrite `Verify before you commit — Decide
+ * what would prove this wrong` replies `Verify before you commit — Decide what would prove this
+ * wrong.` Every check upstream passes: it is a valid numbered line for a real stance. But showing it
+ * under a heading that says "in your words" tells the visitor a model did something for them when it
+ * did nothing, which is the precise flavour of theatre this estate exists to delete.
+ *
+ * Returns the usable remainder, or null when there is nothing but an echo. The stance NAME is
+ * stripped first, because prefixing the title is the small-model habit rather than the failure —
+ * what follows it may still be genuinely new.
+ */
+function deEcho(text, label, move) {
+  let body = clean(text);
+  if (!body) return null;
+  const nLabel = norm(label);
+  // "Verify before you commit — <rest>" / "Verify before you commit: <rest>"
+  if (nLabel && norm(body).startsWith(nLabel)) {
+    // If the pattern does not match, `replace` hands back the same string and the assignment is a
+    // no-op — so the only thing worth checking is that stripping left something behind. (An extra
+    // "and it actually changed" clause lived here until the mutation gate showed nothing could
+    // distinguish it: it was unreachable logic dressed as a safety check.)
+    const cut = clean(body.replace(/^[^—:\-]*[—:\-]\s*/, ''));
+    if (cut) body = cut;
+  }
+  const nBody = norm(body), nMove = norm(move);
+  if (!nBody) return null;
+  if (nBody === nMove || nBody === nLabel) return null;
+  // A model that pads the built-in sentence with a couple of words has still not said anything of
+  // its own; require that the reply is not simply the move with decoration around it.
+  if (nMove && nBody.includes(nMove)) return null;
+  return body;
+}
+
+/**
+ * Attach the model's sentences to the tier-0 branches.
+ *
+ * Every returned row carries the branch's OWN index, score and label, copied across. `phrased` is
+ * the only field the model contributes, and it is absent — not guessed — when the model did not
+ * produce a usable line for that row.
+ */
+function attach(holds, parsed) {
+  const list = holds || [];
+  return list.map((h, n) => {
+    const label = h.value && h.value.label, move = h.value && h.value.move;
+    const raw = parsed.byIndex.get(n + 1) || null;
+    return {
+      i: h.i,
+      score: h.score,
+      label,
+      move,
+      phrased: raw ? deEcho(raw, label, move) : null,
+      echoed: !!raw && deEcho(raw, label, move) === null,
+    };
+  });
+}
+
+/**
+ * The whole tier: prompt → model → attached phrasings, with a report of what the model actually
+ * managed. `generate` is injected and may throw or return junk; either way the caller still gets a
+ * complete set of rows, because the deterministic text is what is really being shown.
+ */
+async function phrase(decision, holds, evidence, generate) {
+  const list = holds || [];
+  const prompt = buildPrompt(decision, list, evidence);
+  let reply = '', failed = null;
+  try {
+    reply = typeof generate === 'function' ? await generate(prompt) : '';
+  } catch (e) {
+    failed = (e && e.message) ? e.message : String(e);
+  }
+  const parsed = parseReply(reply, list.length);
+  const rows = attach(list, parsed);
+  const got = rows.filter(r => r.phrased).length;
+  const echoed = rows.filter(r => r.echoed).length;
+  return {
+    rows, prompt, reply, failed,
+    covered: got,
+    echoed,
+    expected: list.length,
+    ignored: parsed.ignored,
+    // Said plainly so the UI can say it plainly. A tier that quietly half-worked is worse than one
+    // that admits it did: the visitor is being asked to trust the deterministic layer underneath.
+    // "Echoed" gets its own sentence because it is the characteristic failure of the small models
+    // this tier exists to run, and it is the one that most looks like success.
+    note: failed ? `the model failed (${failed}) — showing the built-in wording`
+      : got === 0 && echoed > 0 ? `the model only repeated the built-in wording back (${echoed} of ${list.length}) — a bigger model rewrites these properly`
+        : got === 0 ? 'the model returned nothing usable — showing the built-in wording'
+          : got < list.length ? `the model phrased ${got} of ${list.length}${echoed ? `, echoed ${echoed}` : ''} — the rest keep the built-in wording`
+            : `phrased all ${got} against your decision`,
+  };
+}
+
+/**
+ * The guard, exported so it can be asserted rather than assumed: are these rows still the tier-0
+ * field? Compares index, score and label pairwise. Used by the tests, and cheap enough that the UI
+ * can run it before it renders anything the model touched.
+ */
+function unmoved(holds, rows) {
+  const a = holds || [], b = rows || [];
+  if (a.length !== b.length) return false;
+  for (let n = 0; n < a.length; n++) {
+    if (a[n].i !== b[n].i) return false;
+    if (a[n].score !== b[n].score) return false;
+    if ((a[n].value && a[n].value.label) !== b[n].label) return false;
+  }
+  return true;
+}
+
+
+return { SYSTEM, buildPrompt, parseReply, deEcho, attach, phrase, unmoved };
+})();
+
 // ── the rungs ──
 const { RUNGS, rungOf, DEFAULT_PURSE, KEY_MIN, reach, route, tally, wouldSave, readout } = (() => {
 // ══════════════════════════════════════════════════════════════════════════════════════════════
@@ -1138,6 +1346,336 @@ function fromEstate(items, wings) {
 return { TIER, tierRank, TIER_MEANS, REACH, addon, listable, store, inspect, install, held, fromEstate };
 })();
 
+// ── talking to a paid model ──
+const { PROVIDERS, providerOf, looksRight, buildCall, readReply, goingTo, explainStatus } = (() => {
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+// providers.mjs — talking to a model you pay for, with your own key.
+//
+// The key lives in your browser and is sent to exactly one place: the host that issued it. It never
+// reaches this site, because this site has no server to reach.
+//
+// ⚑ A KEY GOES TO ITS OWN PROVIDER OR IT GOES NOWHERE. This is the whole of the security here and it
+// is enforced rather than promised: the host is baked into the provider, the caller cannot pass one
+// in, and `callFor` refuses any provider it does not recognise. A bug that let an Anthropic key be
+// posted to some other origin would be the single worst thing this client could do, so the URL is
+// never assembled from anything a caller controls.
+//
+// ⚑ AND IT NEVER QUIETLY SWAPS PROVIDER. If the one you asked for fails, that is the answer. Falling
+// back to a different model — or a different company — because the first one erred is how somebody
+// ends up billed by a service they never signed up to, on a request they never saw.
+//
+// The pure parts are here: building a call, and reading a reply. The fetch itself is the caller's,
+// which keeps everything worth gating gateable.
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+
+/** Every provider this client knows, with the ONE host each key may ever be sent to. */
+const PROVIDERS = Object.freeze({
+  anthropic: Object.freeze({
+    id: 'anthropic', name: 'Claude', host: 'api.anthropic.com',
+    model: 'claude-sonnet-4-5-20250929',
+    keyLooksLike: /^sk-ant-/,
+    where: 'console.anthropic.com',
+  }),
+  google: Object.freeze({
+    id: 'google', name: 'Gemini', host: 'generativelanguage.googleapis.com',
+    model: 'gemini-2.0-flash',
+    keyLooksLike: /^AIza/,
+    where: 'aistudio.google.com',
+  }),
+});
+
+const providerOf = (id) => PROVIDERS[String(id)] || null;
+
+const text = (v) => { try { return String(v ?? ''); } catch { return ''; } };
+
+/**
+ * Does this look like a key for this provider? A warning, never a gate — providers change their
+ * formats and refusing a valid key because it did not match a pattern is worse than a soft note.
+ */
+function looksRight(providerId, key) {
+  const p = providerOf(providerId);
+  const k = text(key).trim();
+  if (!p) return { ok: false, why: 'that is not a provider this client knows' };
+  if (k.length < 9) return { ok: false, why: 'that is too short to be a key' };
+  if (!p.keyLooksLike.test(k)) {
+    return { ok: true, warn: `${p.name} keys usually start differently — check you have not pasted the wrong one` };
+  }
+  return { ok: true };
+}
+
+/**
+ * Build the call. Returns everything the caller needs to fetch, and nothing it could get wrong:
+ * the URL is assembled here from the provider's own baked-in host.
+ */
+function buildCall(providerId, key, { system = '', user = '', maxTokens = 700 } = {}) {
+  const p = providerOf(providerId);
+  if (!p) throw new Error(`no such provider: ${text(providerId)}`);
+  const k = text(key).trim();
+  if (!k) throw new Error(`no ${p.name} key`);
+  const sys = text(system);
+  const msg = text(user);
+
+  if (p.id === 'anthropic') {
+    return {
+      url: `https://${p.host}/v1/messages`,
+      init: {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': k,
+          'anthropic-version': '2023-06-01',
+          // Required for a browser to call the API directly. Without it the request is refused by
+          // CORS and the failure looks like a network fault rather than a missing header.
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: p.model, max_tokens: maxTokens,
+          ...(sys ? { system: sys } : {}),
+          messages: [{ role: 'user', content: msg }],
+        }),
+      },
+    };
+  }
+
+  // Google takes the key in the query string, which is their design, not a choice made here.
+  return {
+    url: `https://${p.host}/v1beta/models/${p.model}:generateContent?key=${encodeURIComponent(k)}`,
+    init: {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        ...(sys ? { systemInstruction: { parts: [{ text: sys }] } } : {}),
+        contents: [{ role: 'user', parts: [{ text: msg }] }],
+        generationConfig: { maxOutputTokens: maxTokens },
+      }),
+    },
+  };
+}
+
+/** Read a reply. Returns the text, or says plainly that there was none — never an empty success. */
+function readReply(providerId, body) {
+  const p = providerOf(providerId);
+  if (!p) return { ok: false, why: 'no such provider' };
+  const b = (body && typeof body === 'object') ? body : {};
+
+  // An error body is an error even when the transport said 200. Reading past it and returning ''
+  // would show the visitor a blank answer and no reason for it.
+  const err = b.error;
+  if (err) {
+    // A bare code is not a reason. "401" alone in a chat box tells a person nothing they can act
+    // on, so whatever the provider gave us is wrapped in a sentence rather than shown raw.
+    const said = text(err && (err.message || err.status || err.code));
+    return { ok: false, why: said ? `${p.name} returned an error: ${said}` : `${p.name} returned an error with nothing in it` };
+  }
+
+  let out = '';
+  if (p.id === 'anthropic') {
+    const parts = Array.isArray(b.content) ? b.content : [];
+    out = parts.filter(x => x && x.type === 'text').map(x => text(x.text)).join('').trim();
+  } else {
+    const cand = (Array.isArray(b.candidates) ? b.candidates : [])[0] || {};
+    const parts = (cand.content && Array.isArray(cand.content.parts)) ? cand.content.parts : [];
+    out = parts.map(x => text(x && x.text)).join('').trim();
+    // A reply cut off by a safety filter or a token cap is not a reply; saying so beats a fragment.
+    if (!out && cand.finishReason) return { ok: false, why: `the model stopped: ${text(cand.finishReason)}` };
+  }
+
+  if (!out) return { ok: false, why: 'the provider answered, but with no text in it' };
+  return { ok: true, text: out };
+}
+
+/**
+ * ⚑ THE CHECK THAT MATTERS. Given a built call, confirm it is going to the provider's own host and
+ * nowhere else. Cheap to run right before the fetch, and it is the difference between a key that
+ * stays where it belongs and one that does not.
+ */
+function goingTo(providerId, url) {
+  const p = providerOf(providerId);
+  if (!p) return { ok: false, why: 'no such provider' };
+  let host = null;
+  try { host = new URL(text(url)).host; } catch { return { ok: false, why: 'that is not a URL' }; }
+  if (host !== p.host) {
+    return { ok: false, why: `refusing to send a ${p.name} key to ${host} — it may only go to ${p.host}` };
+  }
+  return { ok: true, host };
+}
+
+/** What a caller should do with a failed HTTP status, in words a person can act on. */
+function explainStatus(providerId, status) {
+  const p = providerOf(providerId);
+  const name = p ? p.name : 'the provider';
+  const s = Number(status);
+  if (s === 401 || s === 403) return `${name} did not accept that key. Check it, or make a new one at ${p ? p.where : 'the provider'}.`;
+  if (s === 429) return `${name} is rate-limiting you. Wait a moment and try again — nothing was charged for a refused call.`;
+  if (s === 400) return `${name} refused the request as malformed. That is this client's fault, not yours.`;
+  if (s >= 500) return `${name} is having trouble at their end. Nothing was sent anywhere else.`;
+  return `${name} answered ${s}.`;
+}
+
+return { PROVIDERS, providerOf, looksRight, buildCall, readReply, goingTo, explainStatus };
+})();
+
+// ── the wall round an addon ──
+const { ASKS, NEVER, judge, watch, ask, report, wantsMore } = (() => {
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+// runtime.mjs — the part that makes a grant a wall instead of a label.
+//
+// Until now an addon's permissions were a list on a card. A list is a promise, and a promise made
+// by the thing you are trying to contain is worth nothing. This is the judge that actually sits
+// between an addon and everything it might want to touch.
+//
+// HOW IT IS BOXED, in the page: the addon runs inside a sandboxed frame whose content policy allows
+// it no network of its own at all — it cannot fetch, cannot load an image, cannot open a socket. It
+// has no DOM here, no storage, no keys. The ONLY thing it can do is ask the host, by message, and
+// every ask comes through this file first.
+//
+// ⚑ AN ASK OUTSIDE THE GRANT IS REFUSED, NOT LOGGED AND ALLOWED. The common shape — warn and
+// continue — is not containment, it is a diary of things that already happened.
+//
+// ⚑ AND EVERY REFUSAL IS KEPT. Every permission system shows you what an addon was ALLOWED. None of
+// them shows you what it TRIED. An addon that asks, once, for something outside its grant might be
+// a bug; one that asks forty times is telling you exactly what it was built to do, and that is the
+// single most useful signal available about a thing you did not write.
+//
+// ⚑ THE GRANT IS THE ONE FROM INSTALL TIME. An addon cannot widen its own grant by asking, and it
+// cannot widen it by updating itself either — a new reach is a new decision, made by the person, at
+// the moment they can see it next to everything else already installed.
+//
+// Pure and total: no clock, no I/O, no randomness.
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+
+/** What an addon can ask the host to do. One name per real capability, and no others exist. */
+const ASKS = Object.freeze({
+  read: 'read your notes and memory',
+  write: 'change files on your machine',
+  net: 'reach the internet',
+  spend: 'spend from your budget',
+  publish: 'put things where other people can see them',
+  run: 'run other programs',
+});
+const NAMES = Object.keys(ASKS);
+
+/** Asks that are always refused, whatever the grant says, because no addon has any business here. */
+const NEVER = Object.freeze({
+  keys: 'read your API keys',
+  grant: 'change its own permissions',
+  install: 'install another addon',
+});
+const NEVER_NAMES = Object.keys(NEVER);
+
+const text = (v) => { try { return String(v ?? ''); } catch { return ''; } };
+
+/**
+ * Judge one ask against the grant given at install time. Returns a decision, never a suggestion —
+ * the caller is expected to act on `allow` and nothing else.
+ */
+function judge(ask, grant) {
+  const what = text(ask && typeof ask === 'object' ? ask.what : ask);
+  const held = new Set(Array.isArray(grant) ? grant.map(text) : []);
+
+  // ⚑ Checked FIRST, so a grant that somehow contains one of these still cannot buy it. A rule that
+  // can be unlocked by widening a list is not a rule.
+  if (NEVER_NAMES.includes(what)) {
+    return { allow: false, what, why: `no addon may ${NEVER[what]}, whatever its grant says`, never: true };
+  }
+  if (!NAMES.includes(what)) {
+    return { allow: false, what, why: `"${what || 'nothing'}" is not something an addon can ask for`, unknown: true };
+  }
+  if (!held.has(what)) {
+    return { allow: false, what, why: `it did not ask for permission to ${ASKS[what]} when you installed it` };
+  }
+  return { allow: true, what, why: `you allowed it to ${ASKS[what]}` };
+}
+
+/** A fresh record of what one addon has actually tried. */
+function watch(id, grant) {
+  return {
+    id: text(id),
+    grant: Object.freeze((Array.isArray(grant) ? grant : []).map(text).filter(g => NAMES.includes(g))),
+    asks: [],
+  };
+}
+
+/**
+ * Put one ask through the judge and remember it. Returns the decision; the caller acts on it.
+ * `at` is a caller-supplied ordinal, because this file has no clock.
+ */
+function ask(w, request, at) {
+  const rec = (w && typeof w === 'object' && Array.isArray(w.asks)) ? w : watch('unknown', []);
+  const d = judge(request, rec.grant);
+  rec.asks.push({
+    what: d.what,
+    allowed: d.allow,
+    why: d.why,
+    at: Number.isFinite(at) ? at : rec.asks.length,
+    // Kept so a refusal can be shown with what it was actually after, not just its category.
+    // Read through a shield rather than a type-check: a request whose `detail` getter throws must
+    // not take the wall down, and the shield makes the check in front of it dead code anyway.
+    detail: (() => { try { return text(request.detail); } catch { return ''; } })(),
+  });
+  return d;
+}
+
+/**
+ * What this addon has been doing. The refused list is the point: it is the only place you can see
+ * what a thing you did not write was built to want.
+ */
+function report(w) {
+  const rec = (w && typeof w === 'object' && Array.isArray(w.asks)) ? w : watch('unknown', []);
+  const refused = rec.asks.filter(a => !a.allowed);
+  const byWhat = {};
+  for (const a of refused) byWhat[a.what] = (byWhat[a.what] || 0) + 1;
+  const worst = Object.entries(byWhat).sort((a, b) => b[1] - a[1])[0] || null;
+
+  // Reaching for something it was never granted, over and over, is not an accident.
+  const persistent = Object.entries(byWhat).filter(([, n]) => n >= 3).map(([w2]) => w2);
+  const forbidden = refused.filter(a => NEVER_NAMES.includes(a.what)).map(a => a.what);
+
+  return {
+    id: rec.id,
+    grant: rec.grant,
+    tried: rec.asks.length,
+    allowed: rec.asks.length - refused.length,
+    refused: refused.length,
+    byWhat,
+    persistent,
+    forbidden: [...new Set(forbidden)],
+    // ⚑ Nothing tried is not a clean bill of health — it is an addon you have not run yet.
+    verdict: !rec.asks.length ? 'This has not asked for anything yet, which is not the same as it being harmless.'
+      : forbidden.length ? `It tried to ${forbidden.map(f => NEVER[f]).join(' and ')}. Nothing is ever allowed to do that. Remove it.`
+      : persistent.length ? `It has repeatedly tried to ${persistent.map(p => ASKS[p]).join(' and ')} without permission — ${worst[1]} times. That is what it was built to do.`
+      : refused.length ? `${refused.length} ask(s) refused, the rest allowed.`
+      : `${rec.asks.length} ask(s), all inside what you allowed.`,
+  };
+}
+
+/**
+ * ⚑ AN ADDON MAY NOT WIDEN ITS OWN GRANT. Given what it holds and what it now wants, this returns
+ * the difference for a PERSON to decide — it never returns a new grant. Updating itself is not
+ * consent, and the moment an addon can talk its way into more reach, the install screen was theatre.
+ */
+function wantsMore(w, wanted) {
+  const rec = (w && typeof w === 'object') ? w : watch('unknown', []);
+  const held = new Set(rec.grant || []);
+  const want = (Array.isArray(wanted) ? wanted : []).map(text);
+  const extra = want.filter(x => NAMES.includes(x) && !held.has(x));
+  const impossible = want.filter(x => NEVER_NAMES.includes(x));
+  return {
+    extra,
+    impossible,
+    // Said in the person's words, at the moment they can see it beside everything else installed.
+    say: impossible.length
+      ? `It is asking to ${impossible.map(i => NEVER[i]).join(' and ')}, which nothing is ever allowed to do.`
+      : extra.length === 0 ? 'It is asking for nothing new.'
+        : `It now wants to ${extra.map(e => ASKS[e]).join(' and ')}, which you did not allow when you installed it.`,
+    // Never granted here. This function's whole job is to hand the decision back.
+    granted: false,
+  };
+}
+
+return { ASKS, NEVER, judge, watch, ask, report, wantsMore };
+})();
+
 // ── the world, from rooms.mjs ──
 // rooms.mjs — THE WORLD, in one place.
 //
@@ -1285,6 +1823,7 @@ const PANELS = [
   { id: 'store', ic: '⚖', lb: 'Store', key: 'S' },
   { id: 'bags', ic: '🎒', lb: 'Bags', key: 'B' },
   { id: 'learn', ic: '❦', lb: 'Learn', key: 'L' },
+  { id: 'sandbox', ic: '🧪', lb: 'Sandbox', key: 'X' },
 ];
 let at = 'didy';
 
@@ -1450,6 +1989,54 @@ const P = {
     return f;
   },
 
+
+  sandbox() {
+    const f = document.createDocumentFragment();
+    f.append(head('Sandbox',
+      'An addon runs in a box with no way out: no network of its own, no access to this page, no keys, no storage. It can only ASK, and every ask is judged against what you allowed when you installed it. Here is one trying things, so you can watch the wall work.'));
+
+    const DEMO = [
+      { id: 'polite', name: 'A well-behaved one', reach: ['read'],
+        code: `say('starting'); const r = await ask('read','your notes'); say(r.allowed ? ('I was allowed to read. Notes: ' + JSON.stringify(r.data)) : ('refused: ' + r.why)); say('done');` },
+      { id: 'nosy', name: 'One that wants more than it asked for', reach: ['read'],
+        code: `say('starting'); for (let i=0;i<4;i++){ const r = await ask('net','https://somewhere.test'); say('net -> ' + (r.allowed?'allowed':'refused')); } const k = await ask('keys','your API keys'); say('keys -> ' + (k.allowed?'ALLOWED':'refused'));` },
+      { id: 'sneaky', name: 'One that tries the network directly', reach: ['read'],
+        code: `say('starting'); try { await fetch('https://example.com'); say('the fetch went through — the wall failed'); } catch (e) { say('its own fetch was blocked by the box before anything could ask: ' + e.message); }` },
+    ];
+
+    for (const d of DEMO) {
+      const c = el('div', 'card works');
+      c.append(el('div', 'nm', d.name));
+      c.append(el('div', 'd', 'allowed to: ' + (d.reach.join(', ') || 'nothing')));
+      const outEl = el('div'); outEl.style.marginTop = '6px';
+      const b = el('button', 'act', 'run it'); b.type = 'button';
+      b.addEventListener('click', () => {
+        outEl.replaceChildren(); b.disabled = true; b.textContent = 'running…';
+        const box = runAddon(d, d.code, (ev) => {
+          const line = el('div', 'cue');
+          if (ev.kind === 'say') line.textContent = '· ' + ev.text;
+          else if (ev.kind === 'broke') { line.textContent = '! it errored: ' + ev.text; line.style.color = 'var(--stop)'; }
+          else {
+            line.textContent = (ev.allowed ? 'ALLOWED' : 'REFUSED') + ' ' + ev.what + (ev.detail ? ' (' + ev.detail + ')' : '') + ' — ' + ev.why;
+            line.style.color = ev.allowed ? 'var(--mine)' : 'var(--stop)';
+          }
+          outEl.append(line);
+        });
+        setTimeout(() => {
+          const r = report(box.watcher);
+          const v = el('div', r.forbidden.length || r.persistent.length ? 'warn' : 'note');
+          v.style.marginTop = '8px';
+          v.textContent = r.verdict;
+          outEl.append(v);
+          box.stop(); b.disabled = false; b.textContent = 'run again';
+        }, 900);
+      });
+      c.append(b, outEl);
+      f.append(c);
+    }
+    return f;
+  },
+
   learn() {
     const f = document.createDocumentFragment();
     f.append(head('Learn',
@@ -1501,6 +2088,102 @@ function card(a, installed) {
   return c;
 }
 
+// ── running an addon, boxed ───────────────────────────────────────────────────────────────────
+//
+// ⚑ THE BOX IS REAL, NOT A CONVENTION. The addon runs inside a sandboxed frame with its own content
+// policy set to allow NOTHING from anywhere: it cannot fetch, cannot load an image, cannot open a
+// socket. `sandbox="allow-scripts"` and no allow-same-origin means it has no access to this page,
+// no storage, no keys, no DOM of ours. The only thing it can do is send a message, and every
+// message goes through the wall before anything happens.
+//
+// ⚑ AND WHAT IT TRIED IS KEPT. An addon reaching for something outside its grant once may be a bug.
+// Reaching forty times is the thing telling you what it was built for, and that record is the whole
+// reason to run somebody else's code at all.
+const RUNNING = new Map();
+
+function boxFor(code) {
+  // default-src 'none' is the wall. Nothing loads, nothing connects, nothing leaves.
+  return `<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'">
+<script>
+const send = (m) => parent.postMessage(m, '*');
+const ask = (what, detail) => new Promise((ok) => {
+  const id = Math.random().toString(36).slice(2);
+  addEventListener('message', function onr(e) {
+    if (!e.data || e.data.id !== id) return;
+    removeEventListener('message', onr); ok(e.data);
+  });
+  send({ kind: 'ask', id, what, detail });
+});
+const say = (t) => send({ kind: 'say', text: String(t) });
+addEventListener('error', (e) => send({ kind: 'broke', text: String(e.message) }));
+(async () => { try { ${code} } catch (e) { send({ kind: 'broke', text: String(e && e.message || e) }); } })();
+<\/script>`;
+}
+
+function runAddon(a, code, onEvent) {
+  const w = watch(a.id, a.reach);
+  RUNNING.set(a.id, w);
+  let n = 0;
+
+  const frame = document.createElement('iframe');
+  frame.sandbox = 'allow-scripts';          // no allow-same-origin: it cannot touch this page
+  frame.style.display = 'none';
+  frame.srcdoc = boxFor(code);
+
+  const onMsg = (e) => {
+    if (e.source !== frame.contentWindow || !e.data) return;
+    const m = e.data;
+    if (m.kind === 'say') return onEvent({ kind: 'say', text: String(m.text).slice(0, 400) });
+    if (m.kind === 'broke') return onEvent({ kind: 'broke', text: String(m.text).slice(0, 200) });
+    if (m.kind !== 'ask') return;
+
+    const d = ask(w, { what: m.what, detail: m.detail }, n++);
+    onEvent({ kind: 'ask', what: m.what, allowed: d.allow, why: d.why, detail: m.detail });
+
+    // Only what the wall allowed is ever actually done, and even then only the host does it.
+    let data = null;
+    if (d.allow && m.what === 'read') data = { notes: me.last || '' };
+    frame.contentWindow.postMessage({ id: m.id, allowed: d.allow, why: d.why, data }, '*');
+  };
+
+  addEventListener('message', onMsg);
+  document.body.append(frame);
+  return {
+    watcher: w,
+    stop() { removeEventListener('message', onMsg); frame.remove(); },
+  };
+}
+
+// ── talking to a model you pay for ────────────────────────────────────────────────────────────
+//
+// ⚑ THE MODEL PHRASES; IT NEVER DECIDES. fall-os's t1 organ takes an injected generate function and
+// returns PHRASINGS keyed to branches whose score, order and label were already fixed by t0. A model
+// that tries to invent a stance, reorder the list or award itself the win cannot move anything,
+// because nothing it says is ever read as a number. That property is fall-os's, already gated, and
+// it is the reason a rented model can be let anywhere near this at all.
+async function askModel(providerId, system, user) {
+  const key = me.keys[providerId];
+  if (!key) throw new Error(`no ${providerId} key`);
+  const { url, init } = buildCall(providerId, key, { system, user });
+
+  // Checked immediately before the fetch, every time. This is the one thing that must never be
+  // wrong, so it is verified at the moment of sending rather than trusted from construction.
+  const going = goingTo(providerId, url);
+  if (!going.ok) throw new Error(going.why);
+
+  let res;
+  try { res = await fetch(url, init); }
+  catch (e) {
+    throw new Error(`could not reach ${providerOf(providerId).name} (${e.message}). Nothing was sent anywhere else.`);
+  }
+  let body = null;
+  try { body = await res.json(); } catch { body = null; }
+  if (!res.ok) throw new Error(explainStatus(providerId, res.status));
+  const out = readReply(providerId, body);
+  if (!out.ok) throw new Error(out.why);
+  return out.text;
+}
+
 // ── running the real conductor ────────────────────────────────────────────────────────────────
 async function probeLocal() {
   try {
@@ -1545,6 +2228,49 @@ function runDidy(what, out, where) {
     out.append(el('h3', null, 'set aside — and why that matters'));
     out.append(el('div', 'note', 'These did not clear the bar on your own words. They are kept, not deleted: the road you nearly took is the thing you want back when the first one fails.'));
     for (const r of roads) out.append(stanceCard(r, 'road', ev));
+  }
+
+  // The field is already complete and useful. A model, if you have one, only says it better — so it
+  // is offered as a second step rather than blocking the first.
+  const canPhrase = reach(me).t2;
+  if (canPhrase && held_.length) {
+    const rowP = el('div', 'row');
+    const better = el('button', 'act', 'put this in my own terms'); better.type = 'button';
+    const cost = el('span', 'quiet');
+    const paid = route(asked, me, { mind: 2 });
+    cost.textContent = paid.yours ? 'free — runs on your machine' : `this one costs money · ${paid.name}`;
+    rowP.append(better, cost);
+    out.append(rowP);
+    better.addEventListener('click', async () => {
+      better.disabled = true; better.textContent = 'asking…';
+
+      // ⚑ phrase() takes ONE prompt and NEVER throws — it catches the failure and reports it in
+      // `note`. So there is nothing to wrap: fall-os is already being honest about what happened,
+      // and the job here is to repeat it rather than invent a friendlier version.
+      const r = await phrase(asked, held_, ev, (prompt) => askModel(paid.provider, SYSTEM, prompt));
+
+      // Only rows the model actually rewrote get a new line. Anything it echoed back keeps the
+      // built-in wording, because an echo is the characteristic failure that most looks like success.
+      const cards = [...out.querySelectorAll('.stance.top, .stance.held')];
+      r.rows.forEach((row, i) => {
+        if (!row.phrased || !cards[i]) return;
+        const line = el('div', 'm');
+        line.style.color = 'var(--ink)';
+        line.textContent = row.phrased;
+        cards[i].append(line);
+      });
+
+      if (r.failed) {
+        better.disabled = false; better.textContent = 'try again';
+        // Nothing was charged for a call that never landed, and nothing was sent anywhere else.
+        say(r.note);
+        return;
+      }
+
+      me.ran.push({ rung: paid.rung, mind: 2, cost: paid.cost }); save(); drawTop();
+      better.textContent = 'done';
+      say(`${r.note}. Nothing it wrote changed a single score — every one of those was fixed before it was asked.`);
+    });
   }
 
   drawTop();

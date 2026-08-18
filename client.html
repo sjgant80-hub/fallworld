@@ -210,6 +210,7 @@ const PANELS = [
   { id: 'store', ic: '⚖', lb: 'Store', key: 'S' },
   { id: 'bags', ic: '🎒', lb: 'Bags', key: 'B' },
   { id: 'learn', ic: '❦', lb: 'Learn', key: 'L' },
+  { id: 'sandbox', ic: '🧪', lb: 'Sandbox', key: 'X' },
 ];
 let at = 'didy';
 
@@ -375,6 +376,54 @@ const P = {
     return f;
   },
 
+
+  sandbox() {
+    const f = document.createDocumentFragment();
+    f.append(head('Sandbox',
+      'An addon runs in a box with no way out: no network of its own, no access to this page, no keys, no storage. It can only ASK, and every ask is judged against what you allowed when you installed it. Here is one trying things, so you can watch the wall work.'));
+
+    const DEMO = [
+      { id: 'polite', name: 'A well-behaved one', reach: ['read'],
+        code: `say('starting'); const r = await ask('read','your notes'); say(r.allowed ? ('I was allowed to read. Notes: ' + JSON.stringify(r.data)) : ('refused: ' + r.why)); say('done');` },
+      { id: 'nosy', name: 'One that wants more than it asked for', reach: ['read'],
+        code: `say('starting'); for (let i=0;i<4;i++){ const r = await ask('net','https://somewhere.test'); say('net -> ' + (r.allowed?'allowed':'refused')); } const k = await ask('keys','your API keys'); say('keys -> ' + (k.allowed?'ALLOWED':'refused'));` },
+      { id: 'sneaky', name: 'One that tries the network directly', reach: ['read'],
+        code: `say('starting'); try { await fetch('https://example.com'); say('the fetch went through — the wall failed'); } catch (e) { say('its own fetch was blocked by the box before anything could ask: ' + e.message); }` },
+    ];
+
+    for (const d of DEMO) {
+      const c = el('div', 'card works');
+      c.append(el('div', 'nm', d.name));
+      c.append(el('div', 'd', 'allowed to: ' + (d.reach.join(', ') || 'nothing')));
+      const outEl = el('div'); outEl.style.marginTop = '6px';
+      const b = el('button', 'act', 'run it'); b.type = 'button';
+      b.addEventListener('click', () => {
+        outEl.replaceChildren(); b.disabled = true; b.textContent = 'running…';
+        const box = runAddon(d, d.code, (ev) => {
+          const line = el('div', 'cue');
+          if (ev.kind === 'say') line.textContent = '· ' + ev.text;
+          else if (ev.kind === 'broke') { line.textContent = '! it errored: ' + ev.text; line.style.color = 'var(--stop)'; }
+          else {
+            line.textContent = (ev.allowed ? 'ALLOWED' : 'REFUSED') + ' ' + ev.what + (ev.detail ? ' (' + ev.detail + ')' : '') + ' — ' + ev.why;
+            line.style.color = ev.allowed ? 'var(--mine)' : 'var(--stop)';
+          }
+          outEl.append(line);
+        });
+        setTimeout(() => {
+          const r = report(box.watcher);
+          const v = el('div', r.forbidden.length || r.persistent.length ? 'warn' : 'note');
+          v.style.marginTop = '8px';
+          v.textContent = r.verdict;
+          outEl.append(v);
+          box.stop(); b.disabled = false; b.textContent = 'run again';
+        }, 900);
+      });
+      c.append(b, outEl);
+      f.append(c);
+    }
+    return f;
+  },
+
   learn() {
     const f = document.createDocumentFragment();
     f.append(head('Learn',
@@ -426,6 +475,102 @@ function card(a, installed) {
   return c;
 }
 
+// ── running an addon, boxed ───────────────────────────────────────────────────────────────────
+//
+// ⚑ THE BOX IS REAL, NOT A CONVENTION. The addon runs inside a sandboxed frame with its own content
+// policy set to allow NOTHING from anywhere: it cannot fetch, cannot load an image, cannot open a
+// socket. `sandbox="allow-scripts"` and no allow-same-origin means it has no access to this page,
+// no storage, no keys, no DOM of ours. The only thing it can do is send a message, and every
+// message goes through the wall before anything happens.
+//
+// ⚑ AND WHAT IT TRIED IS KEPT. An addon reaching for something outside its grant once may be a bug.
+// Reaching forty times is the thing telling you what it was built for, and that record is the whole
+// reason to run somebody else's code at all.
+const RUNNING = new Map();
+
+function boxFor(code) {
+  // default-src 'none' is the wall. Nothing loads, nothing connects, nothing leaves.
+  return `<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'">
+<script>
+const send = (m) => parent.postMessage(m, '*');
+const ask = (what, detail) => new Promise((ok) => {
+  const id = Math.random().toString(36).slice(2);
+  addEventListener('message', function onr(e) {
+    if (!e.data || e.data.id !== id) return;
+    removeEventListener('message', onr); ok(e.data);
+  });
+  send({ kind: 'ask', id, what, detail });
+});
+const say = (t) => send({ kind: 'say', text: String(t) });
+addEventListener('error', (e) => send({ kind: 'broke', text: String(e.message) }));
+(async () => { try { ${code} } catch (e) { send({ kind: 'broke', text: String(e && e.message || e) }); } })();
+<\/script>`;
+}
+
+function runAddon(a, code, onEvent) {
+  const w = watch(a.id, a.reach);
+  RUNNING.set(a.id, w);
+  let n = 0;
+
+  const frame = document.createElement('iframe');
+  frame.sandbox = 'allow-scripts';          // no allow-same-origin: it cannot touch this page
+  frame.style.display = 'none';
+  frame.srcdoc = boxFor(code);
+
+  const onMsg = (e) => {
+    if (e.source !== frame.contentWindow || !e.data) return;
+    const m = e.data;
+    if (m.kind === 'say') return onEvent({ kind: 'say', text: String(m.text).slice(0, 400) });
+    if (m.kind === 'broke') return onEvent({ kind: 'broke', text: String(m.text).slice(0, 200) });
+    if (m.kind !== 'ask') return;
+
+    const d = ask(w, { what: m.what, detail: m.detail }, n++);
+    onEvent({ kind: 'ask', what: m.what, allowed: d.allow, why: d.why, detail: m.detail });
+
+    // Only what the wall allowed is ever actually done, and even then only the host does it.
+    let data = null;
+    if (d.allow && m.what === 'read') data = { notes: me.last || '' };
+    frame.contentWindow.postMessage({ id: m.id, allowed: d.allow, why: d.why, data }, '*');
+  };
+
+  addEventListener('message', onMsg);
+  document.body.append(frame);
+  return {
+    watcher: w,
+    stop() { removeEventListener('message', onMsg); frame.remove(); },
+  };
+}
+
+// ── talking to a model you pay for ────────────────────────────────────────────────────────────
+//
+// ⚑ THE MODEL PHRASES; IT NEVER DECIDES. fall-os's t1 organ takes an injected generate function and
+// returns PHRASINGS keyed to branches whose score, order and label were already fixed by t0. A model
+// that tries to invent a stance, reorder the list or award itself the win cannot move anything,
+// because nothing it says is ever read as a number. That property is fall-os's, already gated, and
+// it is the reason a rented model can be let anywhere near this at all.
+async function askModel(providerId, system, user) {
+  const key = me.keys[providerId];
+  if (!key) throw new Error(`no ${providerId} key`);
+  const { url, init } = buildCall(providerId, key, { system, user });
+
+  // Checked immediately before the fetch, every time. This is the one thing that must never be
+  // wrong, so it is verified at the moment of sending rather than trusted from construction.
+  const going = goingTo(providerId, url);
+  if (!going.ok) throw new Error(going.why);
+
+  let res;
+  try { res = await fetch(url, init); }
+  catch (e) {
+    throw new Error(`could not reach ${providerOf(providerId).name} (${e.message}). Nothing was sent anywhere else.`);
+  }
+  let body = null;
+  try { body = await res.json(); } catch { body = null; }
+  if (!res.ok) throw new Error(explainStatus(providerId, res.status));
+  const out = readReply(providerId, body);
+  if (!out.ok) throw new Error(out.why);
+  return out.text;
+}
+
 // ── running the real conductor ────────────────────────────────────────────────────────────────
 async function probeLocal() {
   try {
@@ -470,6 +615,49 @@ function runDidy(what, out, where) {
     out.append(el('h3', null, 'set aside — and why that matters'));
     out.append(el('div', 'note', 'These did not clear the bar on your own words. They are kept, not deleted: the road you nearly took is the thing you want back when the first one fails.'));
     for (const r of roads) out.append(stanceCard(r, 'road', ev));
+  }
+
+  // The field is already complete and useful. A model, if you have one, only says it better — so it
+  // is offered as a second step rather than blocking the first.
+  const canPhrase = reach(me).t2;
+  if (canPhrase && held_.length) {
+    const rowP = el('div', 'row');
+    const better = el('button', 'act', 'put this in my own terms'); better.type = 'button';
+    const cost = el('span', 'quiet');
+    const paid = route(asked, me, { mind: 2 });
+    cost.textContent = paid.yours ? 'free — runs on your machine' : `this one costs money · ${paid.name}`;
+    rowP.append(better, cost);
+    out.append(rowP);
+    better.addEventListener('click', async () => {
+      better.disabled = true; better.textContent = 'asking…';
+
+      // ⚑ phrase() takes ONE prompt and NEVER throws — it catches the failure and reports it in
+      // `note`. So there is nothing to wrap: fall-os is already being honest about what happened,
+      // and the job here is to repeat it rather than invent a friendlier version.
+      const r = await phrase(asked, held_, ev, (prompt) => askModel(paid.provider, SYSTEM, prompt));
+
+      // Only rows the model actually rewrote get a new line. Anything it echoed back keeps the
+      // built-in wording, because an echo is the characteristic failure that most looks like success.
+      const cards = [...out.querySelectorAll('.stance.top, .stance.held')];
+      r.rows.forEach((row, i) => {
+        if (!row.phrased || !cards[i]) return;
+        const line = el('div', 'm');
+        line.style.color = 'var(--ink)';
+        line.textContent = row.phrased;
+        cards[i].append(line);
+      });
+
+      if (r.failed) {
+        better.disabled = false; better.textContent = 'try again';
+        // Nothing was charged for a call that never landed, and nothing was sent anywhere else.
+        say(r.note);
+        return;
+      }
+
+      me.ran.push({ rung: paid.rung, mind: 2, cost: paid.cost }); save(); drawTop();
+      better.textContent = 'done';
+      say(`${r.note}. Nothing it wrote changed a single score — every one of those was fixed before it was asked.`);
+    });
   }
 
   drawTop();

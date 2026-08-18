@@ -44,8 +44,11 @@ const MODULES = [
   ['vendor/fall-os/didy.mjs', 'fall-os · didy'],
   ['vendor/fall-os/walk.mjs', 'fall-os · walk'],
   ['vendor/fall-os/organs/t0.mjs', 'fall-os · t0'],
+  ['vendor/fall-os/organs/t1.mjs', 'fall-os · t1'],
   ['ladder.mjs', 'the rungs'],
   ['client.mjs', 'the store'],
+  ['providers.mjs', 'talking to a paid model'],
+  ['runtime.mjs', 'the wall round an addon'],
 ];
 
 // ── the catalogue, from what the estate's CI actually ran ─────────────────────────────────────
@@ -94,7 +97,8 @@ const kernel = [
 
 const out = read('client.html').replace('/*__KERNEL__*/', () => kernel);
 if (out.includes('/*__KERNEL__*/')) throw new Error('the kernel never went in');
-for (const must of ['function conduct(', 'function t0Organ(', 'function route(', 'function store(', 'const WINGS']) {
+for (const must of ['function conduct(', 'function t0Organ(', 'function route(', 'function store(',
+                    'function buildCall(', 'function judge(', 'function phrase(', 'const WINGS']) {
   if (!out.includes(must)) throw new Error(`${must.trim()} is missing — the page would be a drawing of the product`);
 }
 const script = out.slice(out.indexOf('<script type="module">'), out.lastIndexOf('</script>'));
