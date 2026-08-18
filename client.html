@@ -238,7 +238,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 
 <div id="log">
   <span class="line" id="logline">loading…</span>
-  <span class="by">powered by <b>fall&middot;os</b></span>
+  <span class="by">powered by <b>fall&middot;os</b> &middot; Konomi Architecture</span>
   <a class="by" id="who" href="https://www.ai-nativesolutions.com/" target="_blank" rel="noopener"></a>
 </div>
 
@@ -297,7 +297,7 @@ const PANELS = [
   { id: 'learn', ic: '❦', lb: 'Learn', key: 'L' },
   { id: 'sandbox', ic: '🧪', lb: 'Sandbox', key: 'X' },
 ];
-let at = 'didy';
+let at = 'world';
 
 // ⚑ ONE THING AT A TIME. A screen of panels nobody has a reason for yet is a manual, only harder to
 // read. Each opens when the thing that makes it make sense has been done — and a shut one says what
@@ -491,7 +491,18 @@ const P = {
 
   world() {
     const f = document.createDocumentFragment();
-    f.append(head('The world', 'Other places you can go. Your didy comes with you.'));
+    // ⚑ THE TESTIMONIAL, SAID WHERE IT CAN BE CHECKED. This page is the proof of what one person
+    // can build this way — so it says so, with numbers computed from what actually ran, next to
+    // the doors that open onto the real things. Judge the work.
+    const proven = CATALOGUE.filter(a => a.tier === 'proven').length;
+    const working = CATALOGUE.filter(a => a.tier === 'works').length;
+    f.append(head('One estate. All of it real, all of it running.',
+      'Everything below was built by one person, the sovereign way: no cloud, no backend, no subscriptions. '
+      + `${CATALOGUE.length} public builds — ${proven} proven by gates that break the code on purpose, ${working} more passing live checks — `
+      + 'and every rank computed from what actually ran, never claimed. Open any door and judge the work.'));
+    const play = el('div', 'note');
+    play.innerHTML = 'Then press <b>D</b> — <b>your didy</b> is your character here: assemble your own AI out of these tools, and the more you fit, the more it can do.';
+    f.append(play);
     for (const w of WINGS) {
       const s = el('div', 'wing');
       const wh = el('div', 'wh'); wh.append(el('span', 'ic', w.icon), el('h2', null, w.title)); s.append(wh);

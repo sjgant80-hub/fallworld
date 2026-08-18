@@ -238,7 +238,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 
 <div id="log">
   <span class="line" id="logline">loading…</span>
-  <span class="by">powered by <b>fall&middot;os</b></span>
+  <span class="by">powered by <b>fall&middot;os</b> &middot; Konomi Architecture</span>
   <a class="by" id="who" href="https://www.ai-nativesolutions.com/" target="_blank" rel="noopener"></a>
 </div>
 
@@ -2057,6 +2057,12 @@ const { BEATS, standing, where, isOpen, locked, speak } = (() => {
  *
  * `opens` is cumulative — reaching a beat opens everything that beat and every earlier one opened.
  */
+// ⚑ NOTHING IS EVER LOCKED. Gating panels was the wrong reading of "gradual like an MMORPG":
+// WoW does not hide the world from a level one — everything is THERE, and quests walk you through
+// it in order. This place is also a testimonial, and a testimonial with most of its rooms shut is
+// somebody hiding their own work. So the guide narrates the order; it never bars a door.
+const ALL = Object.freeze(['didy', 'world', 'keys', 'store', 'bags', 'sandbox', 'learn']);
+
 const BEATS = Object.freeze([
   {
     id: 'arrive',
@@ -2064,7 +2070,7 @@ const BEATS = Object.freeze([
     says: 'Tell me something you are actually trying to decide. Not a test — a real one. I will lay out the ways it could go.',
     aside: 'I am your didy, powered by fall\u00b7os. No account, no key, nothing to set up — this runs on your own machine.',
     next: 'type it in and press the button',
-    opens: ['didy', 'world'],
+    opens: [...ALL],
   },
   {
     id: 'thought',
@@ -2126,10 +2132,6 @@ const BEATS = Object.freeze([
   },
 ]);
 
-// ⚑ THE WORLD IS NEVER SHUT. Hiding it left a newcomer in an empty room with six blank slots and
-// nothing to look at — the map IS the place, and locking the place is not gradual, it is bare.
-// Only the things you earn by doing something are gated.
-const ALL = Object.freeze(['didy', 'world', 'keys', 'store', 'bags', 'sandbox', 'learn']);
 
 
 /** Read the player's state into the shape the beats ask about. Total: anything at all goes in. */
@@ -2269,7 +2271,7 @@ const PANELS = [
   { id: 'learn', ic: '❦', lb: 'Learn', key: 'L' },
   { id: 'sandbox', ic: '🧪', lb: 'Sandbox', key: 'X' },
 ];
-let at = 'didy';
+let at = 'world';
 
 // ⚑ ONE THING AT A TIME. A screen of panels nobody has a reason for yet is a manual, only harder to
 // read. Each opens when the thing that makes it make sense has been done — and a shut one says what
@@ -2463,7 +2465,18 @@ const P = {
 
   world() {
     const f = document.createDocumentFragment();
-    f.append(head('The world', 'Other places you can go. Your didy comes with you.'));
+    // ⚑ THE TESTIMONIAL, SAID WHERE IT CAN BE CHECKED. This page is the proof of what one person
+    // can build this way — so it says so, with numbers computed from what actually ran, next to
+    // the doors that open onto the real things. Judge the work.
+    const proven = CATALOGUE.filter(a => a.tier === 'proven').length;
+    const working = CATALOGUE.filter(a => a.tier === 'works').length;
+    f.append(head('One estate. All of it real, all of it running.',
+      'Everything below was built by one person, the sovereign way: no cloud, no backend, no subscriptions. '
+      + `${CATALOGUE.length} public builds — ${proven} proven by gates that break the code on purpose, ${working} more passing live checks — `
+      + 'and every rank computed from what actually ran, never claimed. Open any door and judge the work.'));
+    const play = el('div', 'note');
+    play.innerHTML = 'Then press <b>D</b> — <b>your didy</b> is your character here: assemble your own AI out of these tools, and the more you fit, the more it can do.';
+    f.append(play);
     for (const w of WINGS) {
       const s = el('div', 'wing');
       const wh = el('div', 'wh'); wh.append(el('span', 'ic', w.icon), el('h2', null, w.title)); s.append(wh);

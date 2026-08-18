@@ -17,15 +17,15 @@ test('EVERY BEAT OPENS PANELS THAT ACTUALLY EXIST', () => {
   }
 });
 
-test('A BRAND NEW ARRIVAL CAN DO SOMETHING AND CAN LOOK AROUND', () => {
-  // ⚑ Only the things you earn are gated. The world itself is never shut — hiding it left a
-  // newcomer in an empty room with six blank slots and nothing at all to look at, which is not
-  // gradual, it is bare.
+test('NOTHING IS EVER LOCKED — a brand new arrival can reach every panel', () => {
+  // ⚑ Gating was the wrong reading of "gradual". WoW does not hide the world from a level one:
+  // everything is there, and the quests narrate the order. This place is also a testimonial, and
+  // a testimonial with most of its rooms shut is somebody hiding their own work.
   const w = where(fresh);
-  assert.deepEqual([...w.open].sort(), ['didy', 'world']);
   assert.equal(w.beat.id, 'arrive');
-  assert.equal(isOpen(fresh, 'store'), false);
-  assert.equal(isOpen(fresh, 'keys'), false);
+  for (const p of ['didy', 'world', 'keys', 'store', 'bags', 'sandbox', 'learn']) {
+    assert.equal(isOpen(fresh, p), true, p + ' was locked on arrival');
+  }
 });
 
 test('THE FIRST MOVE CANNOT FAIL — the opening beat asks for nothing anybody has to set up', () => {
@@ -34,16 +34,16 @@ test('THE FIRST MOVE CANNOT FAIL — the opening beat asks for nothing anybody h
   assert.ok(!b.reached.length || b.reached(standing(fresh)), 'the first beat is not reachable from nothing');
 });
 
-test('doing things moves you along, and nothing that opened ever shuts again', () => {
-  const steps = [fresh, ran(1), { ...ran(1), picked: 1 }, { ...ran(1), picked: 1, bags: ['x'] },
-    { ...ran(1), picked: 1, bags: ['x'], slots: ['x'] }, { ...ran(1), picked: 1, bags: ['x'], slots: ['x'], keys: { a: 'sk-ant-abcdefghij' } }];
-  let last = [];
-  for (const s of steps) {
-    const open = where(s).open;
-    for (const had of last) assert.ok(open.includes(had), `"${had}" closed again after opening`);
-    last = open;
-  }
-  assert.ok(last.includes('keys'), 'having a key never opened the key panel');
+test('doing things moves the STORY along, and the story never rewinds', () => {
+  // The beats are narrative now, not locks — but they still have to advance in order as things
+  // are actually done, or the guide narrates the wrong chapter.
+  const steps = [
+    [fresh, 'arrive'], [ran(1), 'thought'], [{ ...ran(1), picked: 1 }, 'chose'],
+    [{ ...ran(1), picked: 1, bags: ['x'] }, 'bought'],
+    [{ ...ran(1), picked: 1, bags: ['x'], slots: ['x'] }, 'fitted'],
+    [{ ...ran(1), picked: 1, bags: ['x'], slots: ['x'], keys: { a: 'sk-ant-abcdefghij' } }, 'keyed'],
+  ];
+  for (const [s, beat] of steps) assert.equal(where(s).beat.id, beat);
 });
 
 test('the beat is read from what was DONE, so a refresh never rewinds anybody', () => {
@@ -59,10 +59,9 @@ test('THE GUIDE CAN ALWAYS BE DISMISSED, and dismissing it does not lock anythin
   assert.ok(where(s).open.includes('didy'), 'dismissing the guide took a panel away');
 });
 
-test('nothing shut is ever mysterious — each one says what would open it', () => {
+test('locked() reports that nothing is locked, because nothing is', () => {
   const l = locked(fresh);
-  assert.ok(l.shut.length > 0);
-  for (const p of l.shut) assert.ok(l.opener[p] && l.opener[p].length > 5, `${p} is shut with no way named to open it`);
+  assert.deepEqual(l.shut, [], 'something was still shut: ' + l.shut.join(','));
 });
 
 test('the guide says what happened and never congratulates anybody', () => {
@@ -87,7 +86,7 @@ test('reading a player state survives anything at all', () => {
     assert.doesNotThrow(() => where(junk));
     assert.doesNotThrow(() => speak(junk));
     assert.doesNotThrow(() => locked(junk));
-    assert.deepEqual([...where(junk).open].sort(), ['didy', 'world'], 'junk unlocked something it should not have');
+    assert.equal(where(junk).beat.id, 'arrive', 'junk advanced the story');
   }
 });
 
@@ -96,19 +95,16 @@ test('an unknown panel name is shut, so a typo cannot open the whole app', () =>
 });
 
 
-test('THE SHOP OPENS BEFORE ANYTHING TECHNICAL DOES', () => {
-  // Buying a tool and dragging it in is the core loop. Locking it behind running your own model
-  // means a normal person never reaches the thing the whole product is about.
+test('the shop and the world are open to everybody, always', () => {
   const justPicked = { ...ran(1), picked: 1 };
-  assert.ok(isOpen(justPicked, 'store'), 'the shop was shut to somebody who had already used it once');
-  assert.equal(isOpen(justPicked, 'keys'), false, 'the key panel arrived before there was any reason for it');
-  assert.ok(isOpen(justPicked, 'world'), 'the world was shut to somebody standing in it');
+  assert.ok(isOpen(justPicked, 'store'));
+  assert.ok(isOpen(justPicked, 'world'));
+  assert.ok(isOpen(fresh, 'store'), 'the shop was shut to a newcomer');
 });
 
-test('fitting a tool is its own beat, and it opens the key panel', () => {
+test('fitting a tool is its own beat in the story', () => {
   const fittedOne = { ...ran(1), picked: 1, bags: ['x'], slots: ['x'] };
   assert.equal(where(fittedOne).beat.id, 'fitted');
-  assert.ok(isOpen(fittedOne, 'keys'), 'nothing ever offered a real model');
   assert.match(where(fittedOne).beat.says, /the more you fit, the more it does/i);
 });
 

@@ -31,6 +31,12 @@ import { text, num, list, field, isThing } from './safe.mjs';
  *
  * `opens` is cumulative — reaching a beat opens everything that beat and every earlier one opened.
  */
+// ⚑ NOTHING IS EVER LOCKED. Gating panels was the wrong reading of "gradual like an MMORPG":
+// WoW does not hide the world from a level one — everything is THERE, and quests walk you through
+// it in order. This place is also a testimonial, and a testimonial with most of its rooms shut is
+// somebody hiding their own work. So the guide narrates the order; it never bars a door.
+const ALL = Object.freeze(['didy', 'world', 'keys', 'store', 'bags', 'sandbox', 'learn']);
+
 export const BEATS = Object.freeze([
   {
     id: 'arrive',
@@ -38,7 +44,7 @@ export const BEATS = Object.freeze([
     says: 'Tell me something you are actually trying to decide. Not a test — a real one. I will lay out the ways it could go.',
     aside: 'I am your didy, powered by fall\u00b7os. No account, no key, nothing to set up — this runs on your own machine.',
     next: 'type it in and press the button',
-    opens: ['didy', 'world'],
+    opens: [...ALL],
   },
   {
     id: 'thought',
@@ -100,10 +106,6 @@ export const BEATS = Object.freeze([
   },
 ]);
 
-// ⚑ THE WORLD IS NEVER SHUT. Hiding it left a newcomer in an empty room with six blank slots and
-// nothing to look at — the map IS the place, and locking the place is not gradual, it is bare.
-// Only the things you earn by doing something are gated.
-const ALL = Object.freeze(['didy', 'world', 'keys', 'store', 'bags', 'sandbox', 'learn']);
 
 
 /** Read the player's state into the shape the beats ask about. Total: anything at all goes in. */
