@@ -31,9 +31,14 @@ jobs:
       - name: the workflows still parse as workflows
         run: node check-workflows.mjs
 
+      # ⚑ fallworld does not own an engine. If fall-os has moved and this repo has not, the game is
+      # quietly running last month's OS — so the copies are checked, not trusted.
+      - name: still in step with fall-os
+        run: node sync-fallos.mjs --check
+
       - name: Tests must pass before anything is mutated
         run: |
-          node --test tier.test.mjs pass.test.mjs client.test.mjs
+          node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs
 
       # The mutation gate attacks the TESTS. A green suite sitting over a broken line is test-theatre,
       # and this is the step that catches it.
@@ -45,6 +50,7 @@ jobs:
             --test node tier.test.mjs | tee gate.out
           node .witness/witness.mjs mutate pass.mjs --cap 400 --test node --test pass.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate client.mjs --test node --test client.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate ladder.mjs --test node --test ladder.test.mjs | tee -a gate.out
 
       # ⚑ The page a visitor gets must be the page this build makes. Regenerate and diff: a stale
       # index.html means the shop on screen and the shop that was gated are two different shops.
@@ -68,7 +74,7 @@ jobs:
             // Counted from the kernels this job actually gates, never typed. A hard-coded 2 went
             // stale the moment a third kernel arrived, and a count nobody updates fails a build
             // that was perfectly clean — which is how a real check gets deleted.
-            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs'];
+            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs'];
             if (all.length !== KERNELS.length) { console.error('expected ' + KERNELS.length + ' gate verdicts (' + KERNELS.join(', ') + '), saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
             if (all.some(v => v !== 'true')) { console.error('mutants survived — those lines are test-theatre'); process.exit(1); }
             console.log(all.length + ' gates clean');

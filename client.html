@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FALL WORLD</title>
-<meta name="description" content="Install it like a game. Your character, your bags, the world map, and a shop where nothing gets listed on somebody saying it is good.">
+<meta name="description" content="Install it like a game. Learn to use AI by using it — start on a key you already have, end up running on your own machine.">
 <meta name="theme-color" content="#0a0c10">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
@@ -12,29 +12,28 @@
   --void:#0a0c10; --deck:#12161d; --sunk:#0d1016; --edge:#232a35; --soft:#181d26;
   --ink:#e2e8f0; --mid:#8d99a8; --faint:#5b6675;
   --gold:#dcb264; --gold-deep:#7d6224;
-  --mine:#54d199; --small:#5fa8e8; --rent:#e08a45; --stop:#dd6055;
-  --proven:#54d199; --works:#5fa8e8; --proto:#6d7787;
+  --mine:#54d199; --rent:#e08a45; --stop:#dd6055; --cool:#5fa8e8;
   --mono:ui-monospace,'SF Mono',Menlo,Consolas,'Cascadia Mono',monospace;
   --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 }
 *{box-sizing:border-box}
 html,body{height:100%;overscroll-behavior:none}
 body{margin:0;background:var(--void);color:var(--ink);font-family:var(--sans);font-size:14.5px;
-  line-height:1.5;display:flex;flex-direction:column;overflow:hidden;-webkit-text-size-adjust:100%}
-button,input,textarea{font:inherit;color:inherit}
+  line-height:1.55;display:flex;flex-direction:column;overflow:hidden;-webkit-text-size-adjust:100%}
+button,input,textarea,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-h2{margin:0 0 3px;font-size:19px;font-weight:650;letter-spacing:-.01em}
-h3{margin:0;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);font-weight:600}
-p.lead{margin:0 0 14px;color:var(--mid);max-width:70ch}
+h2{margin:0 0 4px;font-size:20px;font-weight:650;letter-spacing:-.01em}
+h3{margin:16px 0 8px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);font-weight:600}
+p.lead{margin:0 0 16px;color:var(--mid);max-width:70ch}
+a{color:var(--cool)}
 
-/* ── the character bar ─────────────────────────────────── */
-#top{display:grid;grid-template-columns:auto minmax(140px,1fr) auto;gap:10px 16px;align-items:center;
+#top{display:grid;grid-template-columns:auto minmax(120px,1fr) auto;gap:8px 16px;align-items:center;
   padding:8px 14px;background:var(--deck);border-bottom:1px solid var(--edge);flex:0 0 auto;
   padding-top:max(8px,env(safe-area-inset-top))}
-.crest{display:flex;align-items:baseline;gap:10px;min-width:0}
+.crest{display:flex;align-items:baseline;gap:9px;min-width:0}
 .crest .t{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.2em}
 .crest .t b{color:var(--gold)}
-.rank{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+.rank{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
   border:1px solid var(--gold-deep);color:var(--gold);border-radius:2px;padding:2px 7px;white-space:nowrap}
 .xp .lab{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:9.5px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:3px}
@@ -43,105 +42,114 @@ p.lead{margin:0 0 14px;color:var(--mid);max-width:70ch}
 .track{height:10px;background:var(--sunk);border:1px solid var(--edge);border-radius:2px;display:flex;overflow:hidden}
 .track i{background:var(--mine);transition:width .35s}
 .track u{background:repeating-linear-gradient(45deg,var(--rent),var(--rent) 4px,transparent 4px,transparent 8px);transition:width .35s}
-.realm{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--faint);display:flex;align-items:center;gap:6px;white-space:nowrap}
-.realm .d{width:6px;height:6px;border-radius:50%;background:var(--stop)}
-.realm.up .d{background:var(--mine)} .realm.up{color:var(--mine)}
-@media (max-width:700px){ #top{grid-template-columns:1fr auto} .xp{grid-column:1/-1} }
+#topRight{display:flex;gap:8px;align-items:center}
+#topRight button{background:none;border:1px solid var(--edge);color:var(--mid);border-radius:3px;padding:3px 9px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+#topRight button:hover{border-color:var(--gold);color:var(--gold)}
+@media (max-width:720px){ #top{grid-template-columns:1fr auto} .xp{grid-column:1/-1} }
 
-/* ── layout ────────────────────────────────────────────── */
 #body{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:auto minmax(0,1fr)}
-nav{background:var(--deck);border-right:1px solid var(--edge);display:flex;flex-direction:column;
-  padding:8px 6px;gap:4px;overflow-y:auto}
-nav button{display:flex;align-items:center;gap:9px;background:none;border:1px solid transparent;
-  border-radius:4px;padding:7px 10px;cursor:pointer;color:var(--mid);white-space:nowrap;text-align:left}
+nav{background:var(--deck);border-right:1px solid var(--edge);display:flex;flex-direction:column;padding:8px 6px;gap:3px;overflow-y:auto}
+nav button{display:flex;align-items:center;gap:9px;background:none;border:1px solid transparent;border-radius:4px;
+  padding:7px 10px;cursor:pointer;color:var(--mid);white-space:nowrap;text-align:left}
 nav button:hover{background:var(--sunk);color:var(--ink)}
 nav button.on{background:var(--sunk);border-color:var(--gold-deep);color:var(--gold)}
 nav .ic{font-size:15px;width:18px;text-align:center;flex:0 0 auto}
-nav .k{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--faint);border:1px solid var(--edge);
-  border-radius:2px;padding:0 4px}
-nav .lb{font-size:13px}
+nav .k{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--faint);border:1px solid var(--edge);border-radius:2px;padding:0 4px}
 @media (max-width:760px){
   #body{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
   nav{flex-direction:row;border-right:none;border-bottom:1px solid var(--edge);overflow-x:auto;padding:6px}
-  nav .lb,nav .k{display:none} nav button{padding:8px 12px}
-  nav .ic{font-size:17px}
+  nav .lb,nav .k{display:none} nav button{padding:8px 12px} nav .ic{font-size:17px}
 }
-main{overflow-y:auto;padding:18px 20px 40px;min-width:0}
+main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .panel{max-width:1000px}
-.hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.hd .n{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--faint)}
 
-/* ── cards & grids ─────────────────────────────────────── */
-.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(255px,1fr))}
 .card{border:1px solid var(--edge);border-left-width:3px;border-radius:5px;background:var(--deck);padding:11px 13px;display:grid;gap:5px}
-.card.proven{border-left-color:var(--proven)} .card.works{border-left-color:var(--works)} .card.prototype{border-left-color:var(--proto)}
+.card.proven{border-left-color:var(--mine)} .card.works{border-left-color:var(--cool)} .card.prototype{border-left-color:var(--faint)}
 .card .r1{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .card .nm{font-weight:650}
-.card.proven .nm{color:var(--proven)} .card.works .nm{color:var(--works)}
-.card .d{font-size:12.5px;color:var(--mid);line-height:1.45}
-.tag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--edge);
+.card .d{font-size:12.5px;color:var(--mid)}
+.tag{font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;border:1px solid var(--edge);
   border-radius:99px;padding:1px 7px;color:var(--faint);white-space:nowrap}
-.tag.proven{border-color:var(--proven);color:var(--proven)}
-.tag.works{border-color:var(--works);color:var(--works)}
+.tag.proven{border-color:var(--mine);color:var(--mine)}
+.tag.works{border-color:var(--cool);color:var(--cool)}
 .tag.price{border-color:var(--gold-deep);color:var(--gold)}
 .tag.on{border-color:var(--mine);color:var(--mine)}
-.ev{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:1px}
-.reach{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.ev{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.reach{display:flex;flex-wrap:wrap;gap:4px}
 .rc{font-family:var(--mono);font-size:9.5px;border-radius:2px;padding:1px 6px;border:1px solid var(--edge);color:var(--mid)}
-.rc.no{color:var(--faint);opacity:.55;text-decoration:line-through}
-.act{margin-top:6px;background:none;border:1px solid var(--gold-deep);color:var(--gold);border-radius:4px;
-  padding:5px 11px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;justify-self:start}
+.rc.no{color:var(--faint);opacity:.5;text-decoration:line-through}
+.act{background:none;border:1px solid var(--gold-deep);color:var(--gold);border-radius:4px;padding:5px 11px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;justify-self:start}
 .act:hover{background:var(--sunk)}
-.act.own{border-color:var(--edge);color:var(--faint);cursor:default}
 
 .warn{border:1px solid var(--stop);color:var(--stop);border-radius:5px;padding:11px 13px;margin-bottom:12px;font-size:13.5px}
 .note{border:1px solid var(--edge);border-radius:5px;padding:11px 13px;margin-bottom:12px;font-size:13.5px;color:var(--mid)}
-.note b,.warn b{color:var(--ink)}
-.warn b{color:var(--stop)}
+.note b,.warn b{color:var(--ink)} .warn b{color:var(--stop)}
+.good{border-color:var(--mine);color:var(--mine)} .good b{color:var(--mine)}
 .quiet{color:var(--faint);font-style:italic;font-size:13px}
 
-.rungs{display:grid;gap:8px;max-width:560px}
-.rung{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;border:1px solid var(--soft);
+/* the didy */
+#ask{width:100%;min-height:90px;background:var(--sunk);border:1px solid var(--edge);border-radius:5px;
+  padding:11px 13px;font-size:15px;resize:vertical}
+.row{display:flex;gap:9px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.go{background:var(--gold);color:var(--void);border:none;border-radius:5px;padding:9px 18px;font-weight:700;
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.go:disabled{background:var(--sunk);color:var(--faint);border:1px solid var(--edge);cursor:default}
+.where{font-family:var(--mono);font-size:11px;color:var(--faint);margin-left:auto}
+.where b{color:var(--mine)} .where b.r{color:var(--rent)}
+.stance{border:1px solid var(--edge);border-left-width:3px;border-radius:5px;background:var(--deck);padding:11px 13px;margin-bottom:8px}
+.stance.top{border-left-color:var(--gold)}
+.stance.held{border-left-color:var(--mine)}
+.stance.road{border-left-color:var(--faint);opacity:.72}
+.stance .h{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.stance .n{font-weight:650}
+.stance .sc{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
+.stance .m{font-size:13px;color:var(--mid);margin-top:3px}
+.stance .cue{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:4px}
+.pick{background:none;border:1px solid var(--gold-deep);color:var(--gold);border-radius:4px;padding:4px 10px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:7px}
+
+/* keys */
+.field{display:grid;gap:6px;margin-bottom:14px;max-width:620px}
+.field label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.field input{background:var(--sunk);border:1px solid var(--edge);border-radius:4px;padding:9px 11px;font-family:var(--mono);font-size:12.5px}
+.field .h{font-size:12.5px;color:var(--faint)}
+.rungs{display:grid;gap:8px;max-width:640px}
+.rung{display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:center;border:1px solid var(--soft);
   border-radius:5px;background:var(--sunk);padding:10px 12px}
-.rung.now{border-color:var(--mine)}
-.rung .p{width:9px;height:9px;transform:rotate(45deg);background:var(--edge);margin-top:5px}
-.rung.now .p{background:var(--mine)}
-.rung .t{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
-.rung.now .t{color:var(--mine)}
+.rung.have{border-color:var(--mine)}
+.rung .p{width:9px;height:9px;transform:rotate(45deg);background:var(--edge)}
+.rung.have .p{background:var(--mine)}
+.rung .t{font-family:var(--mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase}
+.rung.have .t{color:var(--mine)}
 .rung .s{font-size:12.5px;color:var(--mid)}
-.big{background:var(--gold);color:var(--void);border:none;border-radius:5px;padding:10px 18px;font-weight:700;
-  font-family:var(--mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase;cursor:pointer;margin-top:12px}
-.big:disabled{background:var(--sunk);color:var(--faint);border:1px solid var(--edge);cursor:default}
+.rung .st{font-family:var(--mono);font-size:10px;color:var(--faint);white-space:nowrap}
 
-.zones{display:grid;gap:9px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
-.zone{display:block;text-decoration:none;color:inherit;border:1px solid var(--edge);border-radius:5px;
-  background:var(--deck);padding:10px 12px}
+.zones{display:grid;gap:9px;grid-template-columns:repeat(auto-fill,minmax(225px,1fr))}
+.zone{display:block;text-decoration:none;color:inherit;border:1px solid var(--edge);border-radius:5px;background:var(--deck);padding:10px 12px}
 .zone:hover{border-color:var(--gold)}
-.zone .n{font-weight:650;display:block}
-.zone .s{font-size:12.5px;color:var(--mid);display:block;margin-top:2px}
-.wing{margin-bottom:20px}
-.wing .wh{display:flex;align-items:baseline;gap:9px;margin-bottom:8px}
-.wing .ic{font-size:17px}
-.wing .wb{font-size:13px;color:var(--mid);margin:0 0 9px}
+.zone .n{font-weight:650;display:block} .zone .s{font-size:12.5px;color:var(--mid);display:block;margin-top:2px}
+.zone .first{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.wing{margin-bottom:22px} .wing .wh{display:flex;align-items:baseline;gap:9px;margin-bottom:6px}
+.wing .ic{font-size:17px} .wing .wb{font-size:13px;color:var(--mid);margin:0 0 9px}
 
-#log{border-top:1px solid var(--edge);background:var(--deck);flex:0 0 auto;display:flex;gap:9px;
-  padding:8px 14px;align-items:center;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+#log{border-top:1px solid var(--edge);background:var(--deck);flex:0 0 auto;display:flex;gap:9px;align-items:center;
+  padding:8px 14px;padding-bottom:max(8px,env(safe-area-inset-bottom))}
 #log .line{flex:1 1 auto;min-width:0;font-size:12.5px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#log button{background:none;border:1px solid var(--edge);color:var(--faint);border-radius:3px;padding:3px 9px;
-  font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
-#log button:hover{border-color:var(--gold);color:var(--gold)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 
 <div id="top">
-  <div class="crest"><span class="t">FALL<b>·</b>WORLD</span><span class="rank" id="rank">rig 0 · Renting</span></div>
+  <div class="crest"><span class="t">FALL<b>·</b>WORLD</span><span class="rank" id="rank">renting</span></div>
   <div class="xp">
-    <div class="lab"><span>your own electric</span><span id="split">nothing installed</span></div>
+    <div class="lab"><span>ran on your own machine</span><span id="split">nothing yet</span></div>
     <div class="track" id="track"><i style="width:0"></i><u style="width:0"></u></div>
   </div>
-  <div class="realm" id="realm"><span class="d"></span><span id="realmTxt">realm offline</span></div>
+  <div id="topRight"><button type="button" id="install">install</button></div>
 </div>
 
 <div id="body">
@@ -149,58 +157,61 @@ main{overflow-y:auto;padding:18px 20px 40px;min-width:0}
   <main><div class="panel" id="panel"></div></main>
 </div>
 
-<div id="log"><span class="line" id="logline">Welcome back.</span><button type="button" id="install">install</button></div>
+<div id="log"><span class="line" id="logline">loading…</span></div>
 
 <script type="module">
 /*__KERNEL__*/
 
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+// THE EASY FACE. Everything above is fall-os and the estate's own index; nothing below re-decides
+// anything. This file's whole job is to say what that engine did in words a person can act on.
+// ══════════════════════════════════════════════════════════════════════════════════════════════
 const $ = (s) => document.querySelector(s);
 const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; };
-const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-// One save, shared with every room in the world. A client where your character changes depending
-// which door you came through is not one world.
 const SAVE = 'fallworld.character.v1';
+const blank = () => ({ name: 'you', bags: [], keys: {}, ran: [], localUp: false, last: '' });
 const load = () => { try {
   const c = JSON.parse(localStorage.getItem(SAVE) || '{}');
-  return { rig: Number.isInteger(c.rig) ? Math.max(0, Math.min(RIG.length - 1, c.rig)) : 0,
-           name: typeof c.name === 'string' && c.name.trim() ? c.name.trim().slice(0, 24) : 'you',
-           bags: Array.isArray(c.bags) ? c.bags.filter(x => typeof x === 'string') : [],
-           last: typeof c.last === 'string' ? c.last : '' };
-} catch { return { rig: 0, name: 'you', bags: [], last: '' }; } };
+  const b = blank();
+  return {
+    name: typeof c.name === 'string' && c.name.trim() ? c.name.trim().slice(0, 24) : b.name,
+    bags: Array.isArray(c.bags) ? c.bags.filter(x => typeof x === 'string') : [],
+    keys: (c.keys && typeof c.keys === 'object') ? c.keys : {},
+    ran: Array.isArray(c.ran) ? c.ran.filter(x => x && typeof x === 'object') : [],
+    localUp: c.localUp === true,
+    last: typeof c.last === 'string' ? c.last : '',
+  };
+} catch { return blank(); } };
 const save = () => { try { localStorage.setItem(SAVE, JSON.stringify(me)); } catch { /* private mode: play on */ } };
 let me = load();
 
 const SHOP = store(CATALOGUE);
 const byId = new Map(SHOP.listed.map(a => [a.id, a]));
 const owned = () => me.bags.map(id => byId.get(id)).filter(Boolean);
+const say = (t) => { $('#logline').textContent = t; };
 
-function say(t) { $('#logline').textContent = t; }
-
-// ── the character bar ─────────────────────────────────────────────────────────────────────────
+// ── the bar: measured from what actually ran, never from what is installed ────────────────────
 function drawTop() {
-  const r = RIG[me.rig];
-  $('#rank').textContent = `rig ${r.level} · ${r.name}`;
-  const mine = owned();
+  const t = tally(me.ran);
+  const have = reach(me);
+  $('#rank').textContent = have.t1 ? 'own model' : have.t2 ? 'renting' : 'no model';
   const own = $('#track i'), rent = $('#track u');
-  if (!mine.length) { own.style.width = '0'; rent.style.width = '0'; $('#split').textContent = 'nothing installed'; return; }
-  // What you own outright: everything whose model needs are inside your rig.
-  const yours = mine.filter(a => a.mind <= r.holds).length;
-  const pct = Math.round((yours / mine.length) * 100);
+  if (t.sovereignty === null) { own.style.width = '0'; rent.style.width = '0'; $('#split').textContent = 'nothing yet'; return; }
+  const pct = Math.round(t.sovereignty * 100);
   own.style.width = pct + '%'; rent.style.width = (100 - pct) + '%';
   $('#split').innerHTML = pct === 100 ? `<b>${pct}% yours</b>` : `<b>${pct}% yours</b> · <b class="r">${100 - pct}% rented</b>`;
 }
 
-// ── panels ────────────────────────────────────────────────────────────────────────────────────
 const PANELS = [
+  { id: 'didy', ic: '◈', lb: 'Your didy', key: 'D' },
+  { id: 'keys', ic: '🔑', lb: 'Power', key: 'P' },
   { id: 'world', ic: '🗺', lb: 'World', key: 'M' },
-  { id: 'character', ic: '◈', lb: 'Character', key: 'C' },
-  { id: 'bags', ic: '🎒', lb: 'Bags', key: 'B' },
   { id: 'store', ic: '⚖', lb: 'Store', key: 'S' },
-  { id: 'quests', ic: '❦', lb: 'Quests', key: 'L' },
-  { id: 'fleet', ic: '⚡', lb: 'Fleet', key: 'F' },
+  { id: 'bags', ic: '🎒', lb: 'Bags', key: 'B' },
+  { id: 'learn', ic: '❦', lb: 'Learn', key: 'L' },
 ];
-let at = 'world';
+let at = 'didy';
 
 function drawNav() {
   const n = $('#nav'); n.replaceChildren();
@@ -212,55 +223,109 @@ function drawNav() {
   }
 }
 
-function head(title, lead, count) {
-  const h = el('div', 'hd');
-  const box = el('div');
-  box.append(el('h2', null, title));
-  h.append(box);
-  if (count != null) h.append(el('span', 'n', count));
-  const out = document.createDocumentFragment();
-  out.append(h);
-  if (lead) out.append(el('p', 'lead', lead));
-  return out;
+function head(title, lead) {
+  const f = document.createDocumentFragment();
+  f.append(el('h2', null, title));
+  if (lead) f.append(el('p', 'lead', lead));
+  return f;
 }
 
-function addonCard(a, { installed = false } = {}) {
-  const c = el('div', 'card ' + (a.tier || 'prototype'));
-  const r1 = el('div', 'r1');
-  r1.append(el('span', 'nm', a.name));
-  r1.append(el('span', 'tag ' + a.tier, a.tier));
-  if (a.price > 0) r1.append(el('span', 'tag price', '£' + a.price));
-  if (installed) r1.append(el('span', 'tag on', 'installed'));
-  c.append(r1);
-  c.append(el('div', 'd', a.does));
-  if (a.evidence) c.append(el('div', 'ev', 'ran: ' + a.evidence));
-  const i = inspect(a);
-  const rr = el('div', 'reach');
-  for (const x of i.can) { const s = el('span', 'rc', x.reach); s.title = x.means; rr.append(s); }
-  for (const x of i.cannot) { const s = el('span', 'rc no', x.reach); s.title = 'cannot ' + x.means; rr.append(s); }
-  c.append(rr);
-  if (installed) {
-    const b = el('button', 'act', 'remove'); b.type = 'button';
-    b.addEventListener('click', () => { me.bags = me.bags.filter(x => x !== a.id); save(); say(`${a.name} removed.`); draw(); });
-    c.append(b);
-  } else {
-    const b = el('button', 'act', a.price > 0 ? 'get · £' + a.price : 'install'); b.type = 'button';
-    b.addEventListener('click', () => {
-      const r = install(a, me.bags, SHOP.listed);
-      if (!r.ok) { say(r.why); return; }
-      if (a.price > 0) { say(`${a.name} is a paid addon. Payment is not wired up yet — nothing was charged and nothing was installed.`); return; }
-      me.bags.push(a.id); save(); say(r.why); draw();
-    });
-    c.append(b);
-  }
-  if (a.url) { const l = el('a', 'ev'); l.href = a.url; l.textContent = 'open →'; l.target = '_blank'; l.rel = 'noopener'; c.append(l); }
-  return c;
-}
-
+// ── YOUR DIDY — fall-os's real conduct(), said plainly ────────────────────────────────────────
 const P = {
+  didy() {
+    const f = document.createDocumentFragment();
+    f.append(head('Your didy',
+      'Tell it what you are trying to decide or get done. It reads your own words for signals, lays out the ways you could go, keeps the ones worth keeping and shows you the ones it set aside. You pick. It never picks for you.'));
+
+    const ta = el('textarea'); ta.id = 'ask'; ta.value = me.last;
+    ta.placeholder = 'e.g. should we stop Saturday deliveries — it saves money but the weekly customers will notice';
+    ta.setAttribute('aria-label', 'What are you deciding');
+    f.append(ta);
+
+    const row = el('div', 'row');
+    const go = el('button', 'go', 'think it through'); go.type = 'button'; go.id = 'go';
+    const where = el('span', 'where'); where.id = 'where';
+    row.append(go, where);
+    f.append(row);
+
+    const out = el('div'); out.id = 'out'; out.style.marginTop = '16px';
+    f.append(out);
+
+    const have = reach(me);
+    where.innerHTML = have.t1 ? 'ready · <b>your machine</b>'
+      : have.t2 ? 'ready · <b class="r">a paid model</b>'
+      : 'ready · <b>no model</b> — works anyway';
+
+    go.addEventListener('click', () => runDidy(ta.value, out, where));
+    return f;
+  },
+
+  keys() {
+    const f = document.createDocumentFragment();
+    f.append(head('Power',
+      'Everyone starts renting. Paste a key you already have and it works right now. Then build your own, and the same jobs start staying home — that is the only thing that really levels up here.'));
+
+    const have = reach(me);
+    const rungs = el('div', 'rungs');
+    for (const r of RUNGS) {
+      const d = el('div', 'rung' + (have[r.id] ? ' have' : ''));
+      d.append(el('span', 'p'));
+      const b = el('div'); b.append(el('div', 't', r.name), el('div', 's', r.blurb));
+      d.append(b);
+      d.append(el('span', 'st', have[r.id] ? 'ready' : r.id === 't1' ? 'not running' : 'no key'));
+      rungs.append(d);
+    }
+    f.append(rungs);
+
+    f.append(el('h3', null, 'your key'));
+    for (const [prov, label, hint] of [
+      ['anthropic', 'Claude key', 'starts with sk-ant- · stored in this browser only, never sent anywhere but Anthropic'],
+      ['google', 'Gemini key', 'from aistudio.google.com · stored in this browser only, never sent anywhere but Google'],
+    ]) {
+      const fl = el('div', 'field');
+      const lb = el('label', null, label); lb.htmlFor = 'k-' + prov;
+      const i = el('input'); i.id = 'k-' + prov; i.type = 'password'; i.autocomplete = 'off';
+      i.placeholder = me.keys[prov] ? '•••••••• saved' : 'paste it here';
+      i.value = '';
+      i.addEventListener('change', () => {
+        const v = i.value.trim();
+        if (v) { me.keys[prov] = v; say(`${label} saved — it stays in this browser.`); }
+        else { delete me.keys[prov]; say(`${label} removed.`); }
+        i.value = ''; save(); draw();
+      });
+      fl.append(lb, i, el('div', 'h', hint));
+      f.append(fl);
+    }
+
+    f.append(el('h3', null, 'your own machine'));
+    const local = el('div', 'field');
+    const lrow = el('div', 'row');
+    const probe = el('button', 'act', 'look for my model'); probe.type = 'button';
+    const lstat = el('span', 'quiet', me.localUp ? 'found, and it is being used first' : 'not found');
+    probe.addEventListener('click', async () => {
+      lstat.textContent = 'looking…';
+      me.localUp = await probeLocal();
+      save(); draw();
+      say(me.localUp ? 'Found a model on your machine. It gets the work first from now on.'
+                     : 'No model answered on 127.0.0.1:11434. Nothing was sent anywhere else.');
+    });
+    lrow.append(probe, lstat);
+    local.append(lrow, el('div', 'h', 'Ollama on port 11434. Nothing here talks to it except you.'));
+    f.append(local);
+
+    const t = tally(me.ran);
+    if (t.runs) {
+      f.append(el('h3', null, 'what it has cost you'));
+      f.append(el('div', 'note', t.verdict));
+      const w = wouldSave(me.ran, 't1');
+      if (w.runs) f.append(el('div', 'note good', 'Build your own model and ' + w.say));
+    }
+    return f;
+  },
+
   world() {
     const f = document.createDocumentFragment();
-    f.append(head('The world', 'Thirty places, in six parts. Your character comes with you.', `${ROOM_COUNT} rooms`));
+    f.append(head('The world', 'Everything the estate has built, in the place it belongs. Your character comes with you.'));
     for (const w of WINGS) {
       const s = el('div', 'wing');
       const wh = el('div', 'wh'); wh.append(el('span', 'ic', w.icon), el('h2', null, w.title)); s.append(wh);
@@ -269,6 +334,7 @@ const P = {
       for (const r of w.rooms) {
         const a = el('a', 'zone'); a.href = r.u; a.target = '_blank'; a.rel = 'noopener';
         a.append(el('span', 'n', r.n), el('span', 's', r.s));
+        if (r.first) a.append(el('span', 'first', 'start here'));
         z.append(a);
       }
       s.append(z); f.append(s);
@@ -276,121 +342,185 @@ const P = {
     return f;
   },
 
-  character() {
+  store() {
     const f = document.createDocumentFragment();
-    f.append(head('Your character', 'The only thing that really levels up is how much of the work runs on your own machine. It rises when you build a model. Never when you spend.'));
-    const rungs = el('div', 'rungs');
-    for (const r of RIG) {
-      const d = el('div', 'rung' + (r.level === me.rig ? ' now' : ''));
-      d.append(el('span', 'p'));
-      const b = el('div'); b.append(el('div', 't', `${r.level} · ${r.name}`), el('div', 's', r.blurb));
-      d.append(b); rungs.append(d);
-    }
-    f.append(rungs);
-    const mine = owned();
-    const rented = mine.filter(a => a.mind > RIG[me.rig].holds);
-    if (rented.length) {
-      f.append(el('div', 'note', `${rented.map(a => a.name).join(', ')} need more model than your rig holds, so they run on somebody else's machine and somebody else's bill.`));
-    }
-    const b = el('button', 'big', me.rig >= RIG.length - 1 ? 'nothing left to rent' : `train up to ${RIG[me.rig + 1].name}`);
-    b.type = 'button'; b.disabled = me.rig >= RIG.length - 1;
-    b.addEventListener('click', () => { me.rig += 1; save(); say(`You built ${RIG[me.rig].name}.`); draw(); });
-    f.append(b);
+    f.append(head('The store',
+      'Every listing carries a rank worked out from what its own tests actually did on a machine — not what anybody said about it. Anything with no evidence is not listed, at any price.'));
+    f.append(el('div', 'note', `${SHOP.listed.length} listed · ${SHOP.refused.length} refused, because nothing runs a check on them. A shop that lists everything is a shop whose listings mean nothing.`));
+    const g = el('div', 'grid');
+    for (const a of SHOP.listed.slice(0, 90)) g.append(card(a, me.bags.includes(a.id)));
+    f.append(g);
+    if (SHOP.listed.length > 90) f.append(el('p', 'quiet', `showing 90 of ${SHOP.listed.length}`));
     return f;
   },
 
   bags() {
     const f = document.createDocumentFragment();
     const mine = owned();
-    f.append(head('Bags', 'Everything installed, and — the part no app store shows you — what they can do BETWEEN them.', `${mine.length} installed`));
+    f.append(head('Bags', 'What you have, and — the bit no app shop shows you — what they can do between them.'));
     const h = held(mine);
-    if (h.combined.filter(c => c.emergent).length) {
-      for (const c of h.combined.filter(x => x.emergent)) {
+    const emergent = h.combined.filter(c => c.emergent);
+    if (emergent.length) {
+      for (const c of emergent) {
         const w = el('div', 'warn');
-        w.innerHTML = `<b>Together, these can ${esc(c.say)}</b><br>` +
-          c.by.map(x => `${esc(x.reach)} — from ${x.from.map(esc).join(', ')}`).join('<br>');
+        w.append(el('b', null, `Together these can ${c.say}`));
+        for (const b of c.by) w.append(el('div', null, `${b.reach} — from ${b.from.join(', ')}`));
         f.append(w);
       }
-    } else if (mine.length) {
-      f.append(el('div', 'note', h.verdict));
+    } else if (mine.length) f.append(el('div', 'note good', h.verdict));
+    if (!mine.length) { f.append(el('p', 'quiet', 'Nothing installed yet. Have a look in the store.')); return f; }
+    const g = el('div', 'grid');
+    for (const a of mine) g.append(card(a, true));
+    f.append(g);
+    return f;
+  },
+
+  learn() {
+    const f = document.createDocumentFragment();
+    f.append(head('Learn',
+      'The one skill worth having: asking properly, and knowing when an answer is agreeing with you rather than helping you. It marks what you write — it can tell you no.'));
+    const a = el('a', 'zone'); a.href = 'https://sjgant80-hub.github.io/falllearn/'; a.target = '_blank'; a.rel = 'noopener';
+    a.append(el('span', 'n', 'FallLearn — thirteen exercises'),
+             el('span', 's', 'Eight on asking properly, five on reading the answer. Free, offline, no account.'));
+    f.append(a);
+    f.append(el('h3', null, 'the short version'));
+    for (const [t, d] of [
+      ['Ask for a thing, not a topic', 'Start with a verb. "Marketing plan" is a subject nobody can finish and hand back.'],
+      ['Say who reads it', 'The same facts for your boss and for a stranger are two different pieces of writing.'],
+      ['Give it something to work from', 'Asked about what it cannot see, a model does not stop — it fills the gap with what usually goes there.'],
+      ['Say what finished looks like', 'No shape means five paragraphs, because five paragraphs is the safe answer to everything.'],
+      ['Let it push back', 'One line giving it permission to say "I would be guessing" turns an invention into a question you can answer.'],
+    ]) {
+      const c = el('div', 'card works');
+      c.append(el('div', 'nm', t), el('div', 'd', d));
+      f.append(c);
     }
-    if (!mine.length) { f.append(el('p', 'quiet', 'Nothing installed. The client on its own reaches nothing.')); return f; }
-    const g = el('div', 'grid');
-    for (const a of mine) g.append(addonCard(a, { installed: true }));
-    f.append(g);
-    return f;
-  },
-
-  store() {
-    const f = document.createDocumentFragment();
-    f.append(head('The store', 'Every listing carries a rank computed from what its own CI actually ran — never what its author claimed. Nothing with no evidence gets listed, at any price.', SHOP.verdict));
-    f.append(el('div', 'note', `${SHOP.refused.length} builds in this estate could NOT be listed: nothing runs a check on them, so there is no run anybody could re-run. That refusal is the point — a shop that lists everything is a shop whose listings mean nothing.`));
-    const g = el('div', 'grid');
-    for (const a of SHOP.listed.slice(0, 120)) g.append(addonCard(a, { installed: me.bags.includes(a.id) }));
-    f.append(g);
-    if (SHOP.listed.length > 120) f.append(el('p', 'quiet', `showing 120 of ${SHOP.listed.length} listed`));
-    return f;
-  },
-
-  quests() {
-    const f = document.createDocumentFragment();
-    f.append(head('Quests', 'Computed from the real state of the estate, not written down by anybody.'));
-    const q = [];
-    if (SHOP.refused.length) q.push({ n: `Gate ${SHOP.refused.length} builds`, s: 'They cannot be listed because nothing runs a check on them. One gate each and they become sellable.' });
-    if (SHOP.counts.works) q.push({ n: `Prove ${SHOP.counts.works} that only "work"`, s: 'Their tests pass but nothing has tried to break them. Proven is the paid tier.' });
-    if (!me.bags.length) q.push({ n: 'Install your first addon', s: 'The store is sorted proven-first. Everything free is free forever.' });
-    if (me.rig === 0) q.push({ n: 'Build your own model', s: 'Every rung you climb takes work off rented compute and onto your machine.' });
-    const h = held(owned());
-    if (h.combined.filter(c => c.emergent).length) q.push({ n: 'Look at what your bags can do together', s: 'Some combination reaches further than any single addon you approved.' });
-    const g = el('div', 'grid');
-    for (const x of q) { const c = el('div', 'card works'); c.append(el('div', 'r1', ''), el('span', 'nm', x.n), el('div', 'd', x.s)); g.append(c); }
-    f.append(g);
-    if (!q.length) f.append(el('p', 'quiet', 'Nothing outstanding.'));
-    return f;
-  },
-
-  fleet() {
-    const f = document.createDocumentFragment();
-    f.append(head('Fleet', 'Every agent of yours that is actually running — jobs, builds, trades, tasks.'));
-    const box = el('div'); box.id = 'fleetBox';
-    box.append(el('p', 'quiet', 'looking for your realm…'));
-    f.append(box);
-    pullFleet(box);
     return f;
   },
 };
 
-// The realm is your own machine. The client is public; your fleet is not, and it is never guessed at.
-async function pullFleet(box) {
+function card(a, installed) {
+  const c = el('div', 'card ' + (a.tier || 'prototype'));
+  const r1 = el('div', 'r1');
+  r1.append(el('span', 'nm', a.name), el('span', 'tag ' + a.tier, a.tier));
+  if (a.price > 0) r1.append(el('span', 'tag price', '£' + a.price));
+  if (installed) r1.append(el('span', 'tag on', 'installed'));
+  c.append(r1, el('div', 'd', a.does));
+  if (a.evidence) c.append(el('div', 'ev', 'checked by: ' + a.evidence));
+  const i = inspect(a);
+  const rr = el('div', 'reach');
+  for (const x of i.can) { const s = el('span', 'rc', x.reach); s.title = x.means; rr.append(s); }
+  for (const x of i.cannot) { const s = el('span', 'rc no', x.reach); s.title = 'cannot ' + x.means; rr.append(s); }
+  c.append(rr);
+  const b = el('button', 'act', installed ? 'remove' : a.price > 0 ? 'get · £' + a.price : 'install');
+  b.type = 'button';
+  b.addEventListener('click', () => {
+    if (installed) { me.bags = me.bags.filter(x => x !== a.id); save(); say(`${a.name} removed.`); draw(); return; }
+    const r = install(a, me.bags, SHOP.listed);
+    if (!r.ok) { say(r.why); return; }
+    if (a.price > 0) { say(`${a.name} costs £${a.price}. Paying is not wired up yet — nothing was charged and nothing installed.`); return; }
+    me.bags.push(a.id); save(); say(r.why); draw();
+  });
+  c.append(b);
+  if (a.url) { const l = el('a', 'ev'); l.href = a.url; l.target = '_blank'; l.rel = 'noopener'; l.textContent = 'open it →'; c.append(l); }
+  return c;
+}
+
+// ── running the real conductor ────────────────────────────────────────────────────────────────
+async function probeLocal() {
   try {
-    const r = await fetch('http://127.0.0.1:8791/fleet', { signal: AbortSignal.timeout(2500) });
-    const b = await r.json();
-    $('#realm').classList.add('up'); $('#realmTxt').textContent = 'realm connected';
-    box.replaceChildren();
-    box.append(el('div', 'note', b.verdict));
-    const g = el('div', 'grid');
-    for (const row of b.rows.slice(0, 40)) {
-      const c = el('div', 'card ' + (row.state === 'running' ? 'proven' : row.state === 'quiet' ? 'works' : 'prototype'));
-      const r1 = el('div', 'r1'); r1.append(el('span', 'nm', row.name), el('span', 'tag', row.state));
-      c.append(r1, el('div', 'd', row.why));
-      g.append(c);
-    }
-    box.append(g);
-  } catch {
-    $('#realm').classList.remove('up'); $('#realmTxt').textContent = 'realm offline';
-    box.replaceChildren();
-    // ⚑ Never draw an empty board here. "Nothing is running" and "I cannot see" must not look alike.
-    const w = el('div', 'warn');
-    w.innerHTML = '<b>Your realm is not running, so this screen can see nothing.</b> That is not the same as nothing running. Start it on your own machine:<br><br>'
-      + '<code style="font-family:var(--mono);font-size:12px">node sididy-command/server.mjs</code>';
-    box.append(w);
+    const r = await fetch('http://127.0.0.1:11434/api/tags', { signal: AbortSignal.timeout(2000) });
+    return r.ok;
+  } catch { return false; }
+}
+
+function runDidy(what, out, where) {
+  const asked = String(what || '').trim();
+  if (!asked) { say('Tell it what you are deciding first.'); return; }
+  me.last = asked; save();
+
+  // Where would this run? Asked before anything happens, and shown either way.
+  const decision = route(asked, me, { mind: 0 });
+  out.replaceChildren();
+
+  // ⚑ The conductor itself needs no model at all: t0 is deterministic. So the page always works,
+  // key or no key — and the rung only decides whether it can also be put into better words.
+  const didy = makeDidy('fallworld');
+  const organ = t0Organ(asked);
+  register(didy, 't0', organ);
+  const run = conduct(didy, asked, { n: 6 });
+  const ev = organ.evidence;
+
+  me.ran.push({ rung: 't0', mind: 0, cost: 0 });
+  save();
+
+  const note = el('div', 'note');
+  note.textContent = summarise(run.field, ev);
+  out.append(note);
+
+  if (!ev.found) {
+    out.append(el('div', 'note', 'It found no signals it could name in that. Say more about what is at stake — what it costs, who it affects, what happens if it goes wrong — and the ranking will change.'));
   }
+
+  out.append(el('h3', null, 'ways you could go'));
+  const held_ = run.field.holds || [];
+  const roads = run.field.roads || [];
+  held_.forEach((h, i) => out.append(stanceCard(h, i === 0 ? 'top' : 'held', ev)));
+  if (roads.length) {
+    out.append(el('h3', null, 'set aside — and why that matters'));
+    out.append(el('div', 'note', 'These did not clear the bar on your own words. They are kept, not deleted: the road you nearly took is the thing you want back when the first one fails.'));
+    for (const r of roads) out.append(stanceCard(r, 'road', ev));
+  }
+
+  drawTop();
+  where.innerHTML = decision.refused
+    ? `<b class="r">${decision.refused}</b>`
+    : decision.yours ? 'ran on <b>your machine</b> · free'
+    : `ran on <b class="r">${decision.name}</b>`;
+  say(`${held_.length} ways kept, ${roads.length} set aside — nothing is decided until you pick one.`);
+}
+
+function stanceCard(branch, kind, ev) {
+  const v = branch.value || branch;
+  const d = el('div', 'stance ' + kind);
+  const h = el('div', 'h');
+  h.append(el('span', 'n', v.label || v.stance || 'a way to go'));
+  h.append(el('span', 'sc', typeof branch.score === 'number' ? branch.score.toFixed(2) : ''));
+  d.append(h);
+  if (v.move) d.append(el('div', 'm', v.move));
+
+  // ⚑ SHOW THE WORDS, NOT THE CODE. The organ reports which SIGNALS moved a stance, by id — and an
+  // id on the screen reads as "unknown", which is worse than saying nothing. The whole promise of
+  // the tier-0 conductor is that every score traces back to a word you actually typed, so the words
+  // are what goes on the card.
+  const found = new Map(((ev && ev.signals) || []).map(sg => [sg.id, sg]));
+  const said = (ids) => (ids || [])
+    .map(id => found.get(id))
+    .filter(Boolean)
+    .map(sg => `${sg.label} (${sg.cues.join(', ')})`);
+  const up = said(v.up), down = said(v.down);
+  if (up.length) d.append(el('div', 'cue', 'counts for it: ' + up.join(' · ')));
+  if (down.length) d.append(el('div', 'cue', 'counts against it: ' + down.join(' · ')));
+  if (!up.length && !down.length) {
+    d.append(el('div', 'cue', 'nothing in your words moved this either way — it is here on its default standing'));
+  }
+
+  if (kind !== 'road') {
+    const b = el('button', 'pick', 'take this one'); b.type = 'button';
+    b.addEventListener('click', () => {
+      say(`You took "${v.label || v.stance}". Nothing was decided for you — that was yours.`);
+      d.classList.add('top');
+      b.disabled = true; b.textContent = 'taken';
+    });
+    d.append(b);
+  }
+  return d;
 }
 
 function draw() {
   drawTop(); drawNav();
   const p = $('#panel'); p.replaceChildren();
-  p.append((P[at] || P.world)());
+  p.append((P[at] || P.didy)());
   document.querySelector('main').scrollTop = 0;
 }
 
@@ -400,21 +530,19 @@ addEventListener('keydown', (e) => {
   if (hit) { at = hit.id; draw(); }
 });
 
-// Install it like a game: own window, own icon, works with the wifi off.
 let prompt_ = null;
-addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); prompt_ = e; $('#install').style.display = ''; });
-$('#install').style.display = 'none';
+addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); prompt_ = e; $('#install').hidden = false; });
+$('#install').hidden = true;
 $('#install').addEventListener('click', async () => {
-  if (!prompt_) { say('Your browser will not offer an install here — use its own "install app" menu item.'); return; }
+  if (!prompt_) { say('Use your browser\'s own "install app" menu item.'); return; }
   prompt_.prompt(); const r = await prompt_.userChoice;
   say(r.outcome === 'accepted' ? 'Installed. It runs offline now.' : 'Not installed.');
   prompt_ = null;
 });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
-pullFleet(document.createElement('div'));   // probe the realm once at boot so the light is honest
-say(`${SHOP.listed.length} addons listed · ${SHOP.refused.length} refused for want of evidence`);
 draw();
+say(`${SHOP.listed.length} things listed · ${SHOP.refused.length} refused for want of evidence · works with no key at all`);
 </script>
 </body>
 </html>
