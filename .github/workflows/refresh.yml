@@ -34,12 +34,12 @@ jobs:
       # page was stale — which is the whole failure this job exists to end.
       - name: rebuild every generated surface
         run: |
-          node build-index.mjs
+          node build-client.mjs
           node build-world.mjs
           node build-blueprint.mjs
 
       - name: the kernels still hold
-        run: node --test pass.test.mjs tier.test.mjs
+        run: node --test pass.test.mjs tier.test.mjs client.test.mjs
 
       # Only commit a real change. A no-op commit every morning teaches everyone to ignore the log.
       - name: publish only if something actually moved

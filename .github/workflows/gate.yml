@@ -21,12 +21,14 @@ jobs:
       # ⚑ PINNED. An unpinned gate is one whose rules can change under you between the run that passed
       # and the run you are citing, and "it passed on some version of the checker" is not a claim
       # anybody can verify.
-      - name: Fetch witness @v0.2
-        run: git clone --depth 1 --branch v0.2 https://github.com/sjgant80-hub/witness.git .witness
+      # v0.6 or newer. Before it, a quoted --test command line was spawned as an executable NAME
+      # on POSIX, so a gate written that way never ran at all and reported a red baseline instead.
+      - name: Fetch witness @v0.6
+        run: git clone --depth 1 --branch v0.6 https://github.com/sjgant80-hub/witness.git .witness
 
       - name: Tests must pass before anything is mutated
         run: |
-          node --test tier.test.mjs pass.test.mjs
+          node --test tier.test.mjs pass.test.mjs client.test.mjs
 
       # The mutation gate attacks the TESTS. A green suite sitting over a broken line is test-theatre,
       # and this is the step that catches it.
@@ -37,6 +39,15 @@ jobs:
             --baseline witness.tier.baseline.json \
             --test node tier.test.mjs | tee gate.out
           node .witness/witness.mjs mutate pass.mjs --cap 400 --test node --test pass.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate client.mjs --test node --test client.test.mjs | tee -a gate.out
+
+      # ⚑ The page a visitor gets must be the page this build makes. Regenerate and diff: a stale
+      # index.html means the shop on screen and the shop that was gated are two different shops.
+      - name: the client is the kernel
+        run: |
+          node build-client.mjs
+          git diff --exit-code -- index.html manifest.webmanifest sw.js || {
+            echo 'index.html is stale — run: node build-client.mjs && git add index.html'; exit 1; }
 
       # A gate that reports "not clean" and exits zero is decorative. This line is what makes the
       # workflow's own conclusion mean something.
