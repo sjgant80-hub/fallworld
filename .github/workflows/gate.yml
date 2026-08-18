@@ -26,6 +26,11 @@ jobs:
       - name: Fetch witness @v0.6
         run: git clone --depth 1 --branch v0.6 https://github.com/sjgant80-hub/witness.git .witness
 
+      # Catches the mistake that reports itself as nothing: a line pasted into a run: | block at the
+      # wrong indent ends the block, and GitHub says only "a workflow file issue".
+      - name: the workflows still parse as workflows
+        run: node check-workflows.mjs
+
       - name: Tests must pass before anything is mutated
         run: |
           node --test tier.test.mjs pass.test.mjs client.test.mjs
@@ -60,10 +65,11 @@ jobs:
             // pass.mjs completely silently.
             const all = [...out.matchAll(/\"clean\":\s*(true|false)/g)].map(m => m[1]);
             if (all.length === 0) { console.error('the gate produced no verdict at all'); process.exit(1); }
-            // Counted from the kernels this job actually gates, not typed. A hard-coded 2 went stale the
-  // moment a third kernel was added, and a count nobody updates fails on a perfectly good build.
-  const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs'];
-  if (all.length !== KERNELS.length) { console.error('expected ' + KERNELS.length + ' gate verdicts (' + KERNELS.join(', ') + '), saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
+            // Counted from the kernels this job actually gates, never typed. A hard-coded 2 went
+            // stale the moment a third kernel arrived, and a count nobody updates fails a build
+            // that was perfectly clean — which is how a real check gets deleted.
+            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs'];
+            if (all.length !== KERNELS.length) { console.error('expected ' + KERNELS.length + ' gate verdicts (' + KERNELS.join(', ') + '), saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
             if (all.some(v => v !== 'true')) { console.error('mutants survived — those lines are test-theatre'); process.exit(1); }
             console.log(all.length + ' gates clean');
           "
