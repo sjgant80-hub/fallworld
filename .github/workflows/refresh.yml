@@ -34,13 +34,13 @@ jobs:
       # page was stale — which is the whole failure this job exists to end.
       - name: rebuild every generated surface
         run: |
+          # ⚑ ONLY WHAT A RUNNER CAN ACTUALLY BUILD. build-world.mjs and build-blueprint.mjs both
+          # read estate-index.json out of the private memory on one machine, so on a runner they are
+          # ENOENT every single time. Together with a YAML block that never parsed, this job had two
+          # independent reasons it could never refresh anything — while sitting in the repo looking
+          # like a scheduled refresh that did. Those two are regenerated locally and committed; the
+          # client is generated from world.json, which is in the repo, so it can and does run here.
           node build-client.mjs
-          node build-blueprint.mjs
-          # ⚑ build-world.mjs is NOT run here on purpose. It reads estate-index.json out of the
-          # private memory on Simon's own machine, so on a runner it fails with ENOENT every time —
-          # which is the second independent reason this workflow could never have refreshed
-          # anything. world.json is regenerated locally and committed; CI rebuilds the surfaces
-          # that read it, and no more.
 
       - name: the kernels still hold
         run: node --test pass.test.mjs tier.test.mjs client.test.mjs
