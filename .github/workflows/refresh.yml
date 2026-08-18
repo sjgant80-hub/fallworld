@@ -35,8 +35,12 @@ jobs:
       - name: rebuild every generated surface
         run: |
           node build-client.mjs
-          node build-world.mjs
           node build-blueprint.mjs
+          # ⚑ build-world.mjs is NOT run here on purpose. It reads estate-index.json out of the
+          # private memory on Simon's own machine, so on a runner it fails with ENOENT every time —
+          # which is the second independent reason this workflow could never have refreshed
+          # anything. world.json is regenerated locally and committed; CI rebuilds the surfaces
+          # that read it, and no more.
 
       - name: the kernels still hold
         run: node --test pass.test.mjs tier.test.mjs client.test.mjs

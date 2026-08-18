@@ -60,7 +60,10 @@ jobs:
             // pass.mjs completely silently.
             const all = [...out.matchAll(/\"clean\":\s*(true|false)/g)].map(m => m[1]);
             if (all.length === 0) { console.error('the gate produced no verdict at all'); process.exit(1); }
-            if (all.length !== 2) { console.error('expected 2 gate verdicts, saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
+            // Counted from the kernels this job actually gates, not typed. A hard-coded 2 went stale the
+  // moment a third kernel was added, and a count nobody updates fails on a perfectly good build.
+  const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs'];
+  if (all.length !== KERNELS.length) { console.error('expected ' + KERNELS.length + ' gate verdicts (' + KERNELS.join(', ') + '), saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
             if (all.some(v => v !== 'true')) { console.error('mutants survived — those lines are test-theatre'); process.exit(1); }
             console.log(all.length + ' gates clean');
           "
