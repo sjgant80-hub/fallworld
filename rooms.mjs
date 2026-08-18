@@ -32,6 +32,9 @@ export const WINGS = [
       { n: 'The Brain', u: K + 'brain.html', s: 'Give a card a real mind. It can use a proper AI model, on your machine.' },
       // It went on the map the day it had a door — 2026-08-13.
       { n: 'The Forge', u: G('fallkard-forge'), s: 'Put a working build inside a picture. Send the picture; they get the build.' },
+      // The room you pass through on the way out, added 2026-08-18. It is the first place a person
+      // meets the only number that really levels up: how much of a job runs on their own machine.
+      { n: 'The Armoury', u: G('didy-raid'), s: 'Say where you are going and your helper kits itself. Team up, and whoever built the bigger model runs the heavy part for everyone.' },
     ],
   },
   {
