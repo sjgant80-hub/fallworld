@@ -50,10 +50,7 @@ jobs:
             echo "nothing moved — the hub is already current"
           else
             git add -A
-            git commit -m "refresh: the estate moved, so the hub did
-
-Re-scanned and regenerated. Committed by the scheduled refresh, not by hand — the hub used to
-know only what somebody remembered to re-run it for."
+            git commit -m "refresh: the estate moved, so the hub did"                        -m "Re-scanned and regenerated. Committed by the scheduled refresh, not by hand."
             git push
             echo "hub updated"
           fi
