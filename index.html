@@ -732,13 +732,13 @@ function evidence(text) {
 //
 // A fixed taxonomy of ways to come at a decision. `wants` raise a stance, `avoids` lower it, and
 // `prior` is how strong the stance is with NO signal at all — a stated default, not a learned weight.
-// The priors are deliberately not uniform: "ship the smallest reversible slice" really is the better
+// The priors are deliberately not uniform: "start with the smallest step you can undo" really is the better
 // blind bet than "run both in parallel", and pretending otherwise would make the tool useless on the
 // short inputs most people type first.
 const STANCES = [
-  { name: 'Ship the smallest reversible slice', move: 'Find the version you could undo on Monday, and do that one.', prior: 0.64, wants: ['reversible', 'unknown', 'speed'], avoids: ['irreversible'] },
+  { name: 'Start with the smallest step you can undo', move: 'Find the version of this you could undo by Monday, and do that one first.', prior: 0.64, wants: ['reversible', 'unknown', 'speed'], avoids: ['irreversible'] },
   { name: 'Verify before you commit',           move: 'Decide what would prove this wrong, and go look for it first.', prior: 0.62, wants: ['irreversible', 'risk', 'scale'], avoids: ['reversible'] },
-  { name: 'Cut the scope, not the quality',     move: 'Drop whole features rather than doing all of them badly.', prior: 0.60, wants: ['deadline', 'cost', 'scale'], avoids: [] },
+  { name: 'Do less, but do it properly',        move: 'Drop whole parts of it rather than doing all of it badly.', prior: 0.60, wants: ['deadline', 'cost', 'scale'], avoids: [] },
   { name: 'Do the irreversible part last',      move: 'Reorder the work so every undoable step happens before the one-way door.', prior: 0.54, wants: ['irreversible', 'risk'], avoids: [] },
   { name: 'Set a stop rule before you start',   move: 'Write down now what result would make you abandon this.', prior: 0.52, wants: ['cost', 'unknown', 'scale'], avoids: [] },
   { name: 'Buy or reuse instead of building',   move: 'Check whether the boring paid version ends this today.', prior: 0.50, wants: ['cost', 'deadline', 'existing'], avoids: ['scale'] },
@@ -2777,7 +2777,7 @@ function drawRig() {
         say(a.name + ' taken out. Your didy cannot do that any more.');
       });
       d.append(pull);
-    } else d.textContent = on.length ? 'empty' : 'drop a tool here';
+    } else d.textContent = on.length ? 'empty' : 'drag or tap a tool below to fit it here';
     d.addEventListener('dragover', (ev) => { ev.preventDefault(); d.classList.add('over'); });
     d.addEventListener('dragleave', () => d.classList.remove('over'));
     d.addEventListener('drop', (ev) => { ev.preventDefault(); d.classList.remove('over'); fit(ev.dataTransfer.getData('text/plain'), i); });
@@ -2821,7 +2821,7 @@ function rigTail(rig, on) {
   for (const a of spare) {
     const tl = el('div', 'tool ' + (a.tier || 'prototype') + ' n-' + (a.rarity || 'normal'));
     tl.draggable = true;
-    tl.append(el('div', 'tn', a.name), el('div', 'grab', 'drag into a slot'));
+    tl.append(el('div', 'tn', a.name), el('div', 'grab', 'drag into a slot \u00b7 or just tap it'));
     tl.addEventListener('dragstart', (ev) => { ev.dataTransfer.setData('text/plain', a.id); tl.classList.add('dragging'); });
     tl.addEventListener('dragend', () => tl.classList.remove('dragging'));
     // No drag on a phone: a tap drops it into the first free slot instead.
@@ -3010,13 +3010,39 @@ addEventListener('keydown', (e) => {
 });
 
 let prompt_ = null;
-addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); prompt_ = e; $('#install').hidden = false; });
-$('#install').hidden = true;
+addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); prompt_ = e; });
+// The download IS the point: your didy leaves the tab and lives on your machine. So the button is
+// always visible — hiding it until Chrome volunteers a prompt meant most people never saw a way to
+// keep it at all.
+if (matchMedia('(display-mode: standalone)').matches) {
+  $('#install').textContent = '\u2713 yours';
+  $('#install').title = 'Already on your machine \u2014 this is the kept copy, and it works with no internet.';
+} else {
+  $('#install').textContent = '\u2b07 keep your didy';
+  $('#install').title = 'Put it on your machine \u2014 it opens like an app and works with no internet.';
+}
 $('#install').addEventListener('click', async () => {
-  if (!prompt_) { say('Use your browser\'s own "install app" menu item.'); return; }
-  prompt_.prompt(); const r = await prompt_.userChoice;
-  say(r.outcome === 'accepted' ? 'Installed. It runs offline now.' : 'Not installed.');
-  prompt_ = null;
+  if (matchMedia('(display-mode: standalone)').matches) {
+    say('Already yours \u2014 this copy lives on your machine and works with no internet.');
+    return;
+  }
+  if (prompt_) {
+    prompt_.prompt(); const r = await prompt_.userChoice;
+    say(r.outcome === 'accepted'
+      ? 'Kept. Your didy now opens from your own machine and works with no internet \u2014 nothing to sign up for, nothing rented.'
+      : 'No harm \u2014 it keeps working right here, and the button stays if you change your mind.');
+    prompt_ = null;
+    return;
+  }
+  // No native prompt in this browser - say exactly where ITS install lives.
+  const ua = navigator.userAgent;
+  if (/iPhone|iPad|iPod/.test(ua)) {
+    say('On iPhone or iPad: tap the Share button (the square with the arrow), then "Add to Home Screen". After that your didy opens like an app and works with no internet.');
+  } else if (/Firefox/.test(ua)) {
+    say('Firefox does not offer app installs on desktop \u2014 bookmark this page instead; it already works offline once visited. On Android Firefox: menu \u2192 "Install".');
+  } else {
+    say('In your browser\'s menu look for "Install app" or "Add to Home screen" \u2014 usually an icon at the right end of the address bar. After that your didy opens like an app and works with no internet.');
+  }
 });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
