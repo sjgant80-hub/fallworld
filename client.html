@@ -254,6 +254,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 // ══════════════════════════════════════════════════════════════════════════════════════════════
 const $ = (s) => document.querySelector(s);
 const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; };
+const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const SAVE = 'fallworld.character.v1';
 const blank = () => ({ name: 'you', bags: [], slots: [null, null, null, null, null, null], keys: {}, ran: [], localUp: false, last: '', picked: 0, cards: [] });
@@ -1091,6 +1092,25 @@ function runDidy(what, out, where) {
   // ⚑ THE OFFER IS ONLY MADE WHERE IT HAS BEEN EARNED. Every line is attached to a thing this
   // person has actually just done — telling somebody they watched work come home when they never
   // ran anything locally is the same lie the rest of this refuses.
+  // caption(me): the offer, only where it has been EARNED. Nothing ran yet = no offer at all;
+  // mostly-local runs earn the "this is how the estate is built" line; rented runs earn the
+  // "built once and owned" line. Both say only what the tally actually shows.
+  function caption(m) {
+    const t = tally(m.ran);
+    if (!t.runs) return null;
+    if (t.sovereignty !== null && t.sovereignty >= 0.5) return {
+      says: 'Most of what you just ran happened on your own machine — nothing rented, nothing leaving.',
+      then: 'The whole estate is built this way. See what that looks like as a service →',
+      href: 'https://www.ai-nativesolutions.com/offerings.html',
+      terms: 'one-off builds · you own the result · nothing recurring',
+    };
+    return {
+      says: 'What you just ran cost a rented call. It works — and it never stops costing.',
+      then: 'The same jobs, built once and owned — see the offerings →',
+      href: 'https://www.ai-nativesolutions.com/offerings.html',
+      terms: 'one-off builds · you own the result · nothing recurring',
+    };
+  }
   const b = caption(me);
   if (b) {
     const box = el('div', 'bridge');
