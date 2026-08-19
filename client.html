@@ -219,6 +219,14 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .cardgate { border: 1.5px dashed rgba(212,160,23,0.45); border-radius: 8px; padding: 12px 14px; margin: 10px 0 14px; cursor: pointer; transition: border-color .15s, background .15s; }
 .cardgate:hover, .cardgate.over { border-color: var(--gold, #d4a017); background: rgba(212,160,23,0.07); }
 .cardgate .t { font-size: .92em; opacity: .92; }
+.mindbox { border: 1px solid rgba(127,156,201,0.3); border-radius: 8px; padding: 10px 14px; margin: 0 0 14px; background: rgba(127,156,201,0.05); }
+.mindbox .ms { font-size: .92em; }
+.mindbox button { margin-top: 6px; }
+.remembers { border-left: 2px solid rgba(127,156,201,0.5); padding: 6px 10px; margin: 10px 0; }
+.remembers .rh { font-size: .8em; letter-spacing: .1em; text-transform: uppercase; opacity: .65; margin-bottom: 4px; }
+.remembers .rl { font-size: .92em; margin: 2px 0; }
+.remembers .rv { opacity: .55; font-size: .88em; }
+.remembers .rw { font-size: .88em; opacity: .7; font-style: italic; margin-top: 5px; }
 .journey { border: 1px solid rgba(212,160,23,0.25); border-radius: 8px; padding: 10px 14px; margin: 0 0 14px; background: rgba(212,160,23,0.04); }
 .journey .jhead { letter-spacing: .04em; }
 .journey .jhead b { color: var(--gold, #d4a017); }
@@ -262,6 +270,50 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 const $ = (s) => document.querySelector(s);
 const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; };
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// si-didy's studied MIND: distilled overnight on this machine (the deepening loop), LOADED here
+// by the player — the file never rides in a repo or a page. It lives in this browser and nowhere
+// else, like a key.
+let MINDFILE = null;
+try { MINDFILE = JSON.parse(localStorage.getItem('fallworld.mind.v1') || 'null'); } catch {}
+function mindPanel() {
+  const w = el('div', 'mindbox');
+  const v = validMind(MINDFILE);
+  const status = el('div', 'ms');
+  if (v.ok) {
+    status.innerHTML = '<b>mind loaded</b> \u00b7 ' + esc(v.why) + ' \u2014 your didy answers with what si-didy studied';
+    const forget = el('button', 'pull', 'forget it'); forget.type = 'button';
+    forget.addEventListener('click', () => {
+      MINDFILE = null;
+      try { localStorage.removeItem('fallworld.mind.v1'); } catch {}
+      say('The mind is forgotten here. The file on your machine is untouched \u2014 load it again any time.');
+      draw();
+    });
+    w.append(status, forget);
+  } else {
+    status.innerHTML = 'si-didy studies the estate nightly on your machine. <b>Load its mind</b> and your didy answers with what it learned \u2014 the file stays in this browser, nowhere else. It lives at <code>si-didy-loop/local-dna/mind.json</code>.';
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'application/json,.json'; inp.hidden = true;
+    inp.addEventListener('change', async () => {
+      const f = inp.files[0]; if (!f) return;
+      try {
+        const parsed = JSON.parse(await f.text());
+        const check = validMind(parsed);
+        if (!check.ok) { say('Not loaded: ' + check.why); return; }
+        MINDFILE = parsed;
+        try { localStorage.setItem('fallworld.mind.v1', JSON.stringify(parsed)); }
+        catch { say('The mind is live for this visit, but too large for this browser to keep \u2014 it will need loading again next time. Honest trade.'); }
+        say('\u2713 The mind is in: ' + check.why + '. Ask your didy something \u2014 it remembers now.');
+        draw();
+      } catch { say('That file is not JSON \u2014 the mind lives at si-didy-loop/local-dna/mind.json.'); }
+      inp.value = '';
+    });
+    const btn = el('button', 'act', 'load its mind'); btn.type = 'button';
+    btn.addEventListener('click', () => inp.click());
+    w.append(status, inp, btn);
+  }
+  return w;
+}
 
 // The levelling spine, drawn. The level is computed from what actually happened (journey.mjs,
 // gated); this strip only SAYS it. Doors are never barred — the spine lights the next one.
@@ -649,6 +701,7 @@ const P = {
     // context, while you are already playing.
     const first = standing(me).runs === 0;
     f.append(journeyStrip());
+    f.append(mindPanel());
     if (first) {
       const o = el('div', 'opening');
       o.append(el('h2', null, 'This is a didy. It is yours, and it runs on your machine.'));
@@ -1264,6 +1317,28 @@ function runDidy(what, out, where) {
       href: 'https://www.ai-nativesolutions.com/offerings.html',
       terms: 'one-off builds · you own the result · nothing recurring',
     };
+  }
+  // what si-didy remembers about THIS question and THIS rig — provenance on every line
+  if (MINDFILE) {
+    const remembered = associatesFor(MINDFILE, asked, (me.slots || []).filter(Boolean), 4);
+    const wonders = wondersOf(MINDFILE, 1);
+    if (remembered.length || wonders.length) {
+      const mb = el('div', 'remembers');
+      if (remembered.length) {
+        mb.append(el('div', 'rh', 'your didy remembers'));
+        for (const r2 of remembered) {
+          const line = el('div', 'rl');
+          line.innerHTML = '<b>' + esc(r2.to) + '</b> runs close to <b>' + esc(r2.from) + '</b>'
+            + (r2.at ? ' \u00b7 studied ' + esc(r2.at) : '')
+            + (r2.via ? ' <span class="rv">\u00b7 learned via: ' + esc(r2.via) + '</span>' : '');
+          mb.append(line);
+        }
+      }
+      for (const wnd of wonders) {
+        mb.append(el('div', 'rw', 'si-didy wonders whether ' + wnd.root + ' relates to ' + wnd.node + ' \u2014 a dream held open, unconfirmed'));
+      }
+      out.append(mb);
+    }
   }
   const b = caption(me);
   if (b) {

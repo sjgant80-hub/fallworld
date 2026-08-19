@@ -219,6 +219,14 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .cardgate { border: 1.5px dashed rgba(212,160,23,0.45); border-radius: 8px; padding: 12px 14px; margin: 10px 0 14px; cursor: pointer; transition: border-color .15s, background .15s; }
 .cardgate:hover, .cardgate.over { border-color: var(--gold, #d4a017); background: rgba(212,160,23,0.07); }
 .cardgate .t { font-size: .92em; opacity: .92; }
+.mindbox { border: 1px solid rgba(127,156,201,0.3); border-radius: 8px; padding: 10px 14px; margin: 0 0 14px; background: rgba(127,156,201,0.05); }
+.mindbox .ms { font-size: .92em; }
+.mindbox button { margin-top: 6px; }
+.remembers { border-left: 2px solid rgba(127,156,201,0.5); padding: 6px 10px; margin: 10px 0; }
+.remembers .rh { font-size: .8em; letter-spacing: .1em; text-transform: uppercase; opacity: .65; margin-bottom: 4px; }
+.remembers .rl { font-size: .92em; margin: 2px 0; }
+.remembers .rv { opacity: .55; font-size: .88em; }
+.remembers .rw { font-size: .88em; opacity: .7; font-style: italic; margin-top: 5px; }
 .journey { border: 1px solid rgba(212,160,23,0.25); border-radius: 8px; padding: 10px 14px; margin: 0 0 14px; background: rgba(212,160,23,0.04); }
 .journey .jhead { letter-spacing: .04em; }
 .journey .jhead b { color: var(--gold, #d4a017); }
@@ -1337,6 +1345,87 @@ function journey(me, outside) {
 return { CORES, progress, journey };
 })();
 
+// ── the studied mind ──
+const { validMind, associatesFor, wondersOf } = (() => {
+// fallworld · mind.mjs — reading si-didy's studied mind, the kernel.
+//
+// si-didy studies nightly (the deepening loop: fan → gate → remember over the estate, the chats,
+// the world's own map) and distills what it learned into a MIND file. That file is LOCAL-ONLY —
+// it carries private names — so the world never fetches it: the player LOADS it, the way a card
+// is dropped, and it lives in their browser and nowhere else.
+//
+// This kernel judges and reads; the page wires. Pure, total, no I/O:
+//   validMind      — is this file actually a si-didy mind, said with a reason
+//   associatesFor  — what the mind remembers about THIS question and THIS didy's fitted tools,
+//                    every association carrying its provenance (the via-path and the study date)
+//   wondersOf      — what the dreams are holding open, clearly marked unconfirmed
+
+const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v)) ? v : null;
+const arr = (v) => Array.isArray(v) ? v : [];
+
+/** Is this a mind? Refusals carry the reason — a wrong file should never half-load. */
+function validMind(m) {
+  const f = obj(m);
+  if (!f) return { ok: false, why: 'not a file this page can read' };
+  if (f.kind !== 'sididy-mind') return { ok: false, why: 'not a si-didy mind — the kind field says ' + JSON.stringify(f.kind ?? null) };
+  if (!obj(f.mind)) return { ok: false, why: 'a mind with no associations is a label, not a mind' };
+  const n = Object.keys(f.mind).length;
+  if (n === 0) return { ok: false, why: 'the mind is empty — study first, then export' };
+  return { ok: true, why: `${n} studied node(s) · exported ${typeof f.exported === 'string' ? f.exported : '(undated)'}` };
+}
+
+/**
+ * What the mind remembers about this moment: nodes whose ids appear in the question (ids shorter
+ * than 5 characters match too easily and are skipped), plus the didy's fitted tool ids exactly.
+ * Associations come back strongest-first, deduped by target, capped — each with its via-path so
+ * the player can see WHERE si-didy learned it. No match is an honest empty list, never a guess.
+ */
+function associatesFor(m, text, fittedIds, cap) {
+  const f = obj(m);
+  const mind = f && obj(f.mind);
+  if (!mind) return [];
+  const hay = typeof text === 'string' ? text.toLowerCase() : '';
+  const fitted = new Set(arr(fittedIds).map(String));
+  const roots = [];
+  for (const id of Object.keys(mind)) {
+    if (fitted.has(id) || (id.length >= 5 && hay.includes(id.toLowerCase()))) roots.push(id);
+  }
+  const seen = new Set(roots);
+  const out = [];
+  for (const root of roots) {
+    for (const a of arr(mind[root])) {
+      const o = obj(a);
+      if (!o || typeof o.to !== 'string' || seen.has(o.to)) continue;
+      seen.add(o.to);
+      out.push({
+        from: root,
+        to: o.to,
+        w: Number.isFinite(o.w) ? o.w : 0,
+        via: typeof o.via === 'string' ? o.via : '',
+        at: typeof o.at === 'string' ? o.at : '',
+      });
+    }
+  }
+  out.sort((a, b) => b.w - a.w || a.to.localeCompare(b.to));
+  const k = Number.isFinite(cap) && cap >= 1 ? Math.floor(cap) : 6;
+  return out.slice(0, k);
+}
+
+/** What the dreams hold open — unconfirmed by design, and said so wherever the page shows them. */
+function wondersOf(m, k) {
+  const f = obj(m);
+  const list = f ? arr(f.wonders) : [];
+  const n = Number.isFinite(k) && k >= 1 ? Math.floor(k) : 3;
+  return list
+    .map(obj).filter(Boolean)
+    .filter(w => typeof w.root === 'string' && typeof w.node === 'string')
+    .slice(-n);
+}
+
+
+return { validMind, associatesFor, wondersOf };
+})();
+
 // ── the store ──
 const { TIER, RARITY, tierRank, TIER_MEANS, REACH, addon, listable, store, inspect, install, held, fromEstate } = (() => {
 // ══════════════════════════════════════════════════════════════════════════════════════════════
@@ -2326,6 +2415,50 @@ const $ = (s) => document.querySelector(s);
 const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; };
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+// si-didy's studied MIND: distilled overnight on this machine (the deepening loop), LOADED here
+// by the player — the file never rides in a repo or a page. It lives in this browser and nowhere
+// else, like a key.
+let MINDFILE = null;
+try { MINDFILE = JSON.parse(localStorage.getItem('fallworld.mind.v1') || 'null'); } catch {}
+function mindPanel() {
+  const w = el('div', 'mindbox');
+  const v = validMind(MINDFILE);
+  const status = el('div', 'ms');
+  if (v.ok) {
+    status.innerHTML = '<b>mind loaded</b> \u00b7 ' + esc(v.why) + ' \u2014 your didy answers with what si-didy studied';
+    const forget = el('button', 'pull', 'forget it'); forget.type = 'button';
+    forget.addEventListener('click', () => {
+      MINDFILE = null;
+      try { localStorage.removeItem('fallworld.mind.v1'); } catch {}
+      say('The mind is forgotten here. The file on your machine is untouched \u2014 load it again any time.');
+      draw();
+    });
+    w.append(status, forget);
+  } else {
+    status.innerHTML = 'si-didy studies the estate nightly on your machine. <b>Load its mind</b> and your didy answers with what it learned \u2014 the file stays in this browser, nowhere else. It lives at <code>si-didy-loop/local-dna/mind.json</code>.';
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'application/json,.json'; inp.hidden = true;
+    inp.addEventListener('change', async () => {
+      const f = inp.files[0]; if (!f) return;
+      try {
+        const parsed = JSON.parse(await f.text());
+        const check = validMind(parsed);
+        if (!check.ok) { say('Not loaded: ' + check.why); return; }
+        MINDFILE = parsed;
+        try { localStorage.setItem('fallworld.mind.v1', JSON.stringify(parsed)); }
+        catch { say('The mind is live for this visit, but too large for this browser to keep \u2014 it will need loading again next time. Honest trade.'); }
+        say('\u2713 The mind is in: ' + check.why + '. Ask your didy something \u2014 it remembers now.');
+        draw();
+      } catch { say('That file is not JSON \u2014 the mind lives at si-didy-loop/local-dna/mind.json.'); }
+      inp.value = '';
+    });
+    const btn = el('button', 'act', 'load its mind'); btn.type = 'button';
+    btn.addEventListener('click', () => inp.click());
+    w.append(status, inp, btn);
+  }
+  return w;
+}
+
 // The levelling spine, drawn. The level is computed from what actually happened (journey.mjs,
 // gated); this strip only SAYS it. Doors are never barred — the spine lights the next one.
 // What the page can SEE beyond its own save: the Duel's victory ledger lives in this same
@@ -2712,6 +2845,7 @@ const P = {
     // context, while you are already playing.
     const first = standing(me).runs === 0;
     f.append(journeyStrip());
+    f.append(mindPanel());
     if (first) {
       const o = el('div', 'opening');
       o.append(el('h2', null, 'This is a didy. It is yours, and it runs on your machine.'));
@@ -3327,6 +3461,28 @@ function runDidy(what, out, where) {
       href: 'https://www.ai-nativesolutions.com/offerings.html',
       terms: 'one-off builds · you own the result · nothing recurring',
     };
+  }
+  // what si-didy remembers about THIS question and THIS rig — provenance on every line
+  if (MINDFILE) {
+    const remembered = associatesFor(MINDFILE, asked, (me.slots || []).filter(Boolean), 4);
+    const wonders = wondersOf(MINDFILE, 1);
+    if (remembered.length || wonders.length) {
+      const mb = el('div', 'remembers');
+      if (remembered.length) {
+        mb.append(el('div', 'rh', 'your didy remembers'));
+        for (const r2 of remembered) {
+          const line = el('div', 'rl');
+          line.innerHTML = '<b>' + esc(r2.to) + '</b> runs close to <b>' + esc(r2.from) + '</b>'
+            + (r2.at ? ' \u00b7 studied ' + esc(r2.at) : '')
+            + (r2.via ? ' <span class="rv">\u00b7 learned via: ' + esc(r2.via) + '</span>' : '');
+          mb.append(line);
+        }
+      }
+      for (const wnd of wonders) {
+        mb.append(el('div', 'rw', 'si-didy wonders whether ' + wnd.root + ' relates to ' + wnd.node + ' \u2014 a dream held open, unconfirmed'));
+      }
+      out.append(mb);
+    }
   }
   const b = caption(me);
   if (b) {

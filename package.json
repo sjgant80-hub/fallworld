@@ -6,7 +6,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "test": "node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs journey.test.mjs providers.test.mjs runtime.test.mjs module.test.mjs guide.test.mjs safe.test.mjs rooms.test.mjs",
+    "test": "node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs journey.test.mjs mind.test.mjs providers.test.mjs runtime.test.mjs module.test.mjs guide.test.mjs safe.test.mjs rooms.test.mjs",
     "build": "node scripts/build-client.mjs",
     "sync": "node scripts/sync-fallos.mjs",
     "check": "node scripts/check-workflows.mjs && node scripts/sync-fallos.mjs --check"

@@ -49,6 +49,7 @@ const MODULES = [
   ['vendor/fall-os/organs/t1.mjs', 'fall-os · t1'],
   ['ladder.mjs', 'the rungs'],
   ['journey.mjs', 'the levelling spine'],
+  ['mind.mjs', 'the studied mind'],
   ['client.mjs', 'the store'],
   ['providers.mjs', 'talking to a paid model'],
   ['runtime.mjs', 'the wall round an addon'],
