@@ -51,6 +51,7 @@ jobs:
           node .witness/witness.mjs mutate pass.mjs --cap 400 --test node --test pass.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate client.mjs --test node --test client.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate ladder.mjs --test node --test ladder.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate journey.mjs --test node --test journey.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate providers.mjs --test node --test providers.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate runtime.mjs --test node --test runtime.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate module.mjs --test node --test module.test.mjs | tee -a gate.out
@@ -80,7 +81,7 @@ jobs:
             // Counted from the kernels this job actually gates, never typed. A hard-coded 2 went
             // stale the moment a third kernel arrived, and a count nobody updates fails a build
             // that was perfectly clean — which is how a real check gets deleted.
-            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'providers.mjs', 'runtime.mjs', 'module.mjs', 'guide.mjs', 'safe.mjs'];
+            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'journey.mjs', 'providers.mjs', 'runtime.mjs', 'module.mjs', 'guide.mjs', 'safe.mjs'];
             if (all.length !== KERNELS.length) { console.error('expected ' + KERNELS.length + ' gate verdicts (' + KERNELS.join(', ') + '), saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
             if (all.some(v => v !== 'true')) { console.error('mutants survived — those lines are test-theatre'); process.exit(1); }
             console.log(all.length + ' gates clean');

@@ -219,6 +219,13 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .cardgate { border: 1.5px dashed rgba(212,160,23,0.45); border-radius: 8px; padding: 12px 14px; margin: 10px 0 14px; cursor: pointer; transition: border-color .15s, background .15s; }
 .cardgate:hover, .cardgate.over { border-color: var(--gold, #d4a017); background: rgba(212,160,23,0.07); }
 .cardgate .t { font-size: .92em; opacity: .92; }
+.journey { border: 1px solid rgba(212,160,23,0.25); border-radius: 8px; padding: 10px 14px; margin: 0 0 14px; background: rgba(212,160,23,0.04); }
+.journey .jhead { letter-spacing: .04em; }
+.journey .jhead b { color: var(--gold, #d4a017); }
+.journey .jdot { opacity: .25; margin-left: 4px; font-size: .8em; }
+.journey .jdot.lit { opacity: 1; color: var(--gold, #d4a017); }
+.journey .jnext { margin-top: 4px; font-size: .93em; }
+.journey .jnote { margin-top: 3px; font-size: .78em; opacity: .55; }
 </style>
 </head>
 <body>
@@ -256,8 +263,35 @@ const $ = (s) => document.querySelector(s);
 const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; };
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+// The levelling spine, drawn. The level is computed from what actually happened (journey.mjs,
+// gated); this strip only SAYS it. Doors are never barred — the spine lights the next one.
+function journeyStrip() {
+  const j = journey(me);
+  const w = el('div', 'journey');
+  const dots = j.cores.map(c => `<span class="jdot${c.done ? ' lit' : ''}" title="${esc(c.name)}">\u25c6</span>`).join('');
+  const line = j.next
+    ? `\u2192 next: ${esc(j.next.do)}`
+    : 'everything below is yours \u2014 you have walked the whole spine';
+  w.innerHTML = `<div class="jhead"><b>LEVEL ${j.level}</b> \u00b7 ${esc(j.title)} ${dots}</div>`
+    + `<div class="jnext">${line}</div>`
+    + `<div class="jnote">nothing is shut \u2014 the levels only light the way</div>`;
+  return w;
+}
+
+// A door walked through is a step on the spine. Recorded at click, before the page goes.
+document.addEventListener('click', (ev) => {
+  const a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+  if (!a) return;
+  const href = a.getAttribute('href') || '';
+  let touched = false;
+  if (href.includes('fallkard/duel.html')) { me.visited.duel = true; touched = true; }
+  if (href.includes('fallkard-forge')) { me.visited.forge = true; touched = true; }
+  if (href.includes('falllearn')) { me.visited.learn = true; touched = true; }
+  if (touched) save();
+}, true);
+
 const SAVE = 'fallworld.character.v1';
-const blank = () => ({ name: 'you', bags: [], slots: [null, null, null, null, null, null], keys: {}, ran: [], localUp: false, last: '', picked: 0, cards: [] });
+const blank = () => ({ name: 'you', bags: [], slots: [null, null, null, null, null, null], keys: {}, ran: [], localUp: false, last: '', picked: 0, cards: [], visited: {} });
 const load = () => { try {
   const c = JSON.parse(localStorage.getItem(SAVE) || '{}');
   const b = blank();
@@ -271,6 +305,8 @@ const load = () => { try {
     localUp: c.localUp === true,
     last: typeof c.last === 'string' ? c.last : '',
     cards: Array.isArray(c.cards) ? c.cards.filter(x => x && typeof x === 'object' && typeof x.id === 'string') : [],
+    visited: (c.visited && typeof c.visited === 'object' && !Array.isArray(c.visited))
+      ? Object.fromEntries(Object.entries(c.visited).filter(([, v]) => v === true)) : {},
   };
 } catch { return blank(); } };
 const save = () => { try { localStorage.setItem(SAVE, JSON.stringify(me)); } catch { /* private mode: play on */ } };
@@ -490,6 +526,7 @@ function head(title, lead) {
 // ── YOUR DIDY — fall-os's real conduct(), said plainly ────────────────────────────────────────
 const P = {
   didy() {
+    // the spine first: where you are, and the one next thing
     const f = document.createDocumentFragment();
     // ⚑ SAY WHAT THIS IS. An earlier version hid this on the first visit, on the theory that the
     // guide had already said it — and a newcomer landed on six empty slots, six zeros and nothing
@@ -497,6 +534,7 @@ const P = {
     // there is nothing on the screen to read. Games explain constantly — they just do it in
     // context, while you are already playing.
     const first = standing(me).runs === 0;
+    f.append(journeyStrip());
     if (first) {
       const o = el('div', 'opening');
       o.append(el('h2', null, 'This is a didy. It is yours, and it runs on your machine.'));
@@ -630,6 +668,7 @@ const P = {
     // the doors that open onto the real things. Judge the work.
     const proven = CATALOGUE.filter(a => a.tier === 'proven').length;
     const working = CATALOGUE.filter(a => a.tier === 'works').length;
+    f.append(journeyStrip());
     f.append(head('One estate. All of it real, all of it running.',
       'Everything below was built by one person, the sovereign way: no cloud, no backend, no subscriptions. '
       + `${CATALOGUE.length} public builds — ${proven} proven by gates that break the code on purpose, ${working} more passing live checks — `
@@ -739,6 +778,7 @@ const P = {
   },
 
   learn() {
+    if (me.visited.learn !== true) { me.visited.learn = true; save(); }
     const f = document.createDocumentFragment();
     f.append(head('Learn',
       'The one skill worth having: asking properly, and knowing when an answer is agreeing with you rather than helping you. It marks what you write — it can tell you no.'));
