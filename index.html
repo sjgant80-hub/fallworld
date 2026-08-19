@@ -216,9 +216,6 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 #log .by b{color:var(--gold)}
 #log .line{flex:1 1 auto;min-width:0;font-size:12.5px;color:var(--mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-.cardgate { border: 1.5px dashed rgba(212,160,23,0.45); border-radius: 8px; padding: 12px 14px; margin: 10px 0 14px; cursor: pointer; transition: border-color .15s, background .15s; }
-.cardgate:hover, .cardgate.over { border-color: var(--gold, #d4a017); background: rgba(212,160,23,0.07); }
-.cardgate .t { font-size: .92em; opacity: .92; }
 </style>
 </head>
 <body>
@@ -2230,7 +2227,7 @@ const $ = (s) => document.querySelector(s);
 const el = (t, c, x) => { const n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; };
 
 const SAVE = 'fallworld.character.v1';
-const blank = () => ({ name: 'you', bags: [], slots: [null, null, null, null, null, null], keys: {}, ran: [], localUp: false, last: '', picked: 0, cards: [] });
+const blank = () => ({ name: 'you', bags: [], slots: [null, null, null, null, null, null], keys: {}, ran: [], localUp: false, last: '', picked: 0 });
 const load = () => { try {
   const c = JSON.parse(localStorage.getItem(SAVE) || '{}');
   const b = blank();
@@ -2243,7 +2240,6 @@ const load = () => { try {
     ran: Array.isArray(c.ran) ? c.ran.filter(x => x && typeof x === 'object') : [],
     localUp: c.localUp === true,
     last: typeof c.last === 'string' ? c.last : '',
-    cards: Array.isArray(c.cards) ? c.cards.filter(x => x && typeof x === 'object' && typeof x.id === 'string') : [],
   };
 } catch { return blank(); } };
 const save = () => { try { localStorage.setItem(SAVE, JSON.stringify(me)); } catch { /* private mode: play on */ } };
@@ -2251,129 +2247,7 @@ let me = load();
 
 const SHOP = store(CATALOGUE);
 const byId = new Map(SHOP.listed.map(a => [a.id, a]));
-for (const cd of (me.cards || [])) if (!byId.has(cd.id)) byId.set(cd.id, cd);
 const owned = () => me.bags.map(id => byId.get(id)).filter(Boolean);
-
-/* ── the card gate · inlined verbatim-adapted from fallkard-forge card.mjs @ d380947 ──
-   Cards are how tools travel: a picture that openly carries a real build, sealed with a hash.
-   Reading one back means: parse the declared PNG chunks, take the payload and manifest out,
-   RECOMPUTE the seal, and refuse anything that does not match. No trust, just arithmetic. */
-const CARDGATE = (() => {
-  const PNG_SIG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-  const PAYLOAD_KEYWORD = 'konomi-payload', MANIFEST_KEYWORD = 'konomi-manifest', NUL = '\u0000';
-  const latin1 = (u8) => { let out = ''; for (const b of u8) out += String.fromCharCode(b); return out; };
-  function parseChunks(png) {
-    const u8 = (png instanceof Uint8Array) ? png : new Uint8Array(png || []);
-    if (u8.length < 8) throw new Error('not a PNG (too short)');
-    for (let i = 0; i < 8; i++) if (u8[i] !== PNG_SIG[i]) throw new Error('not a PNG (bad signature)');
-    const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
-    const chunks = [];
-    let off = 8, sawEnd = false;
-    while (off + 8 <= u8.length) {
-      const length = dv.getUint32(off);
-      if (off + 12 + length > u8.length) throw new Error('PNG is truncated \u2014 a chunk runs past the end of the file');
-      const type = latin1(u8.subarray(off + 4, off + 8));
-      chunks.push({ type, data: u8.subarray(off + 8, off + 8 + length) });
-      off += 12 + length;
-      if (type === 'IEND') { sawEnd = true; break; }
-    }
-    if (!sawEnd) throw new Error('PNG is truncated \u2014 it has no IEND');
-    return chunks;
-  }
-  function readText(chunks, keyword) {
-    for (const c of (Array.isArray(chunks) ? chunks : [])) {
-      if (!c || c.type !== 'tEXt') continue;
-      const t = latin1(c.data);
-      const nul = t.indexOf(NUL);
-      if (nul < 0) continue;
-      if (t.slice(0, nul) === String(keyword)) return t.slice(nul + 1);
-    }
-    return null;
-  }
-  async function readZText(chunks, keyword) {
-    for (const c of (Array.isArray(chunks) ? chunks : [])) {
-      if (!c || c.type !== 'zTXt') continue;
-      const t = latin1(c.data);
-      const nul = t.indexOf(NUL);
-      if (nul < 0 || t.slice(0, nul) !== String(keyword)) continue;
-      const deflated = c.data.subarray(nul + 2); // NUL + 1-byte compression method
-      const ds = new DecompressionStream('deflate');
-      const out = new Response(new Blob([deflated]).stream().pipeThrough(ds));
-      return latin1(new Uint8Array(await out.arrayBuffer()));
-    }
-    return null;
-  }
-  const sha256hex = async (u8) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', u8)))
-    .map(b => b.toString(16).padStart(2, '0')).join('');
-  async function readCard(u8) {
-    const chunks = parseChunks(u8);
-    let payloadB64 = readText(chunks, PAYLOAD_KEYWORD);
-    if (payloadB64 == null) payloadB64 = await readZText(chunks, PAYLOAD_KEYWORD);
-    const manifestRaw = readText(chunks, MANIFEST_KEYWORD);
-    let manifest = null;
-    if (manifestRaw != null) { try { manifest = JSON.parse(manifestRaw); } catch { /* said below */ } }
-    if (manifest == null && payloadB64 == null) return { isCard: false, reason: 'a plain picture \u2014 there is no build inside it' };
-    if (manifestRaw != null && manifest == null) return { isCard: false, reason: 'the manifest on this card is not readable' };
-    if (payloadB64 == null) return { isCard: false, reason: 'it has a manifest but the build is missing' };
-    if (manifest == null) return { isCard: false, reason: 'it has a build but nothing says what it is' };
-    return { isCard: true, manifest, payloadB64 };
-  }
-  return { readCard, sha256hex };
-})();
-
-async function cardArrives(file) {
-  try {
-    const u8 = new Uint8Array(await file.arrayBuffer());
-    let r;
-    try { r = await CARDGATE.readCard(u8); } catch (e) { say('Not a card: ' + e.message); return; }
-    if (!r.isCard) { say(r.reason + '. Nothing installed.'); return; }
-    const gz = Uint8Array.from(atob(r.payloadB64), ch => ch.charCodeAt(0));
-    const actual = await CARDGATE.sha256hex(gz);
-    if (actual !== r.manifest.seal) {
-      say('The seal does not match \u2014 this card was changed after it was forged. Refused: nothing installed.');
-      return;
-    }
-    const id = 'card-' + actual.slice(0, 8);
-    if (me.bags.includes(id)) { say('You already hold this card.'); return; }
-    const tag = String(r.manifest.tags || '').split(',')[0].split(':')[0].trim();
-    const entry = {
-      id,
-      name: tag ? tag + ' (card)' : 'forged card ' + actual.slice(0, 8),
-      kind: 'card',
-      does: 'a sealed build that arrived as a card \u2014 the seal was recomputed here when it landed. Hatch the build itself in the Forge.',
-      tier: r.manifest.assessor_pass ? 'proven' : 'prototype',
-      rarity: r.manifest.rarity || 'normal',
-      reach: [], // un-hatched, it can read, change, send and spend nothing \u2014 the good case, said plainly
-      evidence: 'seal sha256:' + actual.slice(0, 12) + '\u2026 \u2014 recomputed on arrival, not taken on trust',
-      url: 'https://sjgant80-hub.github.io/fallkard-forge/',
-    };
-    me.cards = me.cards || [];
-    me.cards.push(entry); byId.set(id, entry);
-    me.bags.push(id); save();
-    say('\u2713 Real and sealed \u2014 ' + entry.name + ' is yours now. Fit it like any tool, or hatch the build in the Forge.');
-    draw();
-  } catch (e) { say('Could not read that: ' + ((e && e.message) || e)); }
-}
-
-function cardGateUI() {
-  const w = el('div', 'cardgate');
-  const t = el('div', 't');
-  t.innerHTML = '<b>Been given a card?</b> Tools travel as cards \u2014 a picture that openly carries the real build, sealed with a hash. '
-    + 'Drop one here (or click to choose) and it is checked in front of you, then it is yours. '
-    + 'Forge your own at <a href="https://sjgant80-hub.github.io/fallkard-forge/" target="_blank" rel="noopener">the Forge \u2192</a>';
-  const inp = document.createElement('input');
-  inp.type = 'file'; inp.accept = 'image/png'; inp.hidden = true;
-  inp.addEventListener('change', () => { if (inp.files[0]) cardArrives(inp.files[0]); inp.value = ''; });
-  w.append(t, inp);
-  w.addEventListener('click', (ev) => { if (ev.target.tagName !== 'A') inp.click(); });
-  w.addEventListener('dragover', (ev) => { ev.preventDefault(); w.classList.add('over'); });
-  w.addEventListener('dragleave', () => w.classList.remove('over'));
-  w.addEventListener('drop', (ev) => {
-    ev.preventDefault(); w.classList.remove('over');
-    if (ev.dataTransfer.files[0]) cardArrives(ev.dataTransfer.files[0]);
-  });
-  return w;
-}
 const say = (t) => { $('#logline').textContent = t; };
 
 // ── the bar: measured from what actually ran, never from what is installed ────────────────────
@@ -2473,11 +2347,6 @@ const P = {
     if (first) {
       const o = el('div', 'opening');
       o.append(el('h2', null, 'This is a didy. It is yours, and it runs on your machine.'));
-      const p0 = el('p');
-      p0.innerHTML = 'Think of it like buying a game: <b>Fall World is free, and your didy comes with it</b>. '
-        + 'The tools are the <b>addons</b> — pay once (most cost nothing), own them forever, fit them like gear. '
-        + 'Every one replaces something you would otherwise rent monthly. There are no subscriptions in this world, and nothing you type leaves your machine.';
-      o.append(p0);
       const p1 = el('p');
       p1.innerHTML = 'A didy is a helper you <b>assemble</b> rather than rent. Right now it can read what you '
         + 'write and lay out the ways a decision could go — with no account, no key, and nothing sent anywhere. '
@@ -2534,9 +2403,7 @@ const P = {
   keys() {
     const f = document.createDocumentFragment();
     f.append(head('Power',
-      'This ladder is the game\u2019s levelling. Everyone starts out renting a frontier model \u2014 paste a key you already have and it works straight away. '
-      + 'As you play you climb toward models you own: one running in your tab, then an open-weight one on your own machine \u2014 '
-      + 'until the same jobs cost you nothing and answer to nobody. Every rung says plainly what it costs and where your words go.'));
+      'Everyone starts out renting. Paste a key you already have and it works straight away. Later you can run your own, and the same jobs stop costing you anything.'));
 
     const have = reach(me);
     const rungs = el('div', 'rungs');
@@ -2608,8 +2475,7 @@ const P = {
       + `${CATALOGUE.length} public builds — ${proven} proven by gates that break the code on purpose, ${working} more passing live checks — `
       + 'and every rank computed from what actually ran, never claimed. Open any door and judge the work.'));
     const play = el('div', 'note');
-    play.innerHTML = 'Then press <b>D</b> \u2014 <b>your didy</b> is your character here: assemble your own AI out of these tools, and the more you fit, the more it can do. '
-      + '<b>Fall World is the game</b> \u2014 free, didy included; the tools are addons you own, never rent.';
+    play.innerHTML = 'Then press <b>D</b> — <b>your didy</b> is your character here: assemble your own AI out of these tools, and the more you fit, the more it can do.';
     f.append(play);
     for (const w of WINGS) {
       const s = el('div', 'wing');
@@ -2630,9 +2496,7 @@ const P = {
   store() {
     const f = document.createDocumentFragment();
     f.append(head('The store',
-      'These are the addons. Pay once or nothing, own it forever \u2014 no tool here can ever charge you monthly. '
-      + 'Every one is ranked by what it has actually been shown to do, not by what its maker says; anything nobody has checked is not listed, at any price.'));
-    f.append(cardGateUI());
+      'Every tool here is ranked by what it has actually been shown to do, not by what its maker says. Anything nobody has checked is not listed, at any price.'));
     f.append(el('div', 'note', `${SHOP.listed.length} to be had · ${SHOP.refused.length} not good enough to list. `
       + `Colour is how rare it is; the tag next to it is whether anybody has ever shown it works. They are different questions.`));
     const g = el('div', 'grid');
