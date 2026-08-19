@@ -2467,6 +2467,63 @@ const CARDGATE = (() => {
   }
   const sha256hex = async (u8) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', u8)))
     .map(b => b.toString(16).padStart(2, '0')).join('');
+
+  /* the artifact layer \u00b7 verbatim-adapted from fallkard-forge artifact.mjs @ 77e2594 (gated in
+     its own repo). A sovereign artifact rides in a third declared chunk: a KCC-MINT-001 bundle
+     whose claims are all checkable FROM THE FILE \u2014 contains, tier-earned, lineage, signature. */
+  const ARTIFACT_KEYWORD = 'konomi-artifact';
+  const canonicalJson = (v) => {
+    if (v === null || typeof v !== 'object') return JSON.stringify(v);
+    if (Array.isArray(v)) return '[' + v.map(canonicalJson).join(',') + ']';
+    return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + canonicalJson(v[k])).join(',') + '}';
+  };
+  const signable = (bundle) => {
+    const b = (bundle && typeof bundle === 'object') ? bundle : {};
+    const m = { ...((b.mint && typeof b.mint === 'object') ? b.mint : {}) };
+    delete m.minter_sig_b64;
+    return canonicalJson({ ...b, mint: m });
+  };
+  // the tier rule, verbatim from the forge's card kernel \u2014 the earned grade is recomputed HERE
+  const rarityOf = (o) => {
+    const assessorPass = !!o.assessorPass, depth = Number(o.depth) || 0, readingKeyHonest = !!o.readingKeyHonest;
+    if (assessorPass && depth >= 3 && readingKeyHonest) return 'holo';
+    if (assessorPass && depth >= 2) return 'rare';
+    if (assessorPass) return 'uncommon';
+    return 'common';
+  };
+  async function verifyArtifactHere(bundle, sealComputed, cardManifest) {
+    const b = (bundle && typeof bundle === 'object') ? bundle : {};
+    const mint = (b.mint && typeof b.mint === 'object') ? b.mint : {};
+    const checks = [];
+    const add = (name, ok, why) => checks.push({ name, ok: !!ok, why });
+    add('contains the build', sealComputed !== '' && mint.fork_sha === sealComputed,
+      mint.fork_sha === sealComputed ? 'the bundle seals exactly the build inside'
+        : 'the bundle points at a different build than the one inside \u2014 a receipt, not a container');
+    const m2 = (cardManifest && typeof cardManifest === 'object') ? cardManifest : {};
+    const earned = rarityOf({ assessorPass: !!m2.assessor_pass, depth: 0, readingKeyHonest: true });
+    add('tier is earned', b.tier === earned,
+      b.tier === earned ? 'the tier "' + b.tier + '" matches what the evidence earns'
+        : 'the bundle claims "' + b.tier + '" but the evidence earns "' + earned + '" \u2014 a claimed grade is refused');
+    const kpidOk = typeof mint.kpid === 'string' && /^kcc:[a-z0-9-]+:(gen0|fork):[0-9a-f]{8}$/.test(mint.kpid)
+      && mint.kpid.endsWith(String(mint.fork_sha || '').slice(0, 8));
+    const parentOk = mint.parent_kpid === null || (typeof mint.parent_kpid === 'string' && /^kcc:/.test(mint.parent_kpid));
+    add('lineage is well-formed', kpidOk && parentOk,
+      kpidOk && parentOk ? 'kpid and parent both read as KCC lineage'
+        : 'the identifiers do not read as KCC lineage');
+    if (mint.minter_sig_b64 && mint.minter_pubkey_b64) {
+      let good = false;
+      try {
+        const un = (x) => Uint8Array.from(atob(x), c => c.charCodeAt(0));
+        const key = await crypto.subtle.importKey('raw', un(mint.minter_pubkey_b64), { name: 'Ed25519' }, false, ['verify']);
+        good = await crypto.subtle.verify({ name: 'Ed25519' }, key, un(mint.minter_sig_b64), new TextEncoder().encode(signable(b)));
+      } catch { good = false; }
+      add('signature verifies', good, good ? 'the minter signed exactly these bytes'
+        : 'the signature does not match the bundle \u2014 tampered, or signed by someone else');
+    } else {
+      add('signature verifies', false, 'the bundle is unsigned \u2014 lineage is asserted, not proven');
+    }
+    return { ok: checks.every(c => c.ok), checks };
+  }
   async function readCard(u8) {
     const chunks = parseChunks(u8);
     let payloadB64 = readText(chunks, PAYLOAD_KEYWORD);
@@ -2478,9 +2535,12 @@ const CARDGATE = (() => {
     if (manifestRaw != null && manifest == null) return { isCard: false, reason: 'the manifest on this card is not readable' };
     if (payloadB64 == null) return { isCard: false, reason: 'it has a manifest but the build is missing' };
     if (manifest == null) return { isCard: false, reason: 'it has a build but nothing says what it is' };
-    return { isCard: true, manifest, payloadB64 };
+    let bundle = null;
+    const bRaw = readText(chunks, ARTIFACT_KEYWORD);
+    if (bRaw != null) { try { bundle = JSON.parse(bRaw); } catch { bundle = null; } }
+    return { isCard: true, manifest, payloadB64, bundle };
   }
-  return { readCard, sha256hex };
+  return { readCard, sha256hex, verifyArtifactHere };
 })();
 
 async function cardArrives(file) {
@@ -2497,22 +2557,40 @@ async function cardArrives(file) {
     }
     const id = 'card-' + actual.slice(0, 8);
     if (me.bags.includes(id)) { say('You already hold this card.'); return; }
+
+    // the artifact layer, when one rides on the card: every claim re-checked HERE, never trusted
+    let art = null;
+    if (r.bundle) art = await CARDGATE.verifyArtifactHere(r.bundle, actual, r.manifest);
+
     const tag = String(r.manifest.tags || '').split(',')[0].split(':')[0].trim();
+    const artName = (art && art.ok && r.bundle && typeof r.bundle.name === 'string' && r.bundle.name) ? r.bundle.name : null;
     const entry = {
       id,
-      name: tag ? tag + ' (card)' : 'forged card ' + actual.slice(0, 8),
+      name: artName ? artName + ' (artifact)' : tag ? tag + ' (card)' : 'forged card ' + actual.slice(0, 8),
       kind: 'card',
-      does: 'a sealed build that arrived as a card \u2014 the seal was recomputed here when it landed. Hatch the build itself in the Forge.',
-      tier: r.manifest.assessor_pass ? 'proven' : 'prototype',
-      rarity: r.manifest.rarity || 'normal',
+      does: art && art.ok
+        ? 'a SOVEREIGN ARTIFACT \u2014 the build is inside, the tier was earned, and the minter\u2019s Ed25519 signature verified here, from the file alone. Hatch it in the Forge.'
+        : 'a sealed build that arrived as a card \u2014 the seal was recomputed here when it landed. Hatch the build itself in the Forge.',
+      tier: (art && art.ok) ? 'proven' : r.manifest.assessor_pass ? 'proven' : 'prototype',
+      rarity: (art && art.ok && r.bundle.tier) ? r.bundle.tier : (r.manifest.rarity || 'normal'),
       reach: [], // un-hatched, it can read, change, send and spend nothing \u2014 the good case, said plainly
-      evidence: 'seal sha256:' + actual.slice(0, 12) + '\u2026 \u2014 recomputed on arrival, not taken on trust',
+      evidence: art && art.ok
+        ? r.bundle.mint.kpid + ' \u00b7 four claims verified from the file, just now'
+        : 'seal sha256:' + actual.slice(0, 12) + '\u2026 \u2014 recomputed on arrival, not taken on trust',
+      kpid: (art && art.ok) ? r.bundle.mint.kpid : null,
       url: 'https://sjgant80-hub.github.io/fallkard-forge/',
     };
     me.cards = me.cards || [];
     me.cards.push(entry); byId.set(id, entry);
     me.bags.push(id); save();
-    say('\u2713 Real and sealed \u2014 ' + entry.name + ' is yours now. Fit it like any tool, or hatch the build in the Forge.');
+    if (art && art.ok) {
+      say('\u2713 SOVEREIGN ARTIFACT \u2014 ' + entry.name + ' is yours: build inside, tier earned, lineage signed \u2014 all verified here. ' + r.bundle.mint.kpid);
+    } else if (art) {
+      const failed = art.checks.find(c => !c.ok);
+      say('\u2713 The card is real and sealed \u2014 yours \u2014 but its ARTIFACT layer was refused: ' + (failed ? failed.why : 'a claim did not hold') + '. It lands as a plain card.');
+    } else {
+      say('\u2713 Real and sealed \u2014 ' + entry.name + ' is yours now. Fit it like any tool, or hatch the build in the Forge.');
+    }
     draw();
   } catch (e) { say('Could not read that: ' + ((e && e.message) || e)); }
 }
