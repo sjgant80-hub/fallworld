@@ -265,8 +265,43 @@ const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').
 
 // The levelling spine, drawn. The level is computed from what actually happened (journey.mjs,
 // gated); this strip only SAYS it. Doors are never barred — the spine lights the next one.
+// What the page can SEE beyond its own save: the Duel's victory ledger lives in this same
+// origin's IndexedDB, so a win in the game is an observable fact here — read, never trusted.
+let DUELS_WON = 0;
+function observeOutside() {
+  try {
+    const req = indexedDB.open('fallkard', 2);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains('decks')) db.createObjectStore('decks', { keyPath: 'name' });
+      if (!db.objectStoreNames.contains('inventory')) db.createObjectStore('inventory', { keyPath: 'id' });
+    };
+    req.onsuccess = () => {
+      try {
+        const db = req.result;
+        const tx = db.transaction('inventory', 'readonly');
+        tx.objectStore('inventory').get('main').onsuccess = (e) => {
+          const inv = e.target.result;
+          const n = inv && Array.isArray(inv.defeated) ? inv.defeated.length : 0;
+          if (n !== DUELS_WON) { DUELS_WON = n; draw(); }
+          db.close();
+        };
+        tx.onerror = () => db.close();
+      } catch { /* the ledger is simply not there yet */ }
+    };
+    req.onerror = () => {};
+  } catch { /* no IndexedDB: private mode — the deep cores stay unlit */ }
+}
+observeOutside();
+
 function journeyStrip() {
-  const j = journey(me);
+  const t = tally(me.ran);
+  const j = journey(me, {
+    duelsWon: DUELS_WON,
+    ownModelRuns: (t.byRung && t.byRung.t1) || 0,
+    runs: t.runs,
+    sovereignty: t.sovereignty,
+  });
   const w = el('div', 'journey');
   const dots = j.cores.map(c => `<span class="jdot${c.done ? ' lit' : ''}" title="${esc(c.name)}">\u25c6</span>`).join('');
   const line = j.next
@@ -287,6 +322,7 @@ document.addEventListener('click', (ev) => {
   if (href.includes('fallkard/duel.html')) { me.visited.duel = true; touched = true; }
   if (href.includes('fallkard-forge')) { me.visited.forge = true; touched = true; }
   if (href.includes('falllearn')) { me.visited.learn = true; touched = true; }
+  if (href.includes('fall-os')) { me.visited.mesh = true; touched = true; }
   if (touched) save();
 }, true);
 
