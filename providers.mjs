@@ -24,7 +24,7 @@ import { text, num, list, field, isThing } from './safe.mjs';
 export const PROVIDERS = Object.freeze({
   anthropic: Object.freeze({
     id: 'anthropic', name: 'Claude', host: 'api.anthropic.com',
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-fable-5',   // the frontier rung — Fable, wired into the didy by name
     keyLooksLike: /^sk-ant-/,
     where: 'console.anthropic.com',
   }),
