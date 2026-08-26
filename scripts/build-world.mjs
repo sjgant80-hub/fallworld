@@ -7,12 +7,12 @@
 // three items, they are ONE item that ships a full SET. Collapsing them is what turns 1,624 rows into
 // a world a person can actually walk around.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { tierOf, tally as tallyTier } from './tier.mjs';
+import { tierOf, tally as tallyTier } from '../tier.mjs';
 
 // What GitHub's own runners recorded about each repo — gathered by scan-workflows.mjs, never edited
 // by hand. Missing file means no evidence for anybody, and every build honestly reads as prototype.
-const EVIDENCE = existsSync('tier-evidence.json')
-  ? JSON.parse(readFileSync('tier-evidence.json', 'utf8'))
+const EVIDENCE = existsSync('workflow-evidence.json')
+  ? JSON.parse(readFileSync('workflow-evidence.json', 'utf8'))
   : {};
 
 const IDX = process.argv[2] || 'C:/Users/sjgan/.claude/projects/C--Users-sjgan--claude/memory/estate-index.json';
@@ -213,7 +213,7 @@ const world = {
   bySeatFoundation: tally(of('foundation'), 'seat'),
   seats: SEATS.map(({ re, ...s }) => s), items: out,
 };
-writeFileSync(new URL('./world.json', import.meta.url), JSON.stringify(world));
+writeFileSync(new URL('../world.json', import.meta.url), JSON.stringify(world));
 console.log(`indexed ${all.length} → ITEMS ${out.length} (collapsed ${world.counts.collapsed}) · live ${world.counts.live} · unidentified ${world.counts.unidentified}`);
 console.log('rarity:', JSON.stringify(world.byTier));
 console.log('seats :', JSON.stringify(world.bySeat));
