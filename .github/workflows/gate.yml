@@ -83,7 +83,7 @@ jobs:
             // Counted from the kernels this job actually gates, never typed. A hard-coded 2 went
             // stale the moment a third kernel arrived, and a count nobody updates fails a build
             // that was perfectly clean — which is how a real check gets deleted.
-            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'journey.mjs', 'mind.mjs', 'providers.mjs', 'runtime.mjs', 'module.mjs', 'guide.mjs', 'safe.mjs'];
+            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'journey.mjs', 'mind.mjs', 'doors.mjs', 'providers.mjs', 'runtime.mjs', 'module.mjs', 'guide.mjs', 'safe.mjs'];
             if (all.length !== KERNELS.length) { console.error('expected ' + KERNELS.length + ' gate verdicts (' + KERNELS.join(', ') + '), saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
             if (all.some(v => v !== 'true')) { console.error('mutants survived — those lines are test-theatre'); process.exit(1); }
             console.log(all.length + ' gates clean');
