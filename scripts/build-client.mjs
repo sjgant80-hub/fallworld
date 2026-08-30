@@ -50,6 +50,7 @@ const MODULES = [
   ['ladder.mjs', 'the rungs'],
   ['journey.mjs', 'the levelling spine'],
   ['mind.mjs', 'the studied mind'],
+  ['doors.mjs', 'the human doors — the 10% as law'],
   ['client.mjs', 'the store'],
   ['providers.mjs', 'talking to a paid model'],
   ['runtime.mjs', 'the wall round an addon'],
@@ -110,7 +111,8 @@ const kernel = [
 const out = read('client.html').replace('/*__KERNEL__*/', () => kernel);
 if (out.includes('/*__KERNEL__*/')) throw new Error('the kernel never went in');
 for (const must of ['function conduct(', 'function t0Organ(', 'function route(', 'function store(',
-                    'function buildCall(', 'function judge(', 'function phrase(', 'function speak(', 'const WINGS']) {
+                    'function buildCall(', 'function judge(', 'function phrase(', 'function speak(', 'const WINGS',
+                    'function nextDecision(']) {
   if (!out.includes(must)) throw new Error(`${must.trim()} is missing — the page would be a drawing of the product`);
 }
 const script = out.slice(out.indexOf('<script type="module">'), out.lastIndexOf('</script>'));

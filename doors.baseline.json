@@ -1,0 +1,8 @@
+[
+  {
+    "line": 50,
+    "mutation": "&& → ||",
+    "snippet": "if (qClock && bClock) { if (q.clockDays < best.clockDays) { best = q; bestIdx = i; } retur",
+    "reason": "equivalent by unreachability: the line above (qClock !== bClock) already returned, so at this line the two flags are ALWAYS equal — and && agrees with || on equal booleans (T&&T = T||T, F&&F = F||F). No input reaches a state where they differ"
+  }
+]

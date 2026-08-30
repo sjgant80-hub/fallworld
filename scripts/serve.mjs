@@ -3,8 +3,12 @@
 import { createServer } from 'node:http';
 import { readFileSync, existsSync } from 'node:fs';
 import { join, extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const DIR = new URL('.', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+// One level UP: this file moved into scripts/ and kept serving its own directory, so the
+// preview 404'd on everything. fileURLToPath also survives Windows drive letters, which the
+// old pathname munging did not.
+const DIR = fileURLToPath(new URL('..', import.meta.url));
 const TYPES = { '.html': 'text/html', '.json': 'application/json', '.mjs': 'text/javascript', '.css': 'text/css' };
 
 createServer((req, res) => {

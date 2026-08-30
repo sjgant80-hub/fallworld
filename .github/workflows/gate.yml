@@ -38,7 +38,7 @@ jobs:
 
       - name: Tests must pass before anything is mutated
         run: |
-          node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs providers.test.mjs runtime.test.mjs module.test.mjs guide.test.mjs safe.test.mjs rooms.test.mjs
+          node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs providers.test.mjs runtime.test.mjs module.test.mjs guide.test.mjs safe.test.mjs rooms.test.mjs doors.test.mjs
 
       # The mutation gate attacks the TESTS. A green suite sitting over a broken line is test-theatre,
       # and this is the step that catches it.
@@ -53,6 +53,7 @@ jobs:
           node .witness/witness.mjs mutate ladder.mjs --test node --test ladder.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate journey.mjs --test node --test journey.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate mind.mjs --test node --test mind.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate doors.mjs --baseline doors.baseline.json --test node --test doors.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate providers.mjs --test node --test providers.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate runtime.mjs --test node --test runtime.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate module.mjs --test node --test module.test.mjs | tee -a gate.out

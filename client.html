@@ -316,6 +316,59 @@ function mindPanel() {
   return w;
 }
 
+// THE HUMAN DOORS — simon-op's law, carried here so the 10% has a seat in the world. The LAW is
+// public (finance/taste/counsel, statutory clocks outrank money — doors.mjs, gated); the QUEUE is
+// yours: it lives in this browser's localStorage and nowhere else, exactly like the mind.
+let DOORSAVE = { queue: [], n: 0 };
+try { DOORSAVE = JSON.parse(localStorage.getItem('fallworld.doors.v1') || 'null') || DOORSAVE; } catch {}
+function doorSave() { try { localStorage.setItem('fallworld.doors.v1', JSON.stringify(DOORSAVE)); } catch {} }
+function doorsPanel() {
+  const w = el('div', 'mindbox');
+  const head = el('div', 'ms');
+  head.innerHTML = '<b>the human doors</b> · your 10%: <code>finance</code> · <code>taste</code> · <code>counsel</code> — the machine handles the rest. This queue lives in this browser only.';
+  w.append(head);
+  const next = nextDecision(DOORSAVE.queue);
+  if (next.ok) {
+    const card = el('div', 'ms');
+    const item = DOORSAVE.queue.find((q) => q.id === next.pick);
+    card.innerHTML = '<b>decide now:</b> ' + esc(item.what) + '<br><small>' + esc(next.reason) + (item.deferred ? ' · slid ' + item.deferred + '×' : '') + ' · ' + (DOORSAVE.queue.length - 1) + ' more waiting</small>';
+    w.append(card);
+    for (const v of ['yes', 'no', 'later']) {
+      const b = el('button', v === 'later' ? 'pull' : 'act', v); b.type = 'button'; b.style.marginRight = '6px';
+      b.addEventListener('click', () => {
+        const r = decide(DOORSAVE.queue, next.pick, v);
+        if (!r.ok) { say('The door refused: ' + r.why); return; }
+        DOORSAVE.queue = r.queue; doorSave();
+        say(v === 'later' ? (r.note || 'Put to the back — it will come round again.') : 'Decided: ' + v + ' — "' + item.what + '". The machine takes it from here.');
+        draw();
+      });
+      w.append(b);
+    }
+  } else {
+    w.append(el('div', 'ms', DOORSAVE.queue.length === 0 ? next.why : next.why));
+  }
+  const kind = document.createElement('select');
+  for (const d of DOORS) { const o = document.createElement('option'); o.value = d; o.textContent = d; kind.append(o); }
+  const what = document.createElement('input'); what.type = 'text'; what.placeholder = 'what needs deciding?'; what.style.width = '46%';
+  const clock = document.createElement('input'); clock.type = 'number'; clock.min = '0'; clock.step = '1'; clock.placeholder = 'days, if a legal clock'; clock.style.width = '20%';
+  const add = el('button', 'pull', 'queue it'); add.type = 'button';
+  add.addEventListener('click', () => {
+    const item = { id: 'd' + (DOORSAVE.n + 1), kind: kind.value, what: what.value.trim() };
+    if (clock.value !== '') item.clockDays = Number(clock.value);
+    const r = enqueue(DOORSAVE.queue, item);
+    if (!r.ok) { say('The door refused: ' + r.why); return; }
+    DOORSAVE.queue = r.queue; DOORSAVE.n += 1; doorSave();
+    what.value = ''; clock.value = '';
+    say('Queued behind the ' + item.kind + ' door.');
+    draw();
+  });
+  const row = el('div', 'ms'); row.style.marginTop = '8px';
+  row.append(kind, what, clock, add);
+  for (const c of [kind, what, clock]) c.style.marginRight = '6px';
+  w.append(row);
+  return w;
+}
+
 // The levelling spine, drawn. The level is computed from what actually happened (journey.mjs,
 // gated); this strip only SAYS it. Doors are never barred — the spine lights the next one.
 // What the page can SEE beyond its own save: the Duel's victory ledger lives in this same
@@ -703,6 +756,7 @@ const P = {
     const first = standing(me).runs === 0;
     f.append(journeyStrip());
     f.append(mindPanel());
+    f.append(doorsPanel());
     if (first) {
       const o = el('div', 'opening');
       o.append(el('h2', null, 'This is a didy. It is yours, and it runs on your machine.'));
