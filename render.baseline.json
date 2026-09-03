@@ -1,0 +1,14 @@
+[
+  {
+    "line": 114,
+    "mutation": "&& → ||",
+    "snippet": "const o = outcome && typeof outcome === 'object' && !Array.isArray(outcome) ? outcome : nu",
+    "reason": "equivalent by subsumption: the ternary guard is fully re-checked by the mode-membership test on the same line (!o and includes(o.mode)) — a primitive or array outcome lands in the same named refusal either way"
+  },
+  {
+    "line": 114,
+    "mutation": "&& → ||",
+    "snippet": "const o = outcome && typeof outcome === 'object' && !Array.isArray(outcome) ? outcome : nu",
+    "reason": "equivalent by subsumption: the ternary guard is fully re-checked by the mode-membership test on the same line (!o and includes(o.mode)) — a primitive or array outcome lands in the same named refusal either way"
+  }
+]

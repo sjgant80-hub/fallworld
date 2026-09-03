@@ -316,6 +316,45 @@ function mindPanel() {
   return w;
 }
 
+// THE SEAM — the end-of-software law as the world's FRONT DOOR: say what you need, and the
+// hub answers with what the estate already holds (reuse), a composition (recombine), a brief
+// (generate — the last resort), or a refusal at one of the five human doors. The shadow here
+// IS the catalogue — one source, already computed from what CI actually ran.
+let SEAMLEDGER = [];
+try { SEAMLEDGER = JSON.parse(localStorage.getItem('fallworld.seam.v1') || '[]'); } catch {}
+function seamBox() {
+  const w = el('div', 'mindbox');
+  const head2 = el('div', 'ms');
+  head2.innerHTML = '<b>the seam</b> · say what you need — the world answers with what already exists before anything new is born.';
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.placeholder = 'what do you need done?'; inp.style.width = '100%'; inp.style.marginTop = '6px';
+  inp.setAttribute('aria-label', 'your intent');
+  const out = el('div', 'ms'); out.style.marginTop = '8px';
+  const shadow = CATALOGUE.map(a => ({ name: a.id, desc: (a.name + ' ' + a.does).slice(0, 200), url: a.url }));
+  const run = () => {
+    const text = inp.value;
+    const rec = recallOf(text, SEAMLEDGER);
+    const r = seamCollapse(text, shadow);
+    if (!r.ok) { out.innerHTML = esc(r.why); return; }
+    let html = (rec.ok && rec.remembered) ? '🧠 ' + esc(rec.why) + '<br>' : '';
+    if (r.mode === 'door') html += '⚑ ' + esc(r.why);
+    else if (r.mode === 'reuse') html += '✓ ' + esc(r.why) + (r.fold.url ? ' — <a href="' + esc(r.fold.url) + '" target="_blank" rel="noopener"><b>open ' + esc(r.fold.name) + '</b></a>' : '');
+    else if (r.mode === 'recombine') html += '⊕ ' + esc(r.why) + '<br>' + r.folds.map(fd => fd.url ? '<a href="' + esc(fd.url) + '" target="_blank" rel="noopener">' + esc(fd.name) + '</a>' : esc(fd.name)).join(' + ');
+    else html += '✦ ' + esc(r.brief) + '<br><i>hand the brief to your didy — press D.</i>';
+    out.innerHTML = html;
+    if (['reuse', 'recombine'].includes(r.mode)) {
+      const folds = r.mode === 'reuse' ? [r.fold.name] : r.folds.map(fd => fd.name);
+      const fb = foldBack(SEAMLEDGER, text, { mode: r.mode, folds });
+      if (fb.ok) { SEAMLEDGER = fb.ledger; try { localStorage.setItem('fallworld.seam.v1', JSON.stringify(SEAMLEDGER)); } catch {} }
+    }
+  };
+  const go = el('button', 'act', 'collapse'); go.type = 'button'; go.style.marginTop = '6px';
+  go.addEventListener('click', run);
+  inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+  w.append(head2, inp, go, out);
+  return w;
+}
+
 // THE HUMAN DOORS — simon-op's law, carried here so the 10% has a seat in the world. The LAW is
 // public (finance/taste/counsel, statutory clocks outrank money — doors.mjs, gated); the QUEUE is
 // yours: it lives in this browser's localStorage and nowhere else, exactly like the mind.
@@ -885,6 +924,7 @@ const P = {
 
   world() {
     const f = document.createDocumentFragment();
+    // (the seam box below is built by seamBox(), defined near the mind panel)
     // ⚑ THE TESTIMONIAL, SAID WHERE IT CAN BE CHECKED. This page is the proof of what one person
     // can build this way — so it says so, with numbers computed from what actually ran, next to
     // the doors that open onto the real things. Judge the work.
@@ -899,6 +939,7 @@ const P = {
     play.innerHTML = 'Then press <b>D</b> \u2014 <b>your didy</b> is your character here: assemble your own AI out of these tools, and the more you fit, the more it can do. '
       + '<b>Fall World is the game</b> \u2014 free, didy included; the tools are addons you own, never rent.';
     f.append(play);
+    f.append(seamBox());
     for (const w of WINGS) {
       const s = el('div', 'wing');
       const wh = el('div', 'wh'); wh.append(el('span', 'ic', w.icon), el('h2', null, w.title)); s.append(wh);

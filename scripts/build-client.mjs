@@ -18,8 +18,10 @@ import { dirname, join } from 'node:path';
 const here = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (f) => readFileSync(join(here, f), 'utf8').split('\r\n').join('\n');
 
-/** Wrap one module so its private helpers cannot collide with anybody else's. */
-function scope(src, label) {
+/** Wrap one module so its private helpers cannot collide with anybody else's. `renames`
+ *  aliases an export at the PAGE surface only (e.g. two kernels both exporting DOORS) —
+ *  the vendored kernel file stays verbatim, so its gate never notices. */
+function scope(src, label, renames = {}) {
   const names = new Set();
   for (const m of src.matchAll(/^export\s+(?:async\s+)?(?:function|const|let|class)\s+([A-Za-z_$][\w$]*)/gm)) names.add(m[1]);
   for (const m of src.matchAll(/^export\s*\{([^}]*)\}/gm)) {
@@ -35,7 +37,8 @@ function scope(src, label) {
     .replace(/^export\s+(async\s+)?(function|const|let|class)\s/gm, '$1$2 ');
   const list = [...names];
   if (!list.length) throw new Error(`${label} exports nothing — it would vanish from the page`);
-  return `// ── ${label} ──\nconst { ${list.join(', ')} } = (() => {\n${body}\nreturn { ${list.join(', ')} };\n})();\n`;
+  const outer = list.map((n) => renames[n] ? `${n}: ${renames[n]}` : n);
+  return `// ── ${label} ──\nconst { ${outer.join(', ')} } = (() => {\n${body}\nreturn { ${list.join(', ')} };\n})();\n`;
 }
 
 // Dependency order: the primitives first, then what stands on them.
@@ -51,6 +54,7 @@ const MODULES = [
   ['journey.mjs', 'the levelling spine'],
   ['mind.mjs', 'the studied mind'],
   ['doors.mjs', 'the human doors — the 10% as law'],
+  ['render.mjs', 'the seam — intent in, capability out', { DOORS: 'SEAM_DOORS', KAPPA: 'SEAM_KAPPA', collapse: 'seamCollapse' }],
   ['client.mjs', 'the store'],
   ['providers.mjs', 'talking to a paid model'],
   ['runtime.mjs', 'the wall round an addon'],
@@ -103,7 +107,7 @@ const roomBlock = `const WINGS = ${JSON.stringify(world_.wings)};\n`
   + `const ROOM_COUNT = ${world_.roomCount};`;
 
 const kernel = [
-  ...MODULES.map(([f, label]) => scope(read(f), label)),
+  ...MODULES.map(([f, label, renames]) => scope(read(f), label, renames)),
   '// ── the world, from rooms.mjs ──\n' + roomBlock,
   `// ── the catalogue, from world.json ──\nconst CATALOGUE = ${JSON.stringify(catalogue)};`,
 ].join('\n');
@@ -112,7 +116,7 @@ const out = read('client.html').replace('/*__KERNEL__*/', () => kernel);
 if (out.includes('/*__KERNEL__*/')) throw new Error('the kernel never went in');
 for (const must of ['function conduct(', 'function t0Organ(', 'function route(', 'function store(',
                     'function buildCall(', 'function judge(', 'function phrase(', 'function speak(', 'const WINGS',
-                    'function nextDecision(']) {
+                    'function nextDecision(', 'function collapse(']) {
   if (!out.includes(must)) throw new Error(`${must.trim()} is missing — the page would be a drawing of the product`);
 }
 const script = out.slice(out.indexOf('<script type="module">'), out.lastIndexOf('</script>'));
