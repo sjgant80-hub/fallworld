@@ -6,6 +6,7 @@
 // been invisible. So this asks each repo for every workflow it has, and the latest run of each.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { execFile } from 'node:child_process';
+import { isMutationGate } from '../mutation-detect.mjs';
 
 const OUT = 'workflow-evidence.json';
 const ev = JSON.parse(readFileSync('ci-evidence.json', 'utf8'));
@@ -44,20 +45,21 @@ async function lane() {
       out.push({
         name: f.name, path: f.path, state: f.state,
         conclusion: run.conclusion || null, sha: run.sha || null, at: run.at || null,
-        // ⚑ A MENTION IS NOT A GATE. This was a substring match for the word "witness" anywhere in
-        // the workflow YAML, and `mutation` is the single field that promotes a repo to PROVEN —
-        // which tier.mjs then renders as "a mutation gate ran on GitHub's hardware and every mutant
-        // died". A comment saying the word was enough to earn that sentence.
+        // ⚑ A MENTION IS NOT A GATE, but neither is ONE PHRASING of reading the verdict.
+        // This used to ALSO require a verdict-check matching `"clean"` / `\bclean\b\s*[:=]` /
+        // `exit\s+1` — and that silently misclassified real gates as WORKS instead of PROVEN the
+        // moment an author phrased the check differently (found live: fallforgemint/fallforgecell/
+        // agent-proof/post-proof all genuinely run `witness.mjs mutate` and read the result as
+        // `j.clean!==true` then `process.exit(1)` — no space before the 1, no `"clean"` literal,
+        // no `\bclean\b\s*[:=]` — none of the old patterns matched, so `mutation` came back false
+        // for four repos that are genuinely gated). The verdict-check has no fixed vocabulary and
+        // never will; requiring one was the bug, not a safeguard.
         //
-        // Two things are now required, and they are the two that today proved are separately missing
-        // in real repositories:
-        //   1. an actual INVOCATION, not the word — `witness.mjs mutate`, or the Action by uses:
-        //   2. a step that READS THE VERDICT. witness exits 0 even when mutants survive, so a
-        //      workflow that runs it and never checks cannot fail on a survivor. proof-of-play ran
-        //      that way for months and its gate had never tested anything at all.
-        // Without both, the run being green says nothing about mutants, so it is not PROVEN.
-        mutation: /witness(\.mjs)?\s+mutate\b|uses:\s*\S*witness|stryker\s+run|pitest|mutmut\s+run/i.test(text)
-                  && /"clean"|\bclean\b\s*[:=]|--fail-on|exit\s+1/.test(text),
+        // isMutationGate (mutation-detect.mjs, its own gated kernel) is the real, robust signal: did
+        // the workflow actually INVOKE a mutation tool at all. It keeps the ONE guard that matters —
+        // comment lines are stripped first, so a mention inside "# remember to run witness mutate"
+        // still can never count as running one.
+        mutation: isMutationGate(text),
         pinned: /witness@v?\d|--branch\s+v\d|ref:\s*v\d/i.test(text),
       });
     }

@@ -38,7 +38,7 @@ jobs:
 
       - name: Tests must pass before anything is mutated
         run: |
-          node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs providers.test.mjs runtime.test.mjs module.test.mjs guide.test.mjs safe.test.mjs rooms.test.mjs doors.test.mjs render.test.mjs
+          node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs providers.test.mjs runtime.test.mjs module.test.mjs guide.test.mjs safe.test.mjs rooms.test.mjs doors.test.mjs render.test.mjs mutation-detect.test.mjs
 
       # The mutation gate attacks the TESTS. A green suite sitting over a broken line is test-theatre,
       # and this is the step that catches it.
@@ -61,6 +61,7 @@ jobs:
           node .witness/witness.mjs mutate guide.mjs --test node --test guide.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate safe.mjs --test node --test safe.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate bridge.mjs --test node --test | tee -a gate.out
+          node .witness/witness.mjs mutate mutation-detect.mjs --test node --test mutation-detect.test.mjs | tee -a gate.out
 
       # ⚑ The page a visitor gets must be the page this build makes. Regenerate and diff: a stale
       # index.html means the shop on screen and the shop that was gated are two different shops.
@@ -84,7 +85,7 @@ jobs:
             // Counted from the kernels this job actually gates, never typed. A hard-coded 2 went
             // stale the moment a third kernel arrived, and a count nobody updates fails a build
             // that was perfectly clean — which is how a real check gets deleted.
-            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'journey.mjs', 'mind.mjs', 'doors.mjs', 'render.mjs', 'providers.mjs', 'runtime.mjs', 'module.mjs', 'guide.mjs', 'safe.mjs'];
+            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'journey.mjs', 'mind.mjs', 'doors.mjs', 'render.mjs', 'providers.mjs', 'runtime.mjs', 'module.mjs', 'guide.mjs', 'safe.mjs', 'mutation-detect.mjs'];
             if (all.length !== KERNELS.length) { console.error('expected ' + KERNELS.length + ' gate verdicts (' + KERNELS.join(', ') + '), saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
             if (all.some(v => v !== 'true')) { console.error('mutants survived — those lines are test-theatre'); process.exit(1); }
             console.log(all.length + ' gates clean');
