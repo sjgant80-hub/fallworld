@@ -65,7 +65,7 @@ const MODULES = [
 // ── the catalogue, from what the estate's CI actually ran ─────────────────────────────────────
 const world = JSON.parse(read('world.json'));
 const KNOWN = {
-  witness: { reach: ['read', 'run'], price: 12 },
+  witness: { reach: ['read', 'run'] },
   'proof-of-play': { reach: ['read', 'run', 'publish'] },
   'acg-assessor': { reach: ['read'] },
   'kcc-mint': { reach: ['read', 'publish'] },
@@ -82,11 +82,34 @@ const KNOWN = {
   falllearn: { reach: [] },
   'fall-os': { reach: [], mind: 1 },
 };
+// ⚑ PRODUCT-SURFACE RULE. The hub must not quote what the estate CHARGES for its own builds, nor state
+// an unverifiable superlative as fact — that stays true however world.json is regenerated, so the scrub
+// lives here, at the one place a description reaches the page, not in the (regenerated) data. Value
+// framing (free / sovereign / own it / 0% fee) and tools that COMPUTE a comparison for the reader are
+// kept untouched; only a quoted figure and the "obsoletes X" claim are neutralised.
+function scrubSurface(text) {
+  if (!text) return text;
+  let s = text;
+  // 1) "obsoletes X" — a superlative about a competitor stated as fact → a neutral comparison.
+  s = s.replace(/\bobsoletes\b/gi, 'a sovereign alternative to');
+  // 2) "for £0 / $0 / €0" — free framing → plain words, never a price label.
+  s = s.replace(/\bfor\s*[£$€]0\b/gi, 'for free');
+  // 3) a competitor figure quoted inside a sentence → drop the figure, keep the comparison
+  //    ("a £20k consultant" → "a consultant", "the £1M deck" → "the deck").
+  s = s.replace(/[£$€]\d[\d.,]*\s*[kKmMbB]?\s+(?=[A-Za-z])/g, '');
+  // 4) drop any mid-dot segment that is still an estate price — a per-unit / per-period fee or a tier
+  //    range. Anything surviving rules 2–3 while still carrying a currency figure is a pure price.
+  s = s.split(/\s*·\s*/).filter(seg => !/[£$€]\s?\d/.test(seg)).join(' · ');
+  // 5) tidy any doubled or dangling mid-dots the edits may have left.
+  s = s.replace(/(?:\s*·\s*){2,}/g, ' · ').replace(/^\s*·\s*|\s*·\s*$/g, '').trim();
+  return s;
+}
+
 const catalogue = world.items.filter(i => i && !i.private).map(i => {
   const p = (i.proof && typeof i.proof === 'object') ? i.proof : {};
   const k = KNOWN[i.name] || {};
   return {
-    id: i.name, name: i.title || i.name, does: i.desc || '', url: i.url || null,
+    id: i.name, name: i.title || i.name, does: scrubSurface(i.desc || ''), url: i.url || null,
     tier: p.tier || null,
     evidence: p.workflow ? `${p.workflow}${p.sha ? ' @ ' + String(p.sha).slice(0, 7) : ''}` : null,
     reach: k.reach || [], mind: k.mind || 0, price: k.price || 0,
