@@ -30,11 +30,17 @@ and reports in `note`.
 ## What a change has to survive
 
 ```bash
-node --test                    # every suite
-node check-workflows.mjs       # a run: | block that loses its indent silently breaks a workflow
-node build-client.mjs          # index.html is generated; CI diffs it
-node sync-fallos.mjs --check   # still in step with upstream
+npm test                                   # every suite
+node scripts/check-workflows.mjs           # a run: | block that loses its indent silently breaks a workflow
+node scripts/build-client.mjs              # index.html is generated; CI diffs it
+node scripts/build-ecosystem.mjs           # ecosystem.html, llms.txt, sitemap.xml, README numbers; CI diffs them
+node scripts/sync-fallos.mjs --check       # the engine, still in step with upstream
+node scripts/sync-sources.mjs --check      # the size ladder and the creatures, at their pinned commits
+node scripts/grow-trial.mjs --check        # the growth trial's seal (and --verify once it has run)
 ```
+
+The trial is sealed: never edit `data/grow-prereg.json` or `data/grow-run.json`. A new trial is a
+new seal, run once, published whichever way it lands.
 
 Then the estate's own guts, which are the ones that count:
 

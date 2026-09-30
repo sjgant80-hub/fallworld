@@ -56,6 +56,24 @@ It loads in two phases: in the first it has no host object at all and can only s
 host compares that against what the shop showed you, and only then is a host built. A file that wants
 more than its listing declared is refused with the difference named.
 
+**9 · A didy hatches in your tab and grows by a measured bar.** (2026-09-30, Simon: "the didys
+hatch into webllm first then 7b 14b 70 200b".) Decision 3 still holds for keys, but nobody has to
+start by renting: the egg works with no model, the hatchling runs in the browser tab, and the stages
+above it are fallforgemint's size ladder, vendored at a pinned commit (`grow.mjs`). A didy grows to
+the SMALLEST stage that clears the job's bar and shrinks when a smaller one will do. The bar is a
+sealed trial (`trial.mjs`, `scripts/grow-trial.mjs`), run on local models, re-graded by CI and by
+the page. Size is for work: in the arena a bigger model buys nothing.
+
+**10 · The whole estate is a deck.** (Simon: "where are the cards".) Every public build is a card
+(`deck.mjs`), its rarity read from world.json's evidence, its art grown from its genes, counted into
+a rarity table like any collection's. The creatures of kard-evolve join the deck from their sealed
+record, vendored at a pinned commit. Nothing on a card is assigned by anybody.
+
+**11 · What the NFT wave got right, made real.** `nft.json` maps each mechanic people loved to the
+builds that make it real here; each row's state (proven, tested, live, built, designed) is read from
+those builds' cards, never written. `ecosystem.html` explains the whole world step by step and is
+generated, like everything else.
+
 ## Running it
 
 ```bash

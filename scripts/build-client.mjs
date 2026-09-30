@@ -162,8 +162,6 @@ const GROW = {
     sealedIn: gRun.sealedIn.slice(0, 7), memoryGB: Math.round(gRun.machine.memoryBytes / 1e8) / 10, cpu: gRun.machine.cpu,
     models: gRun.models, replies: Object.fromEntries(Object.entries(gRun.runs).map(([k, rs]) => [k, rs.map((r) => r.reply)])),
     speed: Object.fromEntries(Object.entries(gRun.runs).map(([k, rs]) => [k, {
-      tokPerSec: Math.round((mean(rs.map((r) => r.evalCount)) / mean(rs.map((r) => r.evalMs))) * 1000 * 10) / 10,
-      readPerSec: Math.round((mean(rs.map((r) => r.promptCount)) / mean(rs.map((r) => r.promptMs))) * 1000),
       secPerAnswer: Math.round(mean(rs.map((r) => r.totalMs)) / 100) / 10,
     }])),
   },
@@ -199,7 +197,7 @@ const faq = [
   ['Where are the cards?', `In the Deck: ${deckN.length} cards, one per public build — ` + [...rt].reverse().map((r) => r.count + ' ' + r.label).join(', ') + '. A card\'s rarity is computed from what GitHub\'s own runners did to that build, never assigned, and its art is grown from that evidence.'],
   ['How does a didy grow?', `From an egg that needs no model, through ${stagesN.length - 1} stages from ${stagesN[1].band} to ${stagesN[stagesN.length - 1].band}. It grows only when a measured bar says the job needs it, and shrinks when a smaller stage will do.`
     + (trialN && trialN.j.ok ? ` In the sealed trial of rules, ${trialN.sc.map((s) => nameOf(s.id) + ' ' + s.right + '/' + s.n).join(', ')}; ${trialN.j.chosen ? 'the smallest stage to clear the bar of ' + gPre.bar.right + ' was the ' + nameOf(trialN.j.chosen) : 'no measured stage cleared the bar of ' + gPre.bar.right}.` : '')],
-  ['How is a card here different from an NFT?', 'An NFT usually held a link to a picture, and its rarity came from its creator\'s script. A card here carries the build itself inside the picture, its rarity is computed from evidence anyone can re-run, its creatures breed into ones that measurably work better, and in battle a bigger model buys nothing.'],
+  ['How is a card here different from an NFT?', 'An NFT usually held a link to a picture, and its rarity came from its creator\'s script. A card here carries the build itself inside the picture, its rarity is computed from evidence anyone can re-run, its creatures breed into ones that measurably work better, and in battle a bigger model does not win.'],
 ];
 const ld = [
   { '@context': 'https://schema.org', '@type': ['VideoGame', 'SoftwareApplication'], name: 'Fall World', url: 'https://sjgant80-hub.github.io/fallworld/',

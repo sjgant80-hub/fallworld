@@ -120,7 +120,7 @@
    "was": "Card battles and creature fights (Gods Unchained, Axie Infinity).",
    "loved": "A reason to build a deck.",
    "broke": "The rarer, dearer cards won. Power was bought.",
-   "real": "In the arena raw model size buys nothing, as a tested invariant, and a special only lands if its code passed its gate. Size is for work; fights are won by choosing well.",
+   "real": "In the arena raw model size does not win, as a tested invariant, and a special only lands if its code passed its gate. Size is for work; fights are won by choosing well.",
    "doors": ["didy-arena", "fallkard"],
    "source": { "label": "Gods Unchained", "url": "https://en.wikipedia.org/wiki/Gods_Unchained" }
   },

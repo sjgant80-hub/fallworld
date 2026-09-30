@@ -257,7 +257,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .credits{font-size:11.5px;color:var(--faint);margin-top:12px;line-height:1.5}
 .credits b{color:var(--mid);font-weight:600}
 .kcard{flex:0 0 auto;width:132px;display:grid;justify-items:center;gap:3px;border:1px solid var(--edge);border-radius:9px;
-  background:linear-gradient(180deg,var(--soft),var(--sunk));padding:10px 8px 9px;cursor:pointer;color:inherit;font:inherit;text-align:center}
+  background:linear-gradient(180deg,var(--soft),var(--sunk));padding:10px 8px 9px;cursor:pointer;font:inherit;text-align:center}
 .kcard:hover{border-color:currentColor}
 .kcard .art{width:72px;height:72px}
 .kcard .kn{font-size:12px;font-weight:650;line-height:1.25;color:var(--ink);overflow-wrap:anywhere;max-height:2.5em;overflow:hidden}
@@ -272,7 +272,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .kgrid .kcard{width:auto}
 .rtable{display:grid;gap:5px;max-width:640px;margin-bottom:14px}
 .rrow{display:grid;grid-template-columns:112px minmax(0,1fr) 88px;gap:10px;align-items:center;background:none;border:1px solid transparent;
-  border-radius:4px;padding:3px 6px;cursor:pointer;color:inherit;font:inherit;text-align:left}
+  border-radius:4px;padding:3px 6px;cursor:pointer;font:inherit;text-align:left}
 .rrow:hover,.rrow.on{border-color:var(--edge);background:var(--sunk)}
 .rrow .rl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
 .rrow .bar{height:8px;border-radius:2px;background:var(--sunk);border:1px solid var(--edge-soft);overflow:hidden}
@@ -936,7 +936,7 @@ const P = {
     f.append(head('Grow your didy',
       'A didy hatches from an egg that already works: no model, no key, no account. It hatches in your browser tab, then grows one stage at a time, '
       + 'from about a billion parameters to a couple of hundred billion. It grows only when a measured bar says the job needs it: the smallest mind that clears the bar, never a bigger one, '
-      + 'and it shrinks again when a smaller one will do. Size is for work. In the Pit, a bigger model buys nothing.'));
+      + 'and it shrinks again when a smaller one will do. Size is for work. In the Pit, a bigger model does not win.'));
     f.append(growLadder());
     f.append(trialBox());
 
@@ -1727,10 +1727,10 @@ function livingWorld() {
   const T = TRIAL && TRIAL.j.ok ? TRIAL.j : null;
   const steps = [
     ['Hatch', 'Your didy is an <b>egg that already works</b>: no model, no key. It hatches in your browser tab.', { panel: 'didy' }],
-    ['Grow', STAGES.length ? `<b>${STAGES.length - 1} stages</b>, ${esc(STAGES[1].band)} to ${esc(STAGES[STAGES.length - 1].band)}. It grows only when a measured bar says so${T && T.chosen ? `: the trial chose the <b>${esc(STAGES.find((s) => s.id === T.chosen).name)}</b>` : ''}.` : 'The ladder is missing.', { panel: 'keys' }],
+    ['Grow', STAGES.length ? `<b>${STAGES.length - 1} stages</b>, ${esc(STAGES[1].band)} to ${esc(STAGES[STAGES.length - 1].band)}. It grows only when a measured bar says so${T ? (T.chosen ? `: the sealed trial chose the <b>${esc(STAGES.find((s) => s.id === T.chosen).name)}</b>` : `. In the sealed trial <b>no size this machine holds cleared its bar</b>`) : ''}.` : 'The ladder is missing.', { panel: 'keys' }],
     ['Collect', `<b>${DECK.length} cards</b>, one per public build. ${proven} proven, ${set} of them Set. Rarity is evidence, never assigned.`, { panel: 'deck' }],
     ['Breed', ch ? `Creatures really evolve: <b>${esc(ch.key)}</b> found a fix nobody taught it, and it now ships in every card.` : 'Creatures breed and are selected on real work.', { url: 'https://sjgant80-hub.github.io/kard-evolve/' }],
-    ['Battle', 'In the Pit a bigger model buys <b>nothing</b>. Better choices win, and a special only lands if its code was checked.', { url: 'https://sjgant80-hub.github.io/didy-arena/' }],
+    ['Battle', 'In the Pit a bigger model <b>does not win</b>. Better choices win, and a special only lands if its code was checked.', { url: 'https://sjgant80-hub.github.io/didy-arena/' }],
     ['Meet', 'Other people and their didys, <b>browser to browser</b>, with no server in the middle.', { url: 'https://sjgant80-hub.github.io/meshos/' }],
     ['Prove', 'Nothing lists on somebody saying it is good. <b>Every rank</b> comes from a check that actually ran.', { url: 'https://sjgant80-hub.github.io/proof-of-play/' }],
     ['Multiply', 'Fork a didy for your guild, and <b>estates hatch estates</b>: each build made when it is asked for, and checked first.', { url: 'https://sjgant80-hub.github.io/guild-didy/' }],
@@ -1746,8 +1746,9 @@ function livingWorld() {
   box.append(loop);
   box.append(el('h3', null, 'from the deck'));
   const feat = el('div', 'featured');
-  const setCards = DECK.filter((c) => c.rarity === 'set').sort((a, b) => a.genes - b.genes).slice(0, 7);
-  for (const c of [...LINE.slice(0, 1), ...setCards]) feat.append(kcard(c));
+  // a hand dealt from every rarity, rarest first — the same hand every visit (by genes)
+  const hand = Object.entries({ set: 2, unique: 2, rare: 1, magic: 1, normal: 1, unknown: 1 }).flatMap(([r, n]) => DECK.filter((c) => c.rarity === r).sort((a, b) => a.genes - b.genes).slice(0, n));
+  for (const c of [...LINE.slice(0, 1), ...hand]) feat.append(kcard(c));
   box.append(feat);
   const more = el('div', 'row');
   const all = el('button', 'act', 'the whole deck'); all.type = 'button'; all.addEventListener('click', () => { at = 'deck'; draw(); });
@@ -1845,6 +1846,29 @@ function growLadder() {
   return f;
 }
 
+// The misses, grouped: "Set → Unique ×9". A reply naming no single rarity reads "no single answer".
+function slips(missed) {
+  const m = new Map();
+  for (const x of missed) { const k = x.answer + ' → ' + (x.said || 'no single answer'); m.set(k, (m.get(k) || 0) + 1); }
+  return [...m].sort((a, b) => b[1] - a[1]).map(([k, n]) => k + ' ×' + n).join(' · ') || 'nowhere';
+}
+
+// What the measurement means for a didy, said by grow.mjs's own rule.
+function growVerdict(scores, j, bar) {
+  const ev = evolve(STAGES, 'hatchling', Object.fromEntries(scores.map((s) => [s.id, s.right])), bar);
+  const to = ev && STAGES.find((x) => x.id === ev.to);
+  const heldHere = BPW ? largestHeld(STAGES, GROW.run.memoryGB, BPW, GROW.overhead) : null;
+  const need = to && BPW ? memoryGB(to.paramsB, BPW, GROW.overhead) : null;
+  const n = scores[0].n;
+  let s = j.chosen
+    ? `For this job a didy hatched as a Hatchling should <b>${esc(ev.move)}</b> to the <b>${esc(to.name)}</b>: ${esc(ev.why)}.`
+    : `<b>No stage this machine could run cleared the bar.</b>` + (to ? ` By the growth rule the next stage to try is the <b>${esc(to.name)}</b>`
+      + (need !== null && heldHere && STAGES.indexOf(to) > STAGES.indexOf(heldHere) ? `, which needs about ${need} GB, more than this ${GROW.run.memoryGB} GB machine holds: a bigger machine, or a friend’s didy over the mesh.` : '.') : '');
+  s += ` Every stage answered in one word nearly every time (${scores.map((x) => x.bare).join(', ')} of ${n}), so these are wrong answers, not formatting.`
+    + ' And the egg does this job exactly, by construction: the rule is what grades the trial. When a job is a written rule, the smallest mind that clears the bar is no model at all.';
+  return s;
+}
+
 function trialBox() {
   const f = document.createDocumentFragment();
   const P = GROW.prereg;
@@ -1857,12 +1881,12 @@ function trialBox() {
   if (!TRIAL) { f.append(el('div', 'note', 'Sealed; being measured on one machine’s own electricity. The result lands here whichever way it goes.')); return f; }
   const { scores, j } = TRIAL;
   const tw = el('div', 'scroll'); const t = el('table', 'ttable');
-  t.innerHTML = '<thead><tr><th>stage</th><th>model</th><th>right</th><th>one word, nothing else</th><th>speed on this machine</th></tr></thead>';
+  t.innerHTML = '<thead><tr><th>stage</th><th>model</th><th>right</th><th>one word, nothing else</th><th>on the test machine (a timing, not a benchmark)</th></tr></thead>';
   const tb = el('tbody');
   for (const s of scores) {
     const sp = GROW.run.speed[s.id], nm = STAGES.find((x) => x.id === s.id);
     const r = el('tr');
-    r.innerHTML = `<td><b>${esc(nm ? nm.name : s.id)}</b></td><td>${esc(s.model)}</td><td><b>${s.right}/${s.n}</b></td><td>${s.bare}/${s.n}</td><td>${sp.secPerAnswer} s an answer · writes ${sp.tokPerSec} tokens/s</td>`;
+    r.innerHTML = `<td><b>${esc(nm ? nm.name : s.id)}</b></td><td>${esc(s.model)}</td><td><b>${s.right}/${s.n}</b></td><td>${s.bare}/${s.n}</td><td>${sp.secPerAnswer} s an answer</td>`;
     tb.append(r);
   }
   t.append(tb); tw.append(t); f.append(tw);
@@ -1877,12 +1901,16 @@ function trialBox() {
   rt.append(rb); rw.append(rt); f.append(rw);
   const sizerStage = STAGES.find((x) => x.id === P.sizer.stage);
   const verdict = el('div', 'note');
-  const ev = j.chosen ? evolve(STAGES, 'hatchling', Object.fromEntries(scores.map((s) => [s.id, s.right])), P.bar.right) : null;
   verdict.innerHTML = `<b>${j.passed} of ${j.of} sealed rules held</b> (sealed in <code>${esc(GROW.run.sealedIn)}</code>; re-graded on this page, just now, from every recorded reply). `
-    + (ev ? `For this job a didy hatched as a Hatchling should <b>${esc(ev.move)}</b> to the <b>${esc(STAGES.find((x) => x.id === ev.to).name)}</b>: ${esc(ev.why)}. ` : 'No measured stage cleared the bar. ')
-    + `The sizer’s own starting guess for this kind of job was the ${esc(sizerStage ? sizerStage.name : P.sizer.stage)}, and it says of itself that it is a heuristic, never a measured score. `
+    + growVerdict(scores, j, P.bar.right)
+    + ` The sizer’s own starting guess for this kind of job was the ${esc(sizerStage ? sizerStage.name : P.sizer.stage)}, and it says of itself that it is a heuristic, never a measured score. `
     + `Measured on ${esc(GROW.run.cpu)} with ${GROW.run.memoryGB} GB, through Ollama; nothing left the machine.`;
   f.append(verdict);
+  const sl = el('div', 'scroll'); const st = el('table', 'ttable');
+  st.innerHTML = '<thead><tr><th>stage</th><th>where it slipped (the right rarity → what it said)</th></tr></thead>';
+  const sb = el('tbody');
+  for (const s of scores) { const r = el('tr'); r.innerHTML = `<td><b>${esc((STAGES.find((x) => x.id === s.id) || {}).name || s.id)}</b></td><td>${esc(slips(s.missed))}</td>`; sb.append(r); }
+  st.append(sb); sl.append(st); f.append(sl);
   f.append(el('p', 'quiet', 'Not measured here: ' + Object.values(P.notMeasured).join('; ') + '.'));
   return f;
 }

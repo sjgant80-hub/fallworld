@@ -7,7 +7,7 @@ Fall World is a sovereign, MIT-licensed build by Simon Gant (UK), part of the AI
 ## What is in it
 
 - The deck: 664 cards, one per public build (536 built by Simon Gant; the rest are foundations the estate stands on and wrappers around outside services, each credited on its card). Rarity is counted from evidence, never assigned: 35 Set, 108 Unique, 169 Rare, 107 Magic, 209 Normal, 36 Unidentified.
-- Growing a didy: an egg that needs no model, then 7 stages from ~1B to ~100–200B (MoE), from fallforgemint's sizer ladder. A didy grows only when a measured bar says the job needs it, and shrinks when a smaller stage will do.
+- Growing a didy: an egg that needs no model, then 7 stages from ~1B to ~100–200B (MoE), from fallforgemint's sizer ladder. A didy grows only when a measured bar says the job needs it, and shrinks when a smaller stage will do. In the sealed trial of rules: Hatchling (llama3.2:1b) 19/60, Runner (qwen2.5:7b) 19/60, Keeper (qwen2.5:14b) 37/60; 2 of 4 sealed rules held.
 - The creatures: kard-evolve's sealed evolution, 150 generations; the champion UV|515 reads 352 of 352 held-out cards against 244 for generation 0, and its fix ships in the card format.
 - The world: 40 rooms in 8 wings, every door a live page.
 - What the NFT wave got right, done for real: 14 mechanics, each with its source and the builds that make it real here.

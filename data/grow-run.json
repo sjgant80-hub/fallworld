@@ -1,0 +1,2075 @@
+{
+ "kind": "fallworld-grow-run",
+ "v": 1,
+ "sealedIn": "e44fc05c821e3efb4b4b617684f58fc17ea3562c",
+ "startedAt": "2026-09-30T22:33:37.479Z",
+ "finishedAt": "2026-09-30T23:36:53.692Z",
+ "machine": {
+  "cpu": "12th Gen Intel(R) Core(TM) i7-1255U",
+  "cores": 12,
+  "memoryBytes": 16850198528,
+  "platform": "win32 10.0.26200",
+  "ollama": "0.34.4"
+ },
+ "models": {
+  "hatchling": {
+   "model": "llama3.2:1b",
+   "digest": "baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+   "bytes": 1321098329,
+   "parameterSize": "1.2B",
+   "quantization": "Q8_0",
+   "family": "llama"
+  },
+  "runner": {
+   "model": "qwen2.5:7b",
+   "digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+   "bytes": 4683087332,
+   "parameterSize": "7.6B",
+   "quantization": "Q4_K_M",
+   "family": "qwen2"
+  },
+  "keeper": {
+   "model": "qwen2.5:14b",
+   "digest": "7cdf5a0187d5c58cc5d369b255592f7841d1c4696d45a8c8a9489440385b22f6",
+   "bytes": 8988124069,
+   "parameterSize": "14.8B",
+   "quantization": "Q4_K_M",
+   "family": "qwen2"
+  }
+ },
+ "runs": {
+  "hatchling": [
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 191,
+    "promptCount": 229,
+    "promptMs": 5671,
+    "totalMs": 13835
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 245,
+    "promptCount": 229,
+    "promptMs": 1629,
+    "totalMs": 2047
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 341,
+    "promptCount": 229,
+    "promptMs": 1966,
+    "totalMs": 2412
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 464,
+    "promptCount": 230,
+    "promptMs": 1715,
+    "totalMs": 2237
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 212,
+    "promptCount": 229,
+    "promptMs": 2005,
+    "totalMs": 2312
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 215,
+    "promptCount": 230,
+    "promptMs": 2015,
+    "totalMs": 2306
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 139,
+    "promptCount": 230,
+    "promptMs": 1767,
+    "totalMs": 1955
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 143,
+    "promptCount": 228,
+    "promptMs": 1542,
+    "totalMs": 1716
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 156,
+    "promptCount": 230,
+    "promptMs": 1548,
+    "totalMs": 1737
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 261,
+    "promptCount": 229,
+    "promptMs": 1743,
+    "totalMs": 2044
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 129,
+    "promptCount": 231,
+    "promptMs": 1706,
+    "totalMs": 1918
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 121,
+    "promptCount": 238,
+    "promptMs": 1641,
+    "totalMs": 1796
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 96,
+    "promptCount": 235,
+    "promptMs": 1497,
+    "totalMs": 1630
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 99,
+    "promptCount": 242,
+    "promptMs": 1581,
+    "totalMs": 1716
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 109,
+    "promptCount": 238,
+    "promptMs": 1505,
+    "totalMs": 1636
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 271,
+    "promptCount": 238,
+    "promptMs": 2109,
+    "totalMs": 2416
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 266,
+    "promptCount": 240,
+    "promptMs": 2223,
+    "totalMs": 2680
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 196,
+    "promptCount": 234,
+    "promptMs": 2012,
+    "totalMs": 2459
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 274,
+    "promptCount": 233,
+    "promptMs": 2334,
+    "totalMs": 2838
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 205,
+    "promptCount": 242,
+    "promptMs": 2238,
+    "totalMs": 2665
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 285,
+    "promptCount": 259,
+    "promptMs": 3093,
+    "totalMs": 3530
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 242,
+    "promptCount": 258,
+    "promptMs": 2884,
+    "totalMs": 3311
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 389,
+    "promptCount": 262,
+    "promptMs": 3300,
+    "totalMs": 3842
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 875,
+    "promptCount": 238,
+    "promptMs": 3050,
+    "totalMs": 4162
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 245,
+    "promptCount": 256,
+    "promptMs": 3204,
+    "totalMs": 4063
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 626,
+    "promptCount": 259,
+    "promptMs": 3569,
+    "totalMs": 4537
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 406,
+    "promptCount": 260,
+    "promptMs": 4276,
+    "totalMs": 5043
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 332,
+    "promptCount": 262,
+    "promptMs": 3421,
+    "totalMs": 3939
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 366,
+    "promptCount": 237,
+    "promptMs": 3497,
+    "totalMs": 4393
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 366,
+    "promptCount": 269,
+    "promptMs": 5467,
+    "totalMs": 6055
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 343,
+    "promptCount": 242,
+    "promptMs": 3278,
+    "totalMs": 4196
+   },
+   {
+    "reply": "Set",
+    "evalCount": 2,
+    "evalMs": 752,
+    "promptCount": 244,
+    "promptMs": 3785,
+    "totalMs": 5293
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 617,
+    "promptCount": 260,
+    "promptMs": 4549,
+    "totalMs": 6015
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 428,
+    "promptCount": 263,
+    "promptMs": 3899,
+    "totalMs": 4582
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 410,
+    "promptCount": 241,
+    "promptMs": 3423,
+    "totalMs": 4094
+   },
+   {
+    "reply": "Set",
+    "evalCount": 2,
+    "evalMs": 206,
+    "promptCount": 252,
+    "promptMs": 3686,
+    "totalMs": 4036
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 395,
+    "promptCount": 242,
+    "promptMs": 3672,
+    "totalMs": 4409
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 353,
+    "promptCount": 232,
+    "promptMs": 2817,
+    "totalMs": 3594
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 269,
+    "promptCount": 244,
+    "promptMs": 2882,
+    "totalMs": 3279
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 133,
+    "promptCount": 248,
+    "promptMs": 3122,
+    "totalMs": 3406
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 249,
+    "promptCount": 266,
+    "promptMs": 3630,
+    "totalMs": 4138
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 231,
+    "promptCount": 238,
+    "promptMs": 2706,
+    "totalMs": 2976
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 465,
+    "promptCount": 259,
+    "promptMs": 3286,
+    "totalMs": 3808
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 428,
+    "promptCount": 260,
+    "promptMs": 4151,
+    "totalMs": 4640
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 311,
+    "promptCount": 268,
+    "promptMs": 4104,
+    "totalMs": 4579
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 314,
+    "promptCount": 262,
+    "promptMs": 3588,
+    "totalMs": 4165
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 485,
+    "promptCount": 245,
+    "promptMs": 3462,
+    "totalMs": 4173
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 239,
+    "promptCount": 258,
+    "promptMs": 3428,
+    "totalMs": 3932
+   },
+   {
+    "reply": "Set",
+    "evalCount": 2,
+    "evalMs": 239,
+    "promptCount": 264,
+    "promptMs": 3647,
+    "totalMs": 3941
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 262,
+    "promptCount": 260,
+    "promptMs": 3017,
+    "totalMs": 3356
+   },
+   {
+    "reply": "Set",
+    "evalCount": 2,
+    "evalMs": 154,
+    "promptCount": 238,
+    "promptMs": 2646,
+    "totalMs": 2859
+   },
+   {
+    "reply": "Uncommon",
+    "evalCount": 3,
+    "evalMs": 347,
+    "promptCount": 229,
+    "promptMs": 2709,
+    "totalMs": 3111
+   },
+   {
+    "reply": "Set",
+    "evalCount": 2,
+    "evalMs": 155,
+    "promptCount": 254,
+    "promptMs": 3247,
+    "totalMs": 3514
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 151,
+    "promptCount": 266,
+    "promptMs": 3675,
+    "totalMs": 3883
+   },
+   {
+    "reply": "Set",
+    "evalCount": 2,
+    "evalMs": 161,
+    "promptCount": 246,
+    "promptMs": 3196,
+    "totalMs": 3528
+   },
+   {
+    "reply": "Set",
+    "evalCount": 2,
+    "evalMs": 313,
+    "promptCount": 254,
+    "promptMs": 3359,
+    "totalMs": 3757
+   },
+   {
+    "reply": "Set",
+    "evalCount": 2,
+    "evalMs": 191,
+    "promptCount": 254,
+    "promptMs": 3820,
+    "totalMs": 4053
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 107,
+    "promptCount": 268,
+    "promptMs": 3524,
+    "totalMs": 3735
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 157,
+    "promptCount": 260,
+    "promptMs": 3558,
+    "totalMs": 4175
+   },
+   {
+    "reply": "Set",
+    "evalCount": 2,
+    "evalMs": 231,
+    "promptCount": 254,
+    "promptMs": 3572,
+    "totalMs": 3930
+   }
+  ],
+  "runner": [
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 7340,
+    "promptCount": 233,
+    "promptMs": 35367,
+    "totalMs": 94433
+   },
+   {
+    "reply": "Normal",
+    "evalCount": 2,
+    "evalMs": 4188,
+    "promptCount": 233,
+    "promptMs": 13616,
+    "totalMs": 18138
+   },
+   {
+    "reply": "Normal",
+    "evalCount": 2,
+    "evalMs": 3979,
+    "promptCount": 233,
+    "promptMs": 13466,
+    "totalMs": 17871
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 5837,
+    "promptCount": 234,
+    "promptMs": 13365,
+    "totalMs": 19581
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 5836,
+    "promptCount": 233,
+    "promptMs": 13904,
+    "totalMs": 19943
+   },
+   {
+    "reply": "Normal",
+    "evalCount": 2,
+    "evalMs": 5795,
+    "promptCount": 234,
+    "promptMs": 13945,
+    "totalMs": 20059
+   },
+   {
+    "reply": "Normal",
+    "evalCount": 2,
+    "evalMs": 4107,
+    "promptCount": 234,
+    "promptMs": 10935,
+    "totalMs": 15265
+   },
+   {
+    "reply": "Normal",
+    "evalCount": 2,
+    "evalMs": 5804,
+    "promptCount": 232,
+    "promptMs": 12361,
+    "totalMs": 18357
+   },
+   {
+    "reply": "Normal",
+    "evalCount": 2,
+    "evalMs": 4861,
+    "promptCount": 234,
+    "promptMs": 14420,
+    "totalMs": 19716
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 6364,
+    "promptCount": 233,
+    "promptMs": 14421,
+    "totalMs": 21708
+   },
+   {
+    "reply": "Normal",
+    "evalCount": 2,
+    "evalMs": 7340,
+    "promptCount": 235,
+    "promptMs": 14151,
+    "totalMs": 22181
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 6182,
+    "promptCount": 242,
+    "promptMs": 16079,
+    "totalMs": 22480
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 12833,
+    "promptCount": 239,
+    "promptMs": 21528,
+    "totalMs": 37086
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 11904,
+    "promptCount": 246,
+    "promptMs": 28350,
+    "totalMs": 42334
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 12830,
+    "promptCount": 242,
+    "promptMs": 32746,
+    "totalMs": 70133
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 12977,
+    "promptCount": 242,
+    "promptMs": 36293,
+    "totalMs": 49605
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 6674,
+    "promptCount": 244,
+    "promptMs": 37977,
+    "totalMs": 46617
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 6129,
+    "promptCount": 238,
+    "promptMs": 23593,
+    "totalMs": 31121
+   },
+   {
+    "reply": "Normal",
+    "evalCount": 2,
+    "evalMs": 7407,
+    "promptCount": 239,
+    "promptMs": 14843,
+    "totalMs": 23700
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 6689,
+    "promptCount": 246,
+    "promptMs": 15825,
+    "totalMs": 25218
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 7842,
+    "promptCount": 263,
+    "promptMs": 18677,
+    "totalMs": 26971
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 6004,
+    "promptCount": 262,
+    "promptMs": 17906,
+    "totalMs": 24339
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 365,
+    "promptCount": 270,
+    "promptMs": 15403,
+    "totalMs": 15991
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 489,
+    "promptCount": 242,
+    "promptMs": 8809,
+    "totalMs": 9424
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 331,
+    "promptCount": 263,
+    "promptMs": 12600,
+    "totalMs": 13192
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 494,
+    "promptCount": 267,
+    "promptMs": 14296,
+    "totalMs": 14904
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 482,
+    "promptCount": 266,
+    "promptMs": 14198,
+    "totalMs": 14887
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 502,
+    "promptCount": 269,
+    "promptMs": 15886,
+    "totalMs": 16739
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 6736,
+    "promptCount": 241,
+    "promptMs": 13469,
+    "totalMs": 20515
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 8502,
+    "promptCount": 273,
+    "promptMs": 20541,
+    "totalMs": 30237
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 6598,
+    "promptCount": 246,
+    "promptMs": 16521,
+    "totalMs": 23584
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 368,
+    "promptCount": 248,
+    "promptMs": 8757,
+    "totalMs": 9306
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 513,
+    "promptCount": 264,
+    "promptMs": 12404,
+    "totalMs": 13079
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 2657,
+    "promptCount": 268,
+    "promptMs": 16154,
+    "totalMs": 19020
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 831,
+    "promptCount": 245,
+    "promptMs": 12193,
+    "totalMs": 13336
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 1634,
+    "promptCount": 258,
+    "promptMs": 14504,
+    "totalMs": 16553
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 5815,
+    "promptCount": 246,
+    "promptMs": 14198,
+    "totalMs": 20222
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 6281,
+    "promptCount": 236,
+    "promptMs": 14585,
+    "totalMs": 21216
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 7288,
+    "promptCount": 248,
+    "promptMs": 16331,
+    "totalMs": 24831
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 6423,
+    "promptCount": 255,
+    "promptMs": 16910,
+    "totalMs": 24082
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 7683,
+    "promptCount": 270,
+    "promptMs": 18442,
+    "totalMs": 26407
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 4854,
+    "promptCount": 245,
+    "promptMs": 12390,
+    "totalMs": 17396
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 6312,
+    "promptCount": 263,
+    "promptMs": 18140,
+    "totalMs": 24805
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 7305,
+    "promptCount": 264,
+    "promptMs": 18812,
+    "totalMs": 26440
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 17712,
+    "promptCount": 274,
+    "promptMs": 42115,
+    "totalMs": 61564
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 14536,
+    "promptCount": 266,
+    "promptMs": 44380,
+    "totalMs": 85744
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 15308,
+    "promptCount": 249,
+    "promptMs": 40104,
+    "totalMs": 65350
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 14877,
+    "promptCount": 262,
+    "promptMs": 43943,
+    "totalMs": 67147
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 11224,
+    "promptCount": 272,
+    "promptMs": 47333,
+    "totalMs": 76775
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 10640,
+    "promptCount": 267,
+    "promptMs": 55448,
+    "totalMs": 70241
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 15780,
+    "promptCount": 242,
+    "promptMs": 40221,
+    "totalMs": 63072
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 14848,
+    "promptCount": 233,
+    "promptMs": 38353,
+    "totalMs": 62304
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 16259,
+    "promptCount": 258,
+    "promptMs": 44769,
+    "totalMs": 72858
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 15484,
+    "promptCount": 273,
+    "promptMs": 49861,
+    "totalMs": 71141
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 7040,
+    "promptCount": 252,
+    "promptMs": 40152,
+    "totalMs": 55771
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 785,
+    "promptCount": 258,
+    "promptMs": 19615,
+    "totalMs": 20984
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 918,
+    "promptCount": 258,
+    "promptMs": 17558,
+    "totalMs": 18893
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 703,
+    "promptCount": 278,
+    "promptMs": 22909,
+    "totalMs": 23828
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 853,
+    "promptCount": 264,
+    "promptMs": 18663,
+    "totalMs": 19749
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 913,
+    "promptCount": 258,
+    "promptMs": 19377,
+    "totalMs": 20438
+   }
+  ],
+  "keeper": [
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 5332,
+    "promptCount": 233,
+    "promptMs": 106188,
+    "totalMs": 112201
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 2821,
+    "promptCount": 233,
+    "promptMs": 21844,
+    "totalMs": 24782
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1505,
+    "promptCount": 233,
+    "promptMs": 22040,
+    "totalMs": 23732
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1514,
+    "promptCount": 234,
+    "promptMs": 22022,
+    "totalMs": 23731
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1331,
+    "promptCount": 233,
+    "promptMs": 20117,
+    "totalMs": 21590
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 2678,
+    "promptCount": 234,
+    "promptMs": 22153,
+    "totalMs": 25016
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 2541,
+    "promptCount": 234,
+    "promptMs": 19823,
+    "totalMs": 22498
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1407,
+    "promptCount": 232,
+    "promptMs": 19108,
+    "totalMs": 20570
+   },
+   {
+    "reply": "Unidentified",
+    "evalCount": 3,
+    "evalMs": 2659,
+    "promptCount": 234,
+    "promptMs": 20666,
+    "totalMs": 23485
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1288,
+    "promptCount": 233,
+    "promptMs": 21918,
+    "totalMs": 23333
+   },
+   {
+    "reply": "Normal",
+    "evalCount": 2,
+    "evalMs": 1391,
+    "promptCount": 235,
+    "promptMs": 20469,
+    "totalMs": 21958
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1265,
+    "promptCount": 242,
+    "promptMs": 20980,
+    "totalMs": 22314
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1201,
+    "promptCount": 239,
+    "promptMs": 19766,
+    "totalMs": 21068
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1198,
+    "promptCount": 246,
+    "promptMs": 21605,
+    "totalMs": 22907
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1181,
+    "promptCount": 242,
+    "promptMs": 20101,
+    "totalMs": 21400
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1159,
+    "promptCount": 242,
+    "promptMs": 21045,
+    "totalMs": 22288
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1166,
+    "promptCount": 244,
+    "promptMs": 21185,
+    "totalMs": 22467
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1193,
+    "promptCount": 238,
+    "promptMs": 20281,
+    "totalMs": 21568
+   },
+   {
+    "reply": "Normal",
+    "evalCount": 2,
+    "evalMs": 1179,
+    "promptCount": 239,
+    "promptMs": 19288,
+    "totalMs": 20562
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1293,
+    "promptCount": 246,
+    "promptMs": 23940,
+    "totalMs": 25379
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 1416,
+    "promptCount": 263,
+    "promptMs": 29189,
+    "totalMs": 30697
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 1225,
+    "promptCount": 262,
+    "promptMs": 27298,
+    "totalMs": 28652
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 1224,
+    "promptCount": 270,
+    "promptMs": 27783,
+    "totalMs": 29099
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 1218,
+    "promptCount": 242,
+    "promptMs": 21418,
+    "totalMs": 22744
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 1159,
+    "promptCount": 263,
+    "promptMs": 25224,
+    "totalMs": 26483
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 1241,
+    "promptCount": 267,
+    "promptMs": 28104,
+    "totalMs": 29416
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 1202,
+    "promptCount": 266,
+    "promptMs": 26112,
+    "totalMs": 27409
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 1182,
+    "promptCount": 269,
+    "promptMs": 27716,
+    "totalMs": 28988
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 1147,
+    "promptCount": 241,
+    "promptMs": 20317,
+    "totalMs": 21513
+   },
+   {
+    "reply": "Magic",
+    "evalCount": 2,
+    "evalMs": 1165,
+    "promptCount": 273,
+    "promptMs": 28355,
+    "totalMs": 29638
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1149,
+    "promptCount": 246,
+    "promptMs": 21747,
+    "totalMs": 22989
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1162,
+    "promptCount": 248,
+    "promptMs": 23017,
+    "totalMs": 24263
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1157,
+    "promptCount": 264,
+    "promptMs": 26822,
+    "totalMs": 28086
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1141,
+    "promptCount": 268,
+    "promptMs": 26980,
+    "totalMs": 28278
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1472,
+    "promptCount": 245,
+    "promptMs": 21187,
+    "totalMs": 22750
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1475,
+    "promptCount": 258,
+    "promptMs": 28983,
+    "totalMs": 30603
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1199,
+    "promptCount": 246,
+    "promptMs": 22894,
+    "totalMs": 24228
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1234,
+    "promptCount": 236,
+    "promptMs": 20077,
+    "totalMs": 21429
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1157,
+    "promptCount": 248,
+    "promptMs": 22936,
+    "totalMs": 24159
+   },
+   {
+    "reply": "Rare",
+    "evalCount": 2,
+    "evalMs": 1211,
+    "promptCount": 255,
+    "promptMs": 24418,
+    "totalMs": 25755
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1189,
+    "promptCount": 270,
+    "promptMs": 27097,
+    "totalMs": 28451
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1311,
+    "promptCount": 245,
+    "promptMs": 22146,
+    "totalMs": 23561
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1305,
+    "promptCount": 263,
+    "promptMs": 25623,
+    "totalMs": 27087
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 548,
+    "promptCount": 264,
+    "promptMs": 20420,
+    "totalMs": 21044
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1069,
+    "promptCount": 274,
+    "promptMs": 23348,
+    "totalMs": 24471
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1185,
+    "promptCount": 266,
+    "promptMs": 25955,
+    "totalMs": 27214
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1189,
+    "promptCount": 249,
+    "promptMs": 22208,
+    "totalMs": 23492
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 544,
+    "promptCount": 262,
+    "promptMs": 20855,
+    "totalMs": 21476
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 688,
+    "promptCount": 272,
+    "promptMs": 21684,
+    "totalMs": 22429
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1216,
+    "promptCount": 267,
+    "promptMs": 27765,
+    "totalMs": 29052
+   },
+   {
+    "reply": "Set",
+    "evalCount": 2,
+    "evalMs": 1207,
+    "promptCount": 242,
+    "promptMs": 20783,
+    "totalMs": 22081
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1084,
+    "promptCount": 233,
+    "promptMs": 19151,
+    "totalMs": 20323
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 630,
+    "promptCount": 258,
+    "promptMs": 20482,
+    "totalMs": 21166
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 675,
+    "promptCount": 273,
+    "promptMs": 22159,
+    "totalMs": 22889
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1050,
+    "promptCount": 252,
+    "promptMs": 18929,
+    "totalMs": 20037
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1285,
+    "promptCount": 258,
+    "promptMs": 25078,
+    "totalMs": 26458
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1184,
+    "promptCount": 258,
+    "promptMs": 24271,
+    "totalMs": 25543
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 1133,
+    "promptCount": 278,
+    "promptMs": 30199,
+    "totalMs": 31424
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 752,
+    "promptCount": 264,
+    "promptMs": 25463,
+    "totalMs": 26329
+   },
+   {
+    "reply": "Unique",
+    "evalCount": 2,
+    "evalMs": 742,
+    "promptCount": 258,
+    "promptMs": 23333,
+    "totalMs": 24173
+   }
+  ]
+ },
+ "result": {
+  "scores": [
+   {
+    "id": "hatchling",
+    "paramsB": 1.2,
+    "n": 60,
+    "right": 19,
+    "bare": 59,
+    "silent": 1,
+    "missed": [
+     {
+      "id": "AudioFabric-1",
+      "answer": "Normal",
+      "said": "Unidentified"
+     },
+     {
+      "id": "reg-push3",
+      "answer": "Normal",
+      "said": "Unidentified"
+     },
+     {
+      "id": "clickup",
+      "answer": "Normal",
+      "said": "Unidentified"
+     },
+     {
+      "id": "kar-quorumgate",
+      "answer": "Normal",
+      "said": "Unidentified"
+     },
+     {
+      "id": "reg-push2",
+      "answer": "Normal",
+      "said": "Unidentified"
+     },
+     {
+      "id": "shadowcompass-build",
+      "answer": "Normal",
+      "said": "Unidentified"
+     },
+     {
+      "id": "kar-dayfold",
+      "answer": "Normal",
+      "said": "Unidentified"
+     },
+     {
+      "id": "sanity",
+      "answer": "Normal",
+      "said": "Unidentified"
+     },
+     {
+      "id": "NODE-001",
+      "answer": "Normal",
+      "said": "Unidentified"
+     },
+     {
+      "id": "reg-kardv5",
+      "answer": "Normal",
+      "said": "Unidentified"
+     },
+     {
+      "id": "glampos",
+      "answer": "Magic",
+      "said": "Unidentified"
+     },
+     {
+      "id": "kar-anchor",
+      "answer": "Magic",
+      "said": "Unidentified"
+     },
+     {
+      "id": "kar-canon",
+      "answer": "Magic",
+      "said": "Rare"
+     },
+     {
+      "id": "ACG-Ballroom",
+      "answer": "Magic",
+      "said": "Unidentified"
+     },
+     {
+      "id": "fall-bloom",
+      "answer": "Magic",
+      "said": "Unidentified"
+     },
+     {
+      "id": "smallworld",
+      "answer": "Magic",
+      "said": "Unidentified"
+     },
+     {
+      "id": "kar-conform",
+      "answer": "Magic",
+      "said": "Rare"
+     },
+     {
+      "id": "the-spike",
+      "answer": "Magic",
+      "said": "Unidentified"
+     },
+     {
+      "id": "konomi-skins",
+      "answer": "Magic",
+      "said": "Unidentified"
+     },
+     {
+      "id": "fallimmig",
+      "answer": "Rare",
+      "said": "Unidentified"
+     },
+     {
+      "id": "fallengineer-us",
+      "answer": "Rare",
+      "said": "Set"
+     },
+     {
+      "id": "temuoracle",
+      "answer": "Rare",
+      "said": "Unidentified"
+     },
+     {
+      "id": "fallsalescrm",
+      "answer": "Rare",
+      "said": "Unidentified"
+     },
+     {
+      "id": "fallmind",
+      "answer": "Rare",
+      "said": "Set"
+     },
+     {
+      "id": "falllineage",
+      "answer": "Rare",
+      "said": "Unidentified"
+     },
+     {
+      "id": "smbaios",
+      "answer": "Rare",
+      "said": "Unidentified"
+     },
+     {
+      "id": "fallelder-us",
+      "answer": "Rare",
+      "said": "Unidentified"
+     },
+     {
+      "id": "the-bell",
+      "answer": "Unique",
+      "said": "Unidentified"
+     },
+     {
+      "id": "fallineage",
+      "answer": "Unique",
+      "said": "Unidentified"
+     },
+     {
+      "id": "konomi-judge",
+      "answer": "Unique",
+      "said": "Unidentified"
+     },
+     {
+      "id": "offspring",
+      "answer": "Unique",
+      "said": "Unidentified"
+     },
+     {
+      "id": "pixelwhisperer",
+      "answer": "Unique",
+      "said": "Unidentified"
+     },
+     {
+      "id": "konomi-rubric",
+      "answer": "Unique",
+      "said": "Unidentified"
+     },
+     {
+      "id": "konomify",
+      "answer": "Unique",
+      "said": "Unidentified"
+     },
+     {
+      "id": "fall-graft",
+      "answer": "Unique",
+      "said": "Unidentified"
+     },
+     {
+      "id": "ai-nativesolutions",
+      "answer": "Unique",
+      "said": "Set"
+     },
+     {
+      "id": "agora",
+      "answer": "Unique",
+      "said": "Unidentified"
+     },
+     {
+      "id": "groundlevel",
+      "answer": "Set",
+      "said": null
+     },
+     {
+      "id": "fallseed-compliance",
+      "answer": "Set",
+      "said": "Rare"
+     },
+     {
+      "id": "kcc-mint",
+      "answer": "Set",
+      "said": "Rare"
+     },
+     {
+      "id": "fallrouter",
+      "answer": "Set",
+      "said": "Rare"
+     }
+    ]
+   },
+   {
+    "id": "runner",
+    "paramsB": 7.6,
+    "n": 60,
+    "right": 19,
+    "bare": 60,
+    "silent": 0,
+    "missed": [
+     {
+      "id": "proven-web",
+      "answer": "Unidentified",
+      "said": "Magic"
+     },
+     {
+      "id": "dual-map",
+      "answer": "Unidentified",
+      "said": "Normal"
+     },
+     {
+      "id": "glass-company",
+      "answer": "Unidentified",
+      "said": "Normal"
+     },
+     {
+      "id": "fallcorp-demo",
+      "answer": "Unidentified",
+      "said": "Magic"
+     },
+     {
+      "id": "plainsight",
+      "answer": "Unidentified",
+      "said": "Magic"
+     },
+     {
+      "id": "stallholder-till",
+      "answer": "Unidentified",
+      "said": "Normal"
+     },
+     {
+      "id": "IndustrialIntelligence",
+      "answer": "Unidentified",
+      "said": "Normal"
+     },
+     {
+      "id": "chorus",
+      "answer": "Unidentified",
+      "said": "Normal"
+     },
+     {
+      "id": "keeper-logbook",
+      "answer": "Unidentified",
+      "said": "Normal"
+     },
+     {
+      "id": "twelve-powers",
+      "answer": "Unidentified",
+      "said": "Magic"
+     },
+     {
+      "id": "reg-push3",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "clickup",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "kar-quorumgate",
+      "answer": "Normal",
+      "said": "Unique"
+     },
+     {
+      "id": "reg-push2",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "shadowcompass-build",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "kar-dayfold",
+      "answer": "Normal",
+      "said": "Unique"
+     },
+     {
+      "id": "sanity",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "reg-kardv5",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "fallenterprise",
+      "answer": "Rare",
+      "said": "Magic"
+     },
+     {
+      "id": "temuoracle",
+      "answer": "Rare",
+      "said": "Magic"
+     },
+     {
+      "id": "fallmind",
+      "answer": "Rare",
+      "said": "Magic"
+     },
+     {
+      "id": "the-bell",
+      "answer": "Unique",
+      "said": "Magic"
+     },
+     {
+      "id": "fallineage",
+      "answer": "Unique",
+      "said": "Magic"
+     },
+     {
+      "id": "konomi-judge",
+      "answer": "Unique",
+      "said": "Magic"
+     },
+     {
+      "id": "offspring",
+      "answer": "Unique",
+      "said": "Magic"
+     },
+     {
+      "id": "pixelwhisperer",
+      "answer": "Unique",
+      "said": "Magic"
+     },
+     {
+      "id": "konomi-rubric",
+      "answer": "Unique",
+      "said": "Magic"
+     },
+     {
+      "id": "konomify",
+      "answer": "Unique",
+      "said": "Magic"
+     },
+     {
+      "id": "fall-graft",
+      "answer": "Unique",
+      "said": "Magic"
+     },
+     {
+      "id": "ai-nativesolutions",
+      "answer": "Unique",
+      "said": "Magic"
+     },
+     {
+      "id": "agora",
+      "answer": "Unique",
+      "said": "Magic"
+     },
+     {
+      "id": "fallinsurance",
+      "answer": "Set",
+      "said": "Rare"
+     },
+     {
+      "id": "groundlevel",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallseed-mortgage",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallseed-compliance",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallinvoice",
+      "answer": "Set",
+      "said": "Rare"
+     },
+     {
+      "id": "fallseed-clinic",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallseed-law",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "kcc-mint",
+      "answer": "Set",
+      "said": "Magic"
+     },
+     {
+      "id": "fallrouter",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallseed-vet",
+      "answer": "Set",
+      "said": "Unique"
+     }
+    ]
+   },
+   {
+    "id": "keeper",
+    "paramsB": 14.8,
+    "n": 60,
+    "right": 37,
+    "bare": 60,
+    "silent": 0,
+    "missed": [
+     {
+      "id": "proven-web",
+      "answer": "Unidentified",
+      "said": "Unique"
+     },
+     {
+      "id": "glass-company",
+      "answer": "Unidentified",
+      "said": "Unique"
+     },
+     {
+      "id": "fallcorp-demo",
+      "answer": "Unidentified",
+      "said": "Unique"
+     },
+     {
+      "id": "plainsight",
+      "answer": "Unidentified",
+      "said": "Unique"
+     },
+     {
+      "id": "chorus",
+      "answer": "Unidentified",
+      "said": "Unique"
+     },
+     {
+      "id": "twelve-powers",
+      "answer": "Unidentified",
+      "said": "Unique"
+     },
+     {
+      "id": "reg-push3",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "clickup",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "kar-quorumgate",
+      "answer": "Normal",
+      "said": "Unique"
+     },
+     {
+      "id": "reg-push2",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "shadowcompass-build",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "kar-dayfold",
+      "answer": "Normal",
+      "said": "Unique"
+     },
+     {
+      "id": "sanity",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "reg-kardv5",
+      "answer": "Normal",
+      "said": "Rare"
+     },
+     {
+      "id": "groundlevel",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallseed-mortgage",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallseed-compliance",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallinvoice",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallseed-clinic",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallseed-law",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "kcc-mint",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallrouter",
+      "answer": "Set",
+      "said": "Unique"
+     },
+     {
+      "id": "fallseed-vet",
+      "answer": "Set",
+      "said": "Unique"
+     }
+    ]
+   }
+  ],
+  "judged": {
+   "ok": true,
+   "chosen": null,
+   "rules": [
+    {
+     "id": "bar-cleared",
+     "pass": false,
+     "value": "no stage cleared 57"
+    },
+    {
+     "id": "size-helps",
+     "pass": true,
+     "value": "hatchling 19/60 · runner 19/60 · keeper 37/60"
+    },
+    {
+     "id": "hatchling-short",
+     "pass": true,
+     "value": "hatchling 19/60, short of 57"
+    },
+    {
+     "id": "smaller-suffices",
+     "pass": false,
+     "value": "nothing cleared"
+    }
+   ],
+   "passed": 2,
+   "of": 4
+  }
+ }
+}

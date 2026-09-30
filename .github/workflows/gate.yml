@@ -87,7 +87,7 @@ jobs:
         run: |
           node scripts/build-client.mjs
           node scripts/build-ecosystem.mjs
-          git diff --exit-code -- index.html manifest.webmanifest sw.js ecosystem.html llms.txt sitemap.xml || {
+          git diff --exit-code -- index.html manifest.webmanifest sw.js ecosystem.html llms.txt sitemap.xml README.md || {
             echo 'a generated page is stale — run: node scripts/build-client.mjs && node scripts/build-ecosystem.mjs, then commit'; exit 1; }
 
       # A gate that reports "not clean" and exits zero is decorative. This line is what makes the
