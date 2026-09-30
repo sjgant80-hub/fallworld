@@ -11,7 +11,7 @@ const ran = (n, rung = 't0') => ({ ran: Array.from({ length: n }, () => ({ rung 
 
 test('EVERY BEAT OPENS PANELS THAT ACTUALLY EXIST', () => {
   // A name no panel answers to is an unlock that never happens and never reports itself.
-  const real = new Set(['didy', 'world', 'keys', 'store', 'bags', 'sandbox', 'learn']);
+  const real = new Set(['didy', 'world', 'deck', 'keys', 'store', 'bags', 'sandbox', 'learn']);
   for (const b of BEATS) {
     for (const o of b.opens) assert.ok(real.has(o), `beat "${b.id}" opens "${o}", which is not a panel`);
   }
@@ -23,7 +23,7 @@ test('NOTHING IS EVER LOCKED — a brand new arrival can reach every panel', () 
   // a testimonial with most of its rooms shut is somebody hiding their own work.
   const w = where(fresh);
   assert.equal(w.beat.id, 'arrive');
-  for (const p of ['didy', 'world', 'keys', 'store', 'bags', 'sandbox', 'learn']) {
+  for (const p of ['didy', 'world', 'deck', 'keys', 'store', 'bags', 'sandbox', 'learn']) {
     assert.equal(isOpen(fresh, p), true, p + ' was locked on arrival');
   }
 });

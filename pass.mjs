@@ -11,10 +11,10 @@
 // marketing copy — because the day a cancelled member loses a tool they bought or a didy they
 // trained, this is the model it claims to be killing, and nobody would notice from the prose.
 //
-// The wings are the world's real six. Access is per ROOM, not per wing: the fight zone is entirely
+// The wings are the world's real eight. Access is per ROOM, not per wing: the fight zone is entirely
 // free because it is the door, and the checking zone is the Pass because checking is continuous work.
 
-export const WINGS = ['fight', 'build', 'think', 'rules', 'proof', 'earn'];
+export const WINGS = ['fight', 'build', 'grow', 'think', 'rules', 'proof', 'earn', 'meet'];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OWN vs FLOW — the whole distinction, written once
@@ -146,6 +146,8 @@ export function cancelIsHonest(before = []) {
 export const WING_PRICE = Object.freeze({
   fight: 'free',
   build: 'free',        // base build is free; individual premium tools are pay-once, not Pass-gated
+  grow: 'free',         // hatching and growing your didy happens on your machine — charging for it would be charging for your own electricity
+  meet: 'free',         // browser to browser with no server in the middle: there is nothing here to charge for
   think: 'free',        // their notes and their machine — charging for these would be charging for their own data
   rules: 'free',        // governance. charging for a say in the rules is not a business model
   proof: 'pass',        // the Clinic and Proving Ground: continuous work, honestly recurring

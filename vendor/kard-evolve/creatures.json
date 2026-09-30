@@ -1,0 +1,243 @@
+{
+ "source": {
+  "repo": "sjgant80-hub/kard-evolve",
+  "sha": "3c1986582199ec09dd9c3cbc5a8ca91a19af1d5f",
+  "run": {
+   "file": "data/run.json",
+   "sha256": "fe97c4895a746885e04de2e65777997d55ed1d3db7d10dcfda9dd1df03d228b8",
+   "sealedIn": "a1f6c435dbe98491a22e092c3d824641db2ed150",
+   "recordSha256": "4529a418c273d6d602813c5f36b11d9993c7f275032cf592a6618524fa11df9b"
+  },
+  "observe": {
+   "file": "data/observe-run.json",
+   "sha256": "34c659847aa3469362b834a9c9b95d6ae6151bb6154f9ddd2e1814143e393277",
+   "sealedIn": "44f55ce3405e5126eb489a96ffc57537b9565050"
+  }
+ },
+ "champion": {
+  "id": 958,
+  "gen": 14,
+  "genome": {
+   "folds": [
+    [
+     "U",
+     "V"
+    ]
+   ],
+   "maxEdits": 5,
+   "margin": 1,
+   "maxUnknown": 5
+  },
+  "key": "UV|515",
+  "train": {
+   "fitness": 34278,
+   "right": 352,
+   "wrong": 0,
+   "refused": 0,
+   "edits": 461,
+   "n": 352
+  },
+  "held": {
+   "fitness": 34462,
+   "right": 352,
+   "wrong": 0,
+   "refused": 0,
+   "edits": 369,
+   "n": 352
+  }
+ },
+ "gen0": {
+  "id": 7,
+  "genome": {
+   "folds": [],
+   "maxEdits": 5,
+   "margin": 5,
+   "maxUnknown": 0
+  },
+  "key": "|550",
+  "train": {
+   "fitness": 24136,
+   "right": 248,
+   "wrong": 0,
+   "refused": 104,
+   "edits": 332,
+   "n": 352
+  },
+  "held": {
+   "fitness": 23908,
+   "right": 244,
+   "wrong": 0,
+   "refused": 108,
+   "edits": 246,
+   "n": 352
+  }
+ },
+ "line": [
+  {
+   "id": 958,
+   "gen": 14,
+   "key": "UV|515"
+  },
+  {
+   "id": 887,
+   "gen": 13,
+   "key": "UR|515"
+  },
+  {
+   "id": 795,
+   "gen": 12,
+   "key": "UR|522"
+  },
+  {
+   "id": 750,
+   "gen": 11,
+   "key": "UC|522"
+  },
+  {
+   "id": 595,
+   "gen": 9,
+   "key": "Q5.U7|564"
+  },
+  {
+   "id": 509,
+   "gen": 8,
+   "key": "Q5.U7|540"
+  },
+  {
+   "id": 422,
+   "gen": 7,
+   "key": "U7|545"
+  },
+  {
+   "id": 377,
+   "gen": 6,
+   "key": "|645"
+  },
+  {
+   "id": 310,
+   "gen": 5,
+   "key": "|665"
+  },
+  {
+   "id": 286,
+   "gen": 4,
+   "key": "|646"
+  },
+  {
+   "id": 19,
+   "gen": 0,
+   "key": "|642"
+  }
+ ],
+ "generations": 150,
+ "judged": {
+  "passed": 4,
+  "of": 4,
+  "rules": [
+   {
+    "id": "beats-gen0",
+    "pass": true,
+    "value": "34462 vs 23908"
+   },
+   {
+    "id": "u-to-v",
+    "pass": true,
+    "value": "reads U as V; accepts up to 5 edits when no other card is within 1 more, with at most 5 unreadable"
+   },
+   {
+    "id": "never-wrong",
+    "pass": true,
+    "value": "0 wrong of 352"
+   },
+   {
+    "id": "real-held",
+    "pass": true,
+    "value": "96 vs 94 of 96, 0 wrong"
+   }
+  ],
+  "real": {
+   "fitness": 9572,
+   "right": 96,
+   "wrong": 0,
+   "refused": 0,
+   "edits": 14,
+   "n": 96
+  },
+  "spec": {
+   "fitness": 9376,
+   "right": 94,
+   "wrong": 0,
+   "refused": 2,
+   "edits": 12,
+   "n": 96
+  }
+ },
+ "observer": {
+  "passed": 5,
+  "of": 5,
+  "rules": [
+   {
+    "id": "observer-finds-uv",
+    "pass": true,
+    "value": "8 of 8 seeds by generation 10"
+   },
+   {
+    "id": "faster-than-blind",
+    "pass": true,
+    "value": "median generation 1 vs 6.5"
+   },
+   {
+    "id": "faster-than-trials",
+    "pass": true,
+    "value": "median generation 1 vs 1.5"
+   },
+   {
+    "id": "not-worse",
+    "pass": true,
+    "value": "8 of 8 seeds at least as fit on held-out"
+   },
+   {
+    "id": "never-wrong",
+    "pass": true,
+    "value": "0 wrong across 8 champions"
+   }
+  ],
+  "firstUV": {
+   "blind": [
+    14,
+    11,
+    9,
+    4,
+    7,
+    0,
+    6,
+    5
+   ],
+   "trials": [
+    1,
+    2,
+    1,
+    1,
+    2,
+    0,
+    2,
+    2
+   ],
+   "observe": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    0,
+    1,
+    1
+   ]
+  },
+  "medians": {
+   "blind": 6.5,
+   "trials": 1.5,
+   "observe": 1
+  }
+ }
+}

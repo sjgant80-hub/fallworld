@@ -67,6 +67,10 @@ for (const [base, g] of groups) { for (const p of Object.values(g.parts)) consum
 // the two can never be confused.
 const RECOVERED = {
   'proof-of-play':  'The anti-lemons gate: no listing without a reproducible, un-forgeable pass.',
+  // from its own README, 2026-09-30: the creatures that evolve
+  'kard-evolve':    'Creatures that evolve, measurably: readers of damaged FallKard seal codes, bred, battled and selected against real model misreads, re-runnable to the byte.',
+  // from its own README, 2026-09-30: the arena where size buys nothing
+  'didy-arena':     'An AI agent battle arena: one fixed body each, so raw model size buys nothing, and a special only lands if its code passed its gate.',
   'konomify':       'Eat a real repo and gate its real code IN PLACE — never a clean-room sibling.',
   'regulus':        'Health engine konomified via witness_py, the first Python gate. Locks the maths, not the physiology.',
   'the-room':       'Five-seat multi-agent room: estate → debate → witness → execute → confirm.',

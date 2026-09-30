@@ -1,0 +1,108 @@
+// deck.mjs — THE CARDS. Every public build in the estate as a card you can hold: its rarity earned from
+// what GitHub ran (world.json, graded by build-world.mjs), its art grown from that evidence, and a
+// rarity table like any collection has, except that no rarity here was assigned by anybody.
+//
+// The estate has world.json (the evidence, graded), fallkard (a card GAME with its own deck) and
+// fallkard-forge (the card FORMAT, whose art.mjs paints one full 440×616 raster card from a reading
+// key). None turns the whole estate into a collection you can browse, count and compare, and a grid of
+// six hundred cards needs a small vector sigil rather than six hundred raster paintings. So this.
+//
+// Pure: no I/O, no clock, no randomness. The same evidence always grows the same card.
+import { TIER_LABEL, fnv1a } from './trial.mjs';
+
+export const RARITY_ORDER = Object.freeze(['unknown', 'normal', 'magic', 'rare', 'unique', 'set']);
+export const PROOF_ORDER = Object.freeze(['prototype', 'works', 'proven']);
+export const CREATURE = Object.freeze({ champion: 'Champion', ancestor: 'Ancestor', first: 'First of its line' });
+
+const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+const str = (v) => (typeof v === 'string' ? v : '');
+
+// A catalogue entry (built by build-client.mjs from world.json) → a card.
+export function cardOf(e) {
+  if (!isObj(e) || !str(e.id) || !RARITY_ORDER.includes(e.rarity)) return null;
+  const proof = PROOF_ORDER.includes(e.tier) ? e.tier : 'prototype';
+  return {
+    id: e.id, name: str(e.name) || e.id, does: str(e.does), rarity: e.rarity, label: TIER_LABEL[e.rarity],
+    why: str(e.why), proof, evidence: str(e.evidence), seat: str(e.seat) || 'work', kind: str(e.kind) || 'mine',
+    by: str(e.by), live: e.live === true, url: str(e.url) || null,
+    genes: fnv1a([e.id, e.rarity, proof, str(e.seat), str(e.kind)].join('|')),
+  };
+}
+
+// A creature from kard-evolve's sealed record → a card. `role` is champion, ancestor or first.
+export function creatureCard(c, role) {
+  if (!isObj(c) || !str(c.key) || !Number.isInteger(c.gen) || !(role in CREATURE)) return null;
+  return {
+    id: 'creature-' + c.gen + '-' + c.key, name: c.key, does: 'generation ' + c.gen + ' of the sealed evolution',
+    rarity: role, label: CREATURE[role], why: '', proof: 'proven', evidence: '', seat: 'creature', kind: 'creature',
+    by: 'the creatures of kard-evolve', live: true, url: 'https://sjgant80-hub.github.io/kard-evolve/',
+    genes: fnv1a('creature|' + c.key),
+  };
+}
+
+// The art. `genes` decides the symmetry, the petals and the turn; `rings` is how far the proof got
+// (1 prototype, 2 works, 3 proven). Colour comes from the card's rarity class on the page.
+export function sigil(genes, rings) {
+  if (!Number.isInteger(genes) || genes < 0 || genes > 0xffffffff || !Number.isInteger(rings) || rings < 1 || rings > 3) return null;
+  const sym = 3 + (genes % 6);
+  const len = 18 + ((genes >>> 3) % 16);
+  const wid = 5 + ((genes >>> 7) % 9);
+  const turn = (genes >>> 11) % 360;
+  const cy = 50 - len / 2 - 6;
+  let petals = '';
+  for (let k = 0; k < sym; k++) {
+    const a = (turn + (k * 360) / sym) % 360;
+    petals += '<ellipse cx="50" cy="' + cy + '" rx="' + wid / 2 + '" ry="' + len / 2 + '" transform="rotate(' + a.toFixed(2) + ' 50 50)"/>';
+  }
+  let circles = '';
+  for (let k = 0; k < rings; k++) circles += '<circle cx="50" cy="50" r="' + (46 - k * 4) + '" fill="none"/>';
+  return '<svg viewBox="0 0 100 100" class="sigil" aria-hidden="true">' + circles + '<g class="petals">' + petals + '</g><circle cx="50" cy="50" r="4" class="core"/></svg>';
+}
+export const ringsOf = (proof) => Math.max(0, PROOF_ORDER.indexOf(proof)) + 1;
+
+// The rarity table: how many of each, and what share of the whole. Every rarity is listed, even at 0.
+export function rarityTable(cards) {
+  if (!Array.isArray(cards)) return null;
+  const n = cards.filter((c) => isObj(c) && RARITY_ORDER.includes(c.rarity)).length;
+  return RARITY_ORDER.map((r) => {
+    const count = cards.filter((c) => isObj(c) && c.rarity === r).length;
+    return { rarity: r, label: TIER_LABEL[r], count, pct: n ? Math.round((count * 1000) / n) / 10 : 0 };
+  });
+}
+
+// Any trait: how many cards carry each value, most common first, ties by name.
+export function traitTable(cards, key) {
+  if (!Array.isArray(cards) || !str(key)) return null;
+  const m = new Map();
+  for (const c of cards) if (isObj(c) && typeof c[key] === 'string') m.set(c[key], (m.get(c[key]) || 0) + 1);
+  return [...m].map(([value, count]) => ({ value, count })).sort((a, b) => b.count - a.count || a.value.localeCompare(b.value, 'en'));
+}
+
+// The deck, narrowed: by rarity, by seat, by proof, and by words in the name or what it does.
+export function filterDeck(cards, q) {
+  if (!Array.isArray(cards)) return [];
+  const f = isObj(q) ? q : {};
+  const words = str(f.text).toLowerCase().split(/\s+/).filter(Boolean);
+  return cards.filter((c) => isObj(c)
+    && (!f.rarity || c.rarity === f.rarity) && (!f.seat || c.seat === f.seat) && (!f.proof || c.proof === f.proof)
+    && words.every((w) => (str(c.name) + ' ' + str(c.does) + ' ' + str(c.id)).toLowerCase().includes(w)));
+}
+
+// How real is a thing that is made of these builds? Read from their cards, never said.
+//   proven — every one is in the deck and a mutation gate held on each
+//   tested — every one is in the deck and a machine ran its tests on each
+//   live   — every one is in the deck and can be opened now
+//   built  — every one is in the deck
+//   partial — some are; designed — none is
+export function realness(ids, cards) {
+  if (!Array.isArray(ids) || ids.length === 0 || !Array.isArray(cards)) return null;
+  const by = new Map(cards.filter(isObj).map((c) => [c.id, c]));
+  const found = ids.map((id) => by.get(id)).filter(Boolean);
+  const missing = ids.filter((id) => !by.has(id));
+  const all = (p) => found.every(p);
+  const state = found.length === 0 ? 'designed' : missing.length ? 'partial'
+    : all((c) => c.proof === 'proven') ? 'proven' : all((c) => c.proof !== 'prototype') ? 'tested' : all((c) => c.live) ? 'live' : 'built';
+  return { state, found: found.map((c) => c.id), missing };
+}
+
+export default { RARITY_ORDER, PROOF_ORDER, CREATURE, cardOf, creatureCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };

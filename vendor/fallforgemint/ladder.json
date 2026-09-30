@@ -1,0 +1,257 @@
+{
+ "source": {
+  "repo": "sjgant80-hub/fallforgemint",
+  "sha": "2db5257bd79562679a908573f4489d2ccc580aa8",
+  "file": "kernel.mjs",
+  "sha256": "69172f10209eb39ef9755e16111192b2420fdc379c36435e4c23e3c2deaaafeb"
+ },
+ "version": "2026-09-open-weight",
+ "note": "Model names, sizes and licences are open-weight releases known at build time. Sizes are released parameter counts; licences are summarised — read each model's own licence before commercial use. Newer generations (e.g. Qwen3, Llama 4, Gemma 4) may supersede these — refresh the catalog before launch. Capability-by-size is a heuristic for picking a STARTING rung, never a measured score.",
+ "ladder": [
+  {
+   "tier": 0,
+   "band": "~1B",
+   "approxParamsB": 1,
+   "runsOn": "phone / CPU / any laptop",
+   "ramHintGB": "1–2 (4-bit)",
+   "models": [
+    {
+     "id": "llama3.2:1b",
+     "name": "Llama 3.2 1B",
+     "paramsB": 1.2,
+     "licence": "Llama Community",
+     "note": "Meta; tiny, fast, solid at short structured jobs"
+    },
+    {
+     "id": "qwen2.5:1.5b",
+     "name": "Qwen2.5 1.5B",
+     "paramsB": 1.5,
+     "licence": "Apache-2.0",
+     "note": "Alibaba; strong multilingual for its size"
+    },
+    {
+     "id": "gemma3:1b",
+     "name": "Gemma 3 1B",
+     "paramsB": 1,
+     "licence": "Gemma",
+     "note": "Google; compact instruction-follower"
+    }
+   ]
+  },
+  {
+   "tier": 1,
+   "band": "~3–4B",
+   "approxParamsB": 3.5,
+   "runsOn": "any modern laptop",
+   "ramHintGB": "3–4 (4-bit)",
+   "models": [
+    {
+     "id": "llama3.2:3b",
+     "name": "Llama 3.2 3B",
+     "paramsB": 3.2,
+     "licence": "Llama Community",
+     "note": "Meta; the reliable small default"
+    },
+    {
+     "id": "qwen2.5:3b",
+     "name": "Qwen2.5 3B",
+     "paramsB": 3.1,
+     "licence": "Qwen (research/commercial terms)",
+     "note": "Alibaba; strong extraction/format"
+    },
+    {
+     "id": "phi3.5:3.8b",
+     "name": "Phi-3.5-mini 3.8B",
+     "paramsB": 3.8,
+     "licence": "MIT",
+     "note": "Microsoft; punches above its size on reasoning-lite"
+    },
+    {
+     "id": "gemma3:4b",
+     "name": "Gemma 3 4B",
+     "paramsB": 4,
+     "licence": "Gemma",
+     "note": "Google; good all-rounder"
+    }
+   ]
+  },
+  {
+   "tier": 2,
+   "band": "~7–8B",
+   "approxParamsB": 7.5,
+   "runsOn": "good laptop / consumer GPU",
+   "ramHintGB": "5–8 (4-bit)",
+   "models": [
+    {
+     "id": "llama3.1:8b",
+     "name": "Llama 3.1 8B",
+     "paramsB": 8,
+     "licence": "Llama Community",
+     "note": "Meta; the workhorse general 8B"
+    },
+    {
+     "id": "qwen2.5:7b",
+     "name": "Qwen2.5 7B",
+     "paramsB": 7.6,
+     "licence": "Apache-2.0",
+     "note": "Alibaba; strong general + multilingual"
+    },
+    {
+     "id": "mistral:7b",
+     "name": "Mistral 7B",
+     "paramsB": 7.2,
+     "licence": "Apache-2.0",
+     "note": "Mistral; permissive, well-supported"
+    }
+   ]
+  },
+  {
+   "tier": 3,
+   "band": "~12–14B",
+   "approxParamsB": 13,
+   "runsOn": "16–24GB RAM / a decent GPU",
+   "ramHintGB": "9–14 (4-bit)",
+   "models": [
+    {
+     "id": "phi4:14b",
+     "name": "Phi-4 14B",
+     "paramsB": 14.7,
+     "licence": "MIT",
+     "note": "Microsoft; strong reasoning for the size, permissive"
+    },
+    {
+     "id": "qwen2.5:14b",
+     "name": "Qwen2.5 14B",
+     "paramsB": 14.8,
+     "licence": "Apache-2.0",
+     "note": "Alibaba; capable nuanced instruction-following"
+    },
+    {
+     "id": "mistral-nemo:12b",
+     "name": "Mistral NeMo 12B",
+     "paramsB": 12.2,
+     "licence": "Apache-2.0",
+     "note": "Mistral + NVIDIA; long context, permissive"
+    }
+   ]
+  },
+  {
+   "tier": 4,
+   "band": "~32B",
+   "approxParamsB": 32,
+   "runsOn": "32–48GB RAM / a strong GPU",
+   "ramHintGB": "18–24 (4-bit)",
+   "models": [
+    {
+     "id": "qwen2.5-coder:32b",
+     "name": "Qwen2.5-Coder 32B",
+     "paramsB": 32.5,
+     "licence": "Apache-2.0",
+     "note": "Alibaba; a genuinely strong open coder"
+    },
+    {
+     "id": "qwen2.5:32b",
+     "name": "Qwen2.5 32B",
+     "paramsB": 32.5,
+     "licence": "Apache-2.0",
+     "note": "Alibaba; strong general reasoning"
+    },
+    {
+     "id": "gemma2:27b",
+     "name": "Gemma 2 27B",
+     "paramsB": 27.2,
+     "licence": "Gemma",
+     "note": "Google; high-quality generation"
+    }
+   ]
+  },
+  {
+   "tier": 5,
+   "band": "~70B",
+   "approxParamsB": 70,
+   "runsOn": "workstation / multi-GPU / heavy quant",
+   "ramHintGB": "40–48 (4-bit)",
+   "models": [
+    {
+     "id": "llama3.3:70b",
+     "name": "Llama 3.3 70B",
+     "paramsB": 70,
+     "licence": "Llama Community",
+     "note": "Meta; frontier-adjacent open general model"
+    },
+    {
+     "id": "qwen2.5:72b",
+     "name": "Qwen2.5 72B",
+     "paramsB": 72,
+     "licence": "Qwen (research/commercial terms)",
+     "note": "Alibaba; top open general at this size"
+    },
+    {
+     "id": "deepseek-r1:70b",
+     "name": "DeepSeek-R1-Distill-Llama 70B",
+     "paramsB": 70,
+     "licence": "MIT",
+     "note": "DeepSeek; distilled reasoning, permissive"
+    }
+   ]
+  },
+  {
+   "tier": 6,
+   "band": "~100–200B (MoE)",
+   "approxParamsB": 141,
+   "runsOn": "a server — you have likely left SLM territory",
+   "ramHintGB": "80+ (4-bit)",
+   "models": [
+    {
+     "id": "mixtral:8x22b",
+     "name": "Mixtral 8x22B",
+     "paramsB": 141,
+     "licence": "Apache-2.0",
+     "note": "Mistral; sparse MoE, ~39B active of ~141B total"
+    }
+   ]
+  }
+ ],
+ "taskTier": {
+  "classify": 0,
+  "categorise": 0,
+  "categorize": 0,
+  "route": 0,
+  "tag": 0,
+  "label": 0,
+  "moderate": 0,
+  "detect": 0,
+  "flag": 0,
+  "match": 0,
+  "score": 0,
+  "rank": 0,
+  "extract": 1,
+  "parse": 1,
+  "format": 1,
+  "normalise": 1,
+  "normalize": 1,
+  "redact": 1,
+  "structured-extract": 1,
+  "summarise": 2,
+  "summarize": 2,
+  "rewrite": 2,
+  "translate": 2,
+  "draft": 2,
+  "rag": 2,
+  "respond": 2,
+  "qa-simple": 2,
+  "instruct": 3,
+  "structured-generate": 3,
+  "qa-domain": 3,
+  "explain": 3,
+  "reason": 4,
+  "code": 4,
+  "analyse": 4,
+  "analyze": 4,
+  "plan": 4,
+  "reason-hard": 5,
+  "agent": 5,
+  "research": 5,
+  "frontier": 6
+ }
+}

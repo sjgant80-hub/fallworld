@@ -35,7 +35,7 @@ import { text, num, list, field, isThing } from './safe.mjs';
 // WoW does not hide the world from a level one — everything is THERE, and quests walk you through
 // it in order. This place is also a testimonial, and a testimonial with most of its rooms shut is
 // somebody hiding their own work. So the guide narrates the order; it never bars a door.
-const ALL = Object.freeze(['didy', 'world', 'keys', 'store', 'bags', 'sandbox', 'learn']);
+const ALL = Object.freeze(['didy', 'world', 'deck', 'keys', 'store', 'bags', 'sandbox', 'learn']);
 
 export const BEATS = Object.freeze([
   {

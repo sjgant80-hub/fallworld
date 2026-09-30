@@ -1,0 +1,823 @@
+{
+ "kind": "fallworld-grow-prereg",
+ "v": 1,
+ "written": "2026-09-30",
+ "approvedBy": "Simon, relayed verbatim: \"also like the didys hatch into webllm first then 7b 14b 70 200b etc etc\"",
+ "statement": "Sealed, committed and pushed before any model is asked. Every model runs on this machine through Ollama; nothing is sent anywhere else. The result is published whichever way it lands.",
+ "question": "What is the smallest stage of didy that can apply the world's own rarity rule, card by card, well enough to be trusted with it?",
+ "trial": {
+  "from": {
+   "file": "world.json",
+   "sha256": "cdeba089264b0387718a58cd6a4e5a11e9d97a719c1a8f8863300a9d7b12993f",
+   "generated": "2026-09-30"
+  },
+  "seed": "fallworld-trial-2026-09-30",
+  "perRarity": 10,
+  "rules": [
+   "If nothing describes what it does, it is Unidentified.",
+   "Otherwise, if there is nothing live to open, it is Normal.",
+   "Otherwise, if a machine tried to break it and it held, and it ships a full set of companions (3 or more), it is Set.",
+   "Otherwise, if a machine tried to break it and it held, it is Unique.",
+   "Otherwise, if it ships a full set of companions (3 or more), it is Rare.",
+   "Otherwise, it is Magic."
+  ],
+  "cards": [
+   {
+    "id": "proven-web",
+    "facts": {
+     "name": "proven web",
+     "says": "",
+     "described": false,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unidentified"
+   },
+   {
+    "id": "dual-map",
+    "facts": {
+     "name": "dual map",
+     "says": "",
+     "described": false,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Unidentified"
+   },
+   {
+    "id": "glass-company",
+    "facts": {
+     "name": "glass company",
+     "says": "",
+     "described": false,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unidentified"
+   },
+   {
+    "id": "fallcorp-demo",
+    "facts": {
+     "name": "fallcorp demo",
+     "says": "",
+     "described": false,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unidentified"
+   },
+   {
+    "id": "plainsight",
+    "facts": {
+     "name": "plainsight",
+     "says": "",
+     "described": false,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unidentified"
+   },
+   {
+    "id": "stallholder-till",
+    "facts": {
+     "name": "stallholder till",
+     "says": "",
+     "described": false,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Unidentified"
+   },
+   {
+    "id": "IndustrialIntelligence",
+    "facts": {
+     "name": "IndustrialIntelligence",
+     "says": "",
+     "described": false,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Unidentified"
+   },
+   {
+    "id": "chorus",
+    "facts": {
+     "name": "chorus",
+     "says": "",
+     "described": false,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unidentified"
+   },
+   {
+    "id": "keeper-logbook",
+    "facts": {
+     "name": "keeper logbook",
+     "says": "",
+     "described": false,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Unidentified"
+   },
+   {
+    "id": "twelve-powers",
+    "facts": {
+     "name": "twelve powers",
+     "says": "",
+     "described": false,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unidentified"
+   },
+   {
+    "id": "AudioFabric-1",
+    "facts": {
+     "name": "AudioFabric 1",
+     "says": "Therapeutic",
+     "described": true,
+     "live": false,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Normal"
+   },
+   {
+    "id": "reg-push3",
+    "facts": {
+     "name": "reg push3",
+     "says": "reg-push3 sdk · @ai-native-solutions",
+     "described": true,
+     "live": false,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Normal"
+   },
+   {
+    "id": "clickup",
+    "facts": {
+     "name": "clickup",
+     "says": "Sovereign wrapper for target · real bindings",
+     "described": true,
+     "live": false,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Normal"
+   },
+   {
+    "id": "kar-quorumgate",
+    "facts": {
+     "name": "kar quorumgate",
+     "says": "QuorumGate — a witness-gated kernel by karma-didy",
+     "described": true,
+     "live": false,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Normal"
+   },
+   {
+    "id": "reg-push2",
+    "facts": {
+     "name": "reg push2",
+     "says": "reg-push2 sdk · @ai-native-solutions",
+     "described": true,
+     "live": false,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Normal"
+   },
+   {
+    "id": "shadowcompass-build",
+    "facts": {
+     "name": "shadowcompass build",
+     "says": "shadowcompass-build sdk · @ai-native-solutions",
+     "described": true,
+     "live": false,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Normal"
+   },
+   {
+    "id": "kar-dayfold",
+    "facts": {
+     "name": "kar dayfold",
+     "says": "DayFold — a witness-gated kernel by karma-didy",
+     "described": true,
+     "live": false,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Normal"
+   },
+   {
+    "id": "sanity",
+    "facts": {
+     "name": "sanity",
+     "says": "Sovereign wrapper for target · real bindings",
+     "described": true,
+     "live": false,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Normal"
+   },
+   {
+    "id": "NODE-001",
+    "facts": {
+     "name": "NODE 001",
+     "says": "Wearable AI Companion System",
+     "described": true,
+     "live": false,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Normal"
+   },
+   {
+    "id": "reg-kardv5",
+    "facts": {
+     "name": "reg kardv5",
+     "says": "reg-kardv5 sdk · @ai-native-solutions",
+     "described": true,
+     "live": false,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Normal"
+   },
+   {
+    "id": "glampos",
+    "facts": {
+     "name": "glampos",
+     "says": "Site automation for glamping and small stays. One editable kernel drives unified bookings across direct, Booking.com, Airbnb and a free co-op feed, with a doub…",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Magic"
+   },
+   {
+    "id": "kar-anchor",
+    "facts": {
+     "name": "kar anchor",
+     "says": "A sovereign Merkle anchor for AI-generated content: commit a batch to one root you publish anywhere, each item gets an inclusion proof anyone re-checks offline…",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Magic"
+   },
+   {
+    "id": "kar-canon",
+    "facts": {
+     "name": "kar canon",
+     "says": "Deterministic JSON canonicalization prover with no LLM judge: RFC 8785-aligned canonical form + SHA-256 proves two differently-formatted JSON docs are byte-ide…",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Magic"
+   },
+   {
+    "id": "ACG-Ballroom",
+    "facts": {
+     "name": "ACG Ballroom",
+     "says": "ACG Ballroom - The floor is yours.",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Magic"
+   },
+   {
+    "id": "fall-bloom",
+    "facts": {
+     "name": "fall bloom",
+     "says": "Text to 7-ring bloom vector decomposition · spine primes 2,3,5,7,11,13,17 · drop-in plugin",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Magic"
+   },
+   {
+    "id": "smallworld",
+    "facts": {
+     "name": "smallworld",
+     "says": "Small World Solar Stage & Festival · 100% solar Kent festival · founding roost host #002 · stays-protocol publisher · Wishwood bell-tent partnership",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Magic"
+   },
+   {
+    "id": "kar-conform",
+    "facts": {
+     "name": "kar conform",
+     "says": "Deterministic JSON Schema conformance checker for AI structured output, no LLM judge: PASS/FAIL with exact violation paths + a canonicalized SHA-256 per output…",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Magic"
+   },
+   {
+    "id": "the-spike",
+    "facts": {
+     "name": "the spike",
+     "says": "A spiking neural network with leaky integrate-and-fire neurons and STDP: learns temporal patterns from 0 to 100% by coincidence detection. Honest about it — a …",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Magic"
+   },
+   {
+    "id": "fall-palette",
+    "facts": {
+     "name": "fall palette",
+     "says": "Ctrl-K command palette drop-in plugin for sovereign tools",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Magic"
+   },
+   {
+    "id": "konomi-skins",
+    "facts": {
+     "name": "konomi skins",
+     "says": "Sovereign UX: Konomi builds the skin-agnostic STRUCTURE, the user owns the SKIN (portable render-theme), the RENDERER auto-fits structure x skin and is total (…",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 0
+    },
+    "answer": "Magic"
+   },
+   {
+    "id": "fallimmig",
+    "facts": {
+     "name": "fallimmig",
+     "says": "fallimmig · sovereign single-file tool · @ai-native-solutions",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Rare"
+   },
+   {
+    "id": "fallengineer-us",
+    "facts": {
+     "name": "fallengineer us",
+     "says": "fallengineer-us · sovereign single-file tool · @ai-native-solutions",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Rare"
+   },
+   {
+    "id": "fallenterprise",
+    "facts": {
+     "name": "fallenterprise",
+     "says": "AI-Native Transformation for SMBs · sovereign self-hosted LLMs · fine-tuned · MIT · four deployment tiers, scoped per firm · Simon Gant",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Rare"
+   },
+   {
+    "id": "temuoracle",
+    "facts": {
+     "name": "temuoracle",
+     "says": "⚒ TemuOracle · sovereign enterprise OS · the same Oracle / NetSuite enterprise software, owned outright · indexes 17 sovereign Fall* tools · stack diagram · co…",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Rare"
+   },
+   {
+    "id": "fallsalescrm",
+    "facts": {
+     "name": "fallsalescrm",
+     "says": "Sovereign Salesforce replacement. Single HTML file. Your data stays yours.",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Rare"
+   },
+   {
+    "id": "fallmind",
+    "facts": {
+     "name": "fallmind",
+     "says": "FallMind · sovereign self-trained LLM estate · prime 587 · diamond·kappa=1 · 7-ring discipline",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Rare"
+   },
+   {
+    "id": "falllineage",
+    "facts": {
+     "name": "falllineage",
+     "says": "falllineage · sovereign single-file tool · @ai-native-solutions",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Rare"
+   },
+   {
+    "id": "smbaios",
+    "facts": {
+     "name": "smbaios",
+     "says": "ai powered smb os",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Rare"
+   },
+   {
+    "id": "fallelder-us",
+    "facts": {
+     "name": "fallelder us",
+     "says": "fallelder-us · sovereign single-file tool · @ai-native-solutions",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Rare"
+   },
+   {
+    "id": "fallcarousel",
+    "facts": {
+     "name": "fallcarousel",
+     "says": "◊ fallcarousel · sovereign LinkedIn carousel builder · 1.39x reach format · prime 367",
+     "described": true,
+     "live": true,
+     "proven": false,
+     "companions": 3
+    },
+    "answer": "Rare"
+   },
+   {
+    "id": "the-bell",
+    "facts": {
+     "name": "the bell",
+     "says": "The gate you can hear: paste a mutation verdict, strike the bell. Clean rings true — classic partials, long decay, a peal of three. Survivors crack it — detune…",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unique"
+   },
+   {
+    "id": "fallineage",
+    "facts": {
+     "name": "fallineage",
+     "says": "fallineage · Ed25519 provenance chains",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unique"
+   },
+   {
+    "id": "konomi-judge",
+    "facts": {
+     "name": "konomi judge",
+     "says": "Judge-versus-human agreement with Cohen's kappa as well as raw agreement, and the delegation decision made per criterion rather than once for the whole rubric.",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unique"
+   },
+   {
+    "id": "offspring",
+    "facts": {
+     "name": "offspring",
+     "says": "The two-parent fork, gated: merge two systems into a descendant that carries both lineages, born only if their coupling is sovereign. A merged/extractive/starv…",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unique"
+   },
+   {
+    "id": "pixelwhisperer",
+    "facts": {
+     "name": "pixelwhisperer",
+     "says": "Born in the resident's sandbox: a frequency-to-pixel-grid kernel authored by sididy — its first public fold. Gated 10/10 before first use, re-proven at crystal…",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unique"
+   },
+   {
+    "id": "konomi-rubric",
+    "facts": {
+     "name": "konomi rubric",
+     "says": "Atomic-criteria rubric engine on seven axes: a lossless integer grade, atomicity enforced at definition time, and a mutation gate on the rubric itself.",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unique"
+   },
+   {
+    "id": "konomify",
+    "facts": {
+     "name": "konomify",
+     "says": "Eat a real repo and gate its real code IN PLACE — never a clean-room sibling.",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unique"
+   },
+   {
+    "id": "fall-graft",
+    "facts": {
+     "name": "fall graft",
+     "says": "Put a block into a page without cutting it in half. Fourteen live apps ran no JavaScript because an injector wrote inside the host script. Mutation-gated.",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unique"
+   },
+   {
+    "id": "ai-nativesolutions",
+    "facts": {
+     "name": "ai nativesolutions",
+     "says": "AI Native Solutions — sovereign AI-native estate. fall-os operating system · pitch deck + prospectus (PDF downloads) · 1,621 repos · 1,421 live builds",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unique"
+   },
+   {
+    "id": "agora",
+    "facts": {
+     "name": "agora",
+     "says": "A personal sovereign economy: Ed25519 agents earn only by verified work and pay each other with signed transfers on a hash-chained, conserved ledger. Runs on y…",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 0
+    },
+    "answer": "Unique"
+   },
+   {
+    "id": "fallinsurance",
+    "facts": {
+     "name": "fallinsurance",
+     "says": "Sovereign single-file UK GI insurance broker policy management anchor.",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 6
+    },
+    "answer": "Set"
+   },
+   {
+    "id": "groundlevel",
+    "facts": {
+     "name": "groundlevel",
+     "says": "ground level",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 3
+    },
+    "answer": "Set"
+   },
+   {
+    "id": "fallseed-mortgage",
+    "facts": {
+     "name": "fallseed mortgage",
+     "says": "FallSeed for UK mortgage firms — single-HTML PWA · 4 tools · LLM-agnostic cascade · MIT · sovereign",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 3
+    },
+    "answer": "Set"
+   },
+   {
+    "id": "fallseed-compliance",
+    "facts": {
+     "name": "fallseed compliance",
+     "says": "FallSeed Compliance — level-1 seed · multi-framework posture in one HTML · ISO27001 + CE + SOC2 full + PCI / NIS2 / DORA stubs · MIT",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 3
+    },
+    "answer": "Set"
+   },
+   {
+    "id": "fallinvoice",
+    "facts": {
+     "name": "fallinvoice",
+     "says": "◊ fallinvoice · sovereign single-file invoice + one-click-pay + reminders · prime 349",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 3
+    },
+    "answer": "Set"
+   },
+   {
+    "id": "fallseed-clinic",
+    "facts": {
+     "name": "fallseed clinic",
+     "says": "FallSeed for UK clinic firms — single-HTML PWA · 4 tools · LLM-agnostic cascade · MIT · sovereign",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 3
+    },
+    "answer": "Set"
+   },
+   {
+    "id": "fallseed-law",
+    "facts": {
+     "name": "fallseed law",
+     "says": "FallSeed for UK law firms — single-HTML PWA · 4 tools · LLM-agnostic cascade · MIT · sovereign",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 3
+    },
+    "answer": "Set"
+   },
+   {
+    "id": "kcc-mint",
+    "facts": {
+     "name": "kcc mint",
+     "says": "KCC Mint · sovereign provenance-NFT mint for the fork-tree economy · 10 Gen-0 foundation mints · KCC-MINT-001 spec · Ed25519 sovereign-first · MIT",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 3
+    },
+    "answer": "Set"
+   },
+   {
+    "id": "fallrouter",
+    "facts": {
+     "name": "fallrouter",
+     "says": "Sovereign model orchestrator · routes between local Ollama and frontier APIs · auto-failover · tamper-evident audit · MIT · Simon Gant",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 3
+    },
+    "answer": "Set"
+   },
+   {
+    "id": "fallseed-vet",
+    "facts": {
+     "name": "fallseed vet",
+     "says": "FallSeed for UK vet firms — single-HTML PWA · 4 tools · LLM-agnostic cascade · MIT · sovereign",
+     "described": true,
+     "live": true,
+     "proven": true,
+     "companions": 3
+    },
+    "answer": "Set"
+   }
+  ],
+  "prompts": {
+   "built": "trial.mjs trialPrompt(card.facts)",
+   "sha256": "5c4d94f3e5924c878f9e7d684c5a35eb2bd898fc4363598da62f1b56fd8cbfec"
+  },
+  "graded": "trial.mjs gradeReply: the reply must name exactly one rarity, and it must be the one the rule gives"
+ },
+ "bar": {
+  "right": 57,
+  "of": 60,
+  "why": "a didy that applies the world's rules for you has to be near-exact: at most three slips in sixty"
+ },
+ "stages": [
+  {
+   "id": "hatchling",
+   "name": "Hatchling",
+   "model": "llama3.2:1b",
+   "paramsB": 1.2
+  },
+  {
+   "id": "runner",
+   "name": "Runner",
+   "model": "qwen2.5:7b",
+   "paramsB": 7.6
+  },
+  {
+   "id": "keeper",
+   "name": "Keeper",
+   "model": "qwen2.5:14b",
+   "paramsB": 14.8
+  }
+ ],
+ "notMeasured": {
+  "fledgling": "no ~3–4B model is on this machine, and downloading one was not part of this run",
+  "larger": "sage, elder and titan need more memory than this machine has; the run records the machine and the page computes the floor",
+  "tab": "the hatchling in a browser tab (WebLLM) is the same size of model; the live page lets anyone run this same trial there, on their own device"
+ },
+ "sizer": {
+  "heuristic": "fallforgemint TASK_TIER.classify",
+  "rung": 0,
+  "stage": "hatchling",
+  "note": "the sizer's own starting guess for a classify job, which it calls a heuristic, never a measured score"
+ },
+ "call": {
+  "endpoint": "http://127.0.0.1:11434/api/generate",
+  "stream": false,
+  "options": {
+   "temperature": 0,
+   "seed": 7,
+   "num_predict": 16
+  }
+ },
+ "rules": [
+  {
+   "id": "bar-cleared",
+   "rule": "at least one measured stage names the right rarity for at least 57 of the 60 cards"
+  },
+  {
+   "id": "size-helps",
+   "rule": "each larger stage gets at least as many right as the one below it"
+  },
+  {
+   "id": "hatchling-short",
+   "rule": "the hatchling (~1B) falls short of the bar, so this job needs a didy to grow"
+  },
+  {
+   "id": "smaller-suffices",
+   "rule": "the smallest stage that clears the bar is not the largest one measured, so growing further would be waste"
+  }
+ ],
+ "predictions": {
+  "said": "before any model was asked, by Kar",
+  "bar-cleared": "pass — the keeper (14B) clears it",
+  "size-helps": "pass",
+  "hatchling-short": "pass — I expect the hatchling around half right; ordered rules with a distracting description are where small models slip",
+  "smaller-suffices": "pass — I expect the runner (7B) to clear the bar, so the keeper is not needed; this is the one I am least sure of",
+  "sizer": "the sizer starts a classify job at the hatchling; I expect the measurement to overrule it"
+ }
+}

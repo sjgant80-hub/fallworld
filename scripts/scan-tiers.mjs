@@ -27,10 +27,16 @@ let i = 0;
 async function lane() {
   while (i < todo.length) {
     const name = todo[i++];
-    const raw = await gh(['api', `repos/sjgant80-hub/${name}/actions/workflows`,
-      '--jq', '[.workflows[] | {id, name, path, state}]']);
+    // ⚑ A FAILED READ IS NOT "NO WORKFLOWS". The API blinks; recording its null as [] graded a gated
+    // repo (fallkard-forge, 2026-09-30) as a prototype until the next full rescan. Ask again, and if it
+    // still will not answer, record nothing — the next run picks the repo up, and the old grade stands.
+    let raw = null;
+    for (let t = 0; t < 3 && raw === null; t++) {
+      raw = await gh(['api', `repos/sjgant80-hub/${name}/actions/workflows`, '--jq', '[.workflows[] | {id, name, path, state}]']);
+    }
+    if (raw === null) { console.log(`  could not read ${name}'s workflows — left for the next run`); continue; }
     let flows = [];
-    try { flows = JSON.parse(raw || '[]'); } catch { flows = []; }
+    try { flows = JSON.parse(raw); } catch { console.log(`  unreadable workflow list for ${name} — left for the next run`); continue; }
     const real = flows.filter(f => !AUTOMATIC.test(f.name) && !/dynamic\/pages/.test(f.path || ''));
     const out = [];
     for (const f of real) {

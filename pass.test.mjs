@@ -183,7 +183,7 @@ test('⚑ the wings priced here are the wings the world actually has', async () 
   const { wings: WORLD } = JSON.parse(readFileSync(new URL('./rooms.json', import.meta.url), 'utf8'));
   const worldIds = WORLD.map(w => w.id).sort();
   assert.deepEqual([...WINGS].sort(), worldIds,
-    'the price list and the world must name the same six wings');
+    'the price list and the world must name the same wings');
   for (const id of worldIds) assert.ok(WING_PRICE[id], `${id} has a price`);
 });
 

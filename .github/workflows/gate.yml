@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # the growth trial's seal is checked against the commit that sealed it
 
       - uses: actions/setup-node@v4
         with:
@@ -38,7 +40,20 @@ jobs:
 
       - name: Tests must pass before anything is mutated
         run: |
-          node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs providers.test.mjs runtime.test.mjs module.test.mjs guide.test.mjs safe.test.mjs rooms.test.mjs doors.test.mjs render.test.mjs mutation-detect.test.mjs
+          node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs providers.test.mjs runtime.test.mjs module.test.mjs guide.test.mjs safe.test.mjs rooms.test.mjs doors.test.mjs render.test.mjs mutation-detect.test.mjs trial.test.mjs grow.test.mjs deck.test.mjs
+
+      # ⚑ THE LIVING WORLD reads two things it does not own — fallforgemint's size ladder and kard-evolve's
+      # sealed creatures — at pinned commits. Checked, not trusted: if either file is not exactly what its
+      # pinned commit gives, the world is showing something nobody measured.
+      - name: the ladder and the creatures are what their repos say
+        run: node scripts/sync-sources.mjs --check
+
+      # The growth trial was sealed before any model was asked. Its seal must be what its inputs give (at the
+      # sealing commit, once it has run), and every recorded reply must re-grade to the committed result.
+      - name: the growth trial's seal, and its replies re-graded
+        run: |
+          node scripts/grow-trial.mjs --check
+          if [ -f data/grow-run.json ]; then node scripts/grow-trial.mjs --verify; fi
 
       # The mutation gate attacks the TESTS. A green suite sitting over a broken line is test-theatre,
       # and this is the step that catches it.
@@ -62,14 +77,18 @@ jobs:
           node .witness/witness.mjs mutate safe.mjs --test node --test safe.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate bridge.mjs --test node --test | tee -a gate.out
           node .witness/witness.mjs mutate mutation-detect.mjs --test node --test mutation-detect.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate trial.mjs --timeout 60000 --test node --test trial.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate grow.mjs --timeout 60000 --test node --test grow.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate deck.mjs --timeout 60000 --test node --test deck.test.mjs | tee -a gate.out
 
       # ⚑ The page a visitor gets must be the page this build makes. Regenerate and diff: a stale
       # index.html means the shop on screen and the shop that was gated are two different shops.
       - name: the client is the kernel
         run: |
           node scripts/build-client.mjs
-          git diff --exit-code -- index.html manifest.webmanifest sw.js || {
-            echo 'index.html is stale — run: node scripts/build-client.mjs && git add index.html'; exit 1; }
+          node scripts/build-ecosystem.mjs
+          git diff --exit-code -- index.html manifest.webmanifest sw.js ecosystem.html llms.txt sitemap.xml || {
+            echo 'a generated page is stale — run: node scripts/build-client.mjs && node scripts/build-ecosystem.mjs, then commit'; exit 1; }
 
       # A gate that reports "not clean" and exits zero is decorative. This line is what makes the
       # workflow's own conclusion mean something.
@@ -85,7 +104,7 @@ jobs:
             // Counted from the kernels this job actually gates, never typed. A hard-coded 2 went
             // stale the moment a third kernel arrived, and a count nobody updates fails a build
             // that was perfectly clean — which is how a real check gets deleted.
-            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'journey.mjs', 'mind.mjs', 'doors.mjs', 'render.mjs', 'providers.mjs', 'runtime.mjs', 'module.mjs', 'guide.mjs', 'safe.mjs', 'mutation-detect.mjs'];
+            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'journey.mjs', 'mind.mjs', 'doors.mjs', 'render.mjs', 'providers.mjs', 'runtime.mjs', 'module.mjs', 'guide.mjs', 'safe.mjs', 'mutation-detect.mjs', 'trial.mjs', 'grow.mjs', 'deck.mjs'];
             if (all.length !== KERNELS.length) { console.error('expected ' + KERNELS.length + ' gate verdicts (' + KERNELS.join(', ') + '), saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
             if (all.some(v => v !== 'true')) { console.error('mutants survived — those lines are test-theatre'); process.exit(1); }
             console.log(all.length + ' gates clean');

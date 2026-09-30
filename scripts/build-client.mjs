@@ -60,6 +60,9 @@ const MODULES = [
   ['runtime.mjs', 'the wall round an addon'],
   ['module.mjs', 'what an addon has to be'],
   ['guide.mjs', 'the one who shows you round'],
+  ['trial.mjs', 'the trial of rules'],
+  ['grow.mjs', 'how a didy grows'],
+  ['deck.mjs', 'the cards'],
 ];
 
 // ── the catalogue, from what the estate's CI actually ran ─────────────────────────────────────
@@ -117,6 +120,8 @@ const catalogue = world.items.filter(i => i && !i.private).map(i => {
     // set, unique — and that grading is in world.json, computed, not typed. Carrying it through is
     // what makes the shop read like a loot list instead of a spreadsheet.
     rarity: i.tier || 'normal', label: i.label || '',
+    // what a CARD shows beyond the shop: why it is the colour it is, where it sits, and who made it
+    why: i.why || '', seat: i.seat || 'work', kind: i.kind || 'mine', by: i.by || '', live: i.live === true,
   };
 });
 
@@ -129,17 +134,91 @@ const roomBlock = `const WINGS = ${JSON.stringify(world_.wings)};\n`
   + `const WAY_IN = ${JSON.stringify(world_.wayIn)};\n`
   + `const ROOM_COUNT = ${world_.roomCount};`;
 
+// ── THE LIVING WORLD: the cards, the growth, the creatures, and what the NFT wave got right ──────
+// Every one of these is read from a file that is itself generated or sealed: the sizer's ladder and
+// the creatures' record are vendored from their repos at pinned commits (scripts/sync-sources.mjs,
+// checked in CI), the trial is sealed before any model is asked (scripts/grow-trial.mjs), and the
+// page re-grades the trial's recorded replies itself with the inlined trial.mjs. Nothing here is typed.
+const jsonIf = (f) => { try { return JSON.parse(read(f)); } catch { return null; } };
+const vLadder = JSON.parse(read('vendor/fallforgemint/ladder.json'));
+const vCreatures = JSON.parse(read('vendor/kard-evolve/creatures.json'));
+const nft = JSON.parse(read('nft.json'));
+const gPre = jsonIf('data/grow-prereg.json'), gRun = jsonIf('data/grow-run.json');
+const kit = read('vendor/fall-kit/fall-kit.js');
+const hatch = /'llama-1b':\s*\{\s*id:\s*'([^']+)',\s*size:\s*'([^']+)',\s*label:\s*'([^']+)'/.exec(kit);
+const lib = /import\('(https:\/\/esm\.run\/@mlc-ai\/web-llm@[^']+)'\)/.exec(kit);
+if (!hatch || !lib) throw new Error('the hatchling is not where fall-kit keeps it — the in-tab hatch would point at nothing');
+const mean = (xs) => xs.reduce((a, x) => a + x, 0) / xs.length;
+const GROW = {
+  ladder: vLadder.ladder, taskTier: vLadder.taskTier,
+  source: { sha: vLadder.source.sha.slice(0, 7), version: vLadder.version, note: vLadder.note },
+  overhead: 0.2,
+  webllm: { id: hatch[1], size: hatch[2], label: hatch[3], lib: lib[1] },
+  prereg: gPre && {
+    seed: gPre.trial.seed, cards: gPre.trial.cards, bar: gPre.bar, stages: gPre.stages, rules: gPre.rules,
+    predictions: gPre.predictions, sizer: gPre.sizer, notMeasured: gPre.notMeasured, generated: gPre.trial.from.generated,
+  },
+  run: gRun && {
+    sealedIn: gRun.sealedIn.slice(0, 7), memoryGB: Math.round(gRun.machine.memoryBytes / 1e8) / 10, cpu: gRun.machine.cpu,
+    models: gRun.models, replies: Object.fromEntries(Object.entries(gRun.runs).map(([k, rs]) => [k, rs.map((r) => r.reply)])),
+    speed: Object.fromEntries(Object.entries(gRun.runs).map(([k, rs]) => [k, {
+      tokPerSec: Math.round((mean(rs.map((r) => r.evalCount)) / mean(rs.map((r) => r.evalMs))) * 1000 * 10) / 10,
+      readPerSec: Math.round((mean(rs.map((r) => r.promptCount)) / mean(rs.map((r) => r.promptMs))) * 1000),
+      secPerAnswer: Math.round(mean(rs.map((r) => r.totalMs)) / 100) / 10,
+    }])),
+  },
+};
+const CREATURES_ = {
+  champion: vCreatures.champion, gen0: vCreatures.gen0, line: vCreatures.line, generations: vCreatures.generations,
+  judged: vCreatures.judged, observer: { passed: vCreatures.observer.passed, of: vCreatures.observer.of, medians: vCreatures.observer.medians },
+  source: { sha: vCreatures.source.sha.slice(0, 7), sealedIn: vCreatures.source.run.sealedIn.slice(0, 7) },
+};
+const livingBlock = `const GROW = ${JSON.stringify(GROW)};\nconst CREATURES = ${JSON.stringify(CREATURES_)};\nconst NFT = ${JSON.stringify(nft.rows)};`;
+
 const kernel = [
   ...MODULES.map(([f, label, renames]) => scope(read(f), label, renames)),
   '// ── the world, from rooms.mjs ──\n' + roomBlock,
+  '// ── the living world: ladder, creatures, trial, the NFT map ──\n' + livingBlock,
   `// ── the catalogue, from world.json ──\nconst CATALOGUE = ${JSON.stringify(catalogue)};`,
 ].join('\n');
 
-const out = read('client.html').replace('/*__KERNEL__*/', () => kernel);
+// ── what answer engines read: schema.org, with every number computed by the same kernels ─────────
+const { cardOf, rarityTable } = await import('../deck.mjs');
+const { stagesFrom } = await import('../grow.mjs');
+const { scoreStage, judgeTrial } = await import('../trial.mjs');
+const deckN = catalogue.map(cardOf).filter(Boolean);
+const rt = rarityTable(deckN);
+const stagesN = stagesFrom(vLadder.ladder);
+const trialN = gPre && gRun ? (() => {
+  const sc = gPre.stages.map((s) => ({ id: s.id, paramsB: s.paramsB, right: scoreStage(gPre.trial.cards, gRun.runs[s.id].map((r) => r.reply)).right, n: gPre.trial.cards.length }));
+  return { sc, j: judgeTrial(sc, gPre.bar.right) };
+})() : null;
+const nameOf = (id) => stagesN.find((s) => s.id === id).name;
+const faq = [
+  ['What is Fall World?', 'The whole estate as one game you install. You hatch a didy, your character, in your browser; it grows one measured stage at a time on your own machine; and every public build in the estate is a card you can collect, whose rarity is earned from what actually ran.'],
+  ['Where are the cards?', `In the Deck: ${deckN.length} cards, one per public build — ` + [...rt].reverse().map((r) => r.count + ' ' + r.label).join(', ') + '. A card\'s rarity is computed from what GitHub\'s own runners did to that build, never assigned, and its art is grown from that evidence.'],
+  ['How does a didy grow?', `From an egg that needs no model, through ${stagesN.length - 1} stages from ${stagesN[1].band} to ${stagesN[stagesN.length - 1].band}. It grows only when a measured bar says the job needs it, and shrinks when a smaller stage will do.`
+    + (trialN && trialN.j.ok ? ` In the sealed trial of rules, ${trialN.sc.map((s) => nameOf(s.id) + ' ' + s.right + '/' + s.n).join(', ')}; ${trialN.j.chosen ? 'the smallest stage to clear the bar of ' + gPre.bar.right + ' was the ' + nameOf(trialN.j.chosen) : 'no measured stage cleared the bar of ' + gPre.bar.right}.` : '')],
+  ['How is a card here different from an NFT?', 'An NFT usually held a link to a picture, and its rarity came from its creator\'s script. A card here carries the build itself inside the picture, its rarity is computed from evidence anyone can re-run, its creatures breed into ones that measurably work better, and in battle a bigger model buys nothing.'],
+];
+const ld = [
+  { '@context': 'https://schema.org', '@type': ['VideoGame', 'SoftwareApplication'], name: 'Fall World', url: 'https://sjgant80-hub.github.io/fallworld/',
+    applicationCategory: 'GameApplication', operatingSystem: 'Any (runs in the browser, installs as an app)',
+    description: 'Hatch a didy in your browser, grow it on your own machine one measured stage at a time, and collect the whole estate as cards whose rarity is earned from what actually ran.',
+    author: { '@type': 'Person', name: 'Simon Gant' }, license: 'https://opensource.org/licenses/MIT', codeRepository: 'https://github.com/sjgant80-hub/fallworld' },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+];
+const LD_OPEN = '<!-- ⟦LD-BEGIN⟧ generated by scripts/build-client.mjs -->', LD_CLOSE = '<!-- ⟦LD-END⟧ -->';
+const ldBlock = ld.map((x) => '<script type="application/ld+json">' + JSON.stringify(x).replace(/</g, '\\u003c') + '</script>').join('\n');
+const page = read('client.html');
+if (!page.includes(LD_OPEN) || !page.includes(LD_CLOSE)) throw new Error('the schema markers are missing from client.html');
+const withLd = page.slice(0, page.indexOf(LD_OPEN) + LD_OPEN.length) + '\n' + ldBlock + '\n' + page.slice(page.indexOf(LD_CLOSE));
+
+const out = withLd.replace('/*__KERNEL__*/', () => kernel);
 if (out.includes('/*__KERNEL__*/')) throw new Error('the kernel never went in');
 for (const must of ['function conduct(', 'function t0Organ(', 'function route(', 'function store(',
                     'function buildCall(', 'function judge(', 'function phrase(', 'function speak(', 'const WINGS',
-                    'function nextDecision(', 'function collapse(']) {
+                    'function nextDecision(', 'function collapse(', 'function cardOf(', 'function stagesFrom(', 'function judgeTrial(', 'function kcard(', 'function hatchInTab(']) {
   if (!out.includes(must)) throw new Error(`${must.trim()} is missing — the page would be a drawing of the product`);
 }
 const script = out.slice(out.indexOf('<script type="module">'), out.lastIndexOf('</script>'));
@@ -153,7 +232,7 @@ writeFileSync(join(here, 'index.html'), out);
 writeFileSync(join(here, 'manifest.webmanifest'), JSON.stringify({
   name: 'FALL WORLD', short_name: 'FALLWORLD', start_url: '.', scope: '.',
   display: 'standalone', background_color: '#0a0c10', theme_color: '#0a0c10',
-  description: 'Install it like a game. Learn to use AI by using it — starting on a key you already have, ending on your own machine.',
+  description: 'Install it like a game. Hatch a didy in your browser, grow it on your own machine one measured stage at a time, and collect the whole estate as cards.',
   icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
 }, null, 2));
 
@@ -165,7 +244,7 @@ writeFileSync(join(here, 'icon.svg'),
 // ⚑ Versioned by CONTENT, line-endings normalised. A byte count differs between a Windows checkout
 // and a Linux runner, so the "is the published page stale" check could never pass.
 const stamp = createHash('sha256').update(out).digest('hex').slice(0, 12);
-const SHELL = ['.', 'index.html', 'manifest.webmanifest', 'icon.svg'];
+const SHELL = ['.', 'index.html', 'ecosystem.html', 'manifest.webmanifest', 'icon.svg'];
 writeFileSync(join(here, 'sw.js'), `// Generated by build-client.mjs — the offline shell.
 const V = 'fallworld-${stamp}';
 const SHELL = ${JSON.stringify(SHELL)};

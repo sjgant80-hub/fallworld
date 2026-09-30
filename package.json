@@ -1,16 +1,25 @@
 {
   "name": "fallworld",
   "version": "1.0.0",
-  "description": "The easy face of fall-os. Install it like a game; your didy gets more capable as you add the estate's tools to it.",
+  "description": "The whole estate as one game you install: hatch a didy in your browser, grow it one measured stage at a time, and collect every public build as a card whose rarity is earned.",
   "main": "client.mjs",
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "test": "node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs journey.test.mjs mind.test.mjs doors.test.mjs render.test.mjs providers.test.mjs runtime.test.mjs module.test.mjs guide.test.mjs safe.test.mjs rooms.test.mjs mutation-detect.test.mjs",
-    "build": "node scripts/build-client.mjs",
+    "test": "node --test tier.test.mjs pass.test.mjs client.test.mjs ladder.test.mjs journey.test.mjs mind.test.mjs doors.test.mjs render.test.mjs providers.test.mjs runtime.test.mjs module.test.mjs guide.test.mjs safe.test.mjs rooms.test.mjs mutation-detect.test.mjs trial.test.mjs grow.test.mjs deck.test.mjs",
+    "build": "node scripts/build-client.mjs && node scripts/build-ecosystem.mjs",
     "sync": "node scripts/sync-fallos.mjs",
-    "check": "node scripts/check-workflows.mjs && node scripts/sync-fallos.mjs --check"
+    "check": "node scripts/check-workflows.mjs && node scripts/sync-fallos.mjs --check && node scripts/sync-sources.mjs --check && node scripts/grow-trial.mjs --check"
   },
-  "repository": { "type": "git", "url": "https://github.com/sjgant80-hub/fallworld" },
-  "files": ["index.html", "manifest.webmanifest", "sw.js", "icon.svg"]
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sjgant80-hub/fallworld"
+  },
+  "files": [
+    "index.html",
+    "manifest.webmanifest",
+    "sw.js",
+    "icon.svg",
+    "ecosystem.html"
+  ]
 }

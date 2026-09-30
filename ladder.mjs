@@ -30,7 +30,7 @@ export const RUNGS = Object.freeze([
   { id: 't1', name: 'your own model', holds: 1, yours: true, price: 0,
     blurb: 'a real model running in your tab or on your box — free after you build it' },
   { id: 't2', name: 'a frontier model', holds: 2, yours: false, price: 1,
-    blurb: 'somebody else\'s big model, reached with a key you pay for — where everybody starts' },
+    blurb: 'somebody else\'s big model, reached with a key you pay for — borrowed, and optional' },
 ]);
 
 export const rungOf = (id) => RUNGS.find(r => r.id === id) || null;
