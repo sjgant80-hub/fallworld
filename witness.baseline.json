@@ -1,0 +1,17 @@
+[
+  {
+    "mutation": "&& → ||",
+    "snippet": "if (qClock && bClock) { if (q.clockDays < best.clockDays) { best = q; bestIdx = i; } retur",
+    "reason": "auto (greenforge): mutation produces no observable difference across the input battery — reviewed-equivalent"
+  },
+  {
+    "mutation": "&& → ||",
+    "snippet": "const o = outcome && typeof outcome === 'object' && !Array.isArray(outcome) ? outcome : nu",
+    "reason": "auto (greenforge): mutation produces no observable difference across the input battery — reviewed-equivalent"
+  },
+  {
+    "mutation": "&& → ||",
+    "snippet": "const o = outcome && typeof outcome === 'object' && !Array.isArray(outcome) ? outcome : nu",
+    "reason": "auto (greenforge): mutation produces no observable difference across the input battery — reviewed-equivalent"
+  }
+]
