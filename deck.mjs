@@ -55,6 +55,16 @@ export function organCard(o, role) {
   };
 }
 
+// The Konomi Tongue's sealed verdict → one card: what the grown language carried, against the 15× it was sealed to reach.
+export function tongueCard(v) {
+  if (!isObj(v) || !Number.isInteger(v.passed) || !Number.isInteger(v.of) || ![v.text, v.json, v.combined].every((x) => Number.isFinite(x))) return null;
+  return {
+    id: 'tongue', name: 'The Konomi Tongue', does: 'text ' + v.text + '× · JSON ' + v.json + '× · coded text as a picture ' + v.combined + '× — against 15× (sealed ' + v.passed + ' of ' + v.of + ')',
+    rarity: 'tongue', label: 'Tongue', why: '', proof: 'proven', evidence: '', seat: 'language', kind: 'tongue',
+    by: 'konomi-tongue', live: true, url: 'https://sjgant80-hub.github.io/konomi-tongue/', genes: fnv1a('tongue|' + v.passed + '|' + v.text + '|' + v.json),
+  };
+}
+
 // The art. `genes` decides the symmetry, the petals and the turn; `rings` is how far the proof got
 // (1 prototype, 2 works, 3 proven). Colour comes from the card's rarity class on the page.
 export function sigil(genes, rings) {
@@ -120,4 +130,4 @@ export function realness(ids, cards) {
   return { state, found: found.map((c) => c.id), missing };
 }
 
-export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
+export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };

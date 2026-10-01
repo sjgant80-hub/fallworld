@@ -8,7 +8,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { cardOf, creatureCard, sigil, ringsOf, rarityTable, realness, RARITY_ORDER } from '../deck.mjs';
+import { cardOf, creatureCard, organCard, tongueCard, sigil, ringsOf, rarityTable, realness, RARITY_ORDER } from '../deck.mjs';
 import { stagesFrom, bitsPerWeight, memoryGB, largestHeld, evolve } from '../grow.mjs';
 import { RULES_TEXT, LABELS, scoreStage, judgeTrial } from '../trial.mjs';
 
@@ -20,6 +20,10 @@ const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').
 
 const world = json('world.json'), rooms = json('rooms.json'), nft = json('nft.json');
 const vLadder = json('vendor/fallforgemint/ladder.json'), cr = json('vendor/kard-evolve/creatures.json');
+const og = json('vendor/pattern-organs/organs.json'), tg = json('vendor/konomi-tongue/tongue.json');
+const organCards = [...og.seeds.map((x) => organCard({ seed: x.seed, ...x.grown }, 'grown')), ...og.seeds.filter((x) => x.seed === og.medianSeed).map((x) => organCard({ seed: x.seed, ...x.hand }, 'hand'))].filter(Boolean);
+const tc = tongueCard(tg);
+const kept = (e) => og.seeds.filter((x) => x.grown.elements.includes(e)).length;
 const pre = jsonIf('data/grow-prereg.json'), run = jsonIf('data/grow-run.json');
 
 // the deck, exactly as the game builds it (public items only), rarest first
@@ -142,6 +146,12 @@ S.push(`<section><h2><span>4</span> The creatures</h2>
 <p class="lead">A creature here is not a picture of a thing; it is a working reader of damaged cards, and its genes are rules you can read. Over ${cr.generations} generations they bred, competed and were selected on real misreads, graded by rules on cards they never saw.</p>
 <div class="deck">${line.map(card).join('')}</div>
 <p>The champion, <b>${esc(cr.champion.key)}</b> from generation ${cr.champion.gen}, reads ${cr.champion.held.right} of ${cr.champion.held.n} held-out cards with ${cr.champion.held.wrong} wrong, against ${cr.gen0.held.right} for generation 0. On the real reads it got ${cr.judged.real.right} of ${cr.judged.real.n}, against ${cr.judged.spec.right} for the card format's own reader. Its line shows it searching: a U read as ${uPath.join(', then as ')}. The evolution was sealed and held ${cr.judged.passed} of ${cr.judged.of} rules (<code>${esc(cr.source.run.sealedIn.slice(0, 7))}</code>). A second run gave a creature its own misreads to look at and no answer key; it found the same fix at a median of generation ${cr.observer.medians.observe}, against ${cr.observer.medians.blind} for creatures that could not look (${cr.observer.passed} of ${cr.observer.of} sealed rules).</p>
+<h3>The organs</h3>
+<p>A funnel organ grew from a stem carrying all seven elements, evolution choosing which to keep, and met the same organ built by hand on ${og.seeds.length} seeds of real shop sessions, November and December held out: median score ${og.medians.grown.toFixed(3)} against ${og.medians.hand.toFixed(3)} (random draws ${og.medians.random.toFixed(3)}, one measure alone ${og.reference.heldAuc.toFixed(3)}), ahead in ${og.wins} of ${og.seeds.length} seeds, sure in ${og.sure}, a small edge (sealed ${og.passed} of ${og.of}, <code>${esc(og.source.sealedIn.slice(0, 7))}</code>). Every grown champion kept own (${kept('own')} of ${og.seeds.length}) and shape (${kept('shape')} of ${og.seeds.length}).</p>
+<div class="deck">${organCards.map(card).join('')}</div>
+<h3>The tongue</h3>
+<p>The Konomi Tongue is a language the agents grew from what they actually say (${tg.textGlyphs} glyphs), sealed against Simon's 15×: new agent messages ${tg.text}×, real JSON ${tg.json}×, coded messages drawn as text ${tg.combined}×; dense grids of dots or random glyphs never read back at 99% (${tg.bestPicture} against ${tg.bestText} bits per token for text). Sealed ${tg.passed} of ${tg.of} (<code>${esc(tg.source.sealedIn.slice(0, 7))}</code>): a dictionary only saves what both sides already hold. Built on Thomas Frumkin's LIGHT, used with permission.</p>
+<div class="deck">${tc ? card(tc) : ''}</div>
 <p class="note">The fix shipped: it is read rule 0.2 of the card format (<a href="https://sjgant80-hub.github.io/fallkard-forge/#shipped" target="_blank" rel="noopener">the Forge</a>), credited to the creatures, sealed and measured on its own.</p>
 </section>`);
 
@@ -204,7 +214,7 @@ const html = `<!doctype html>
 ${ld.map((x) => '<script type="application/ld+json">' + JSON.stringify(x).replace(/</g, '\\u003c') + '</script>').join('\n')}
 <style>
 :root{--void:#0a0c10;--deck:#12161d;--sunk:#0d1016;--edge:#232a35;--soft:#181d26;--ink:#e2e8f0;--mid:#a3aebb;--faint:#6f7a89;--gold:#dcb264;--gold-deep:#7d6224;--mine:#54d199;--stop:#dd6055;--cool:#5fa8e8;
---r-unknown:#d06a6a;--r-normal:#c8cdd6;--r-magic:#6f9df0;--r-rare:#e2cf62;--r-unique:#d0a05f;--r-set:#4fd18f;--r-champion:#ff9d4d;--r-ancestor:#b98ad8;--r-first:#8fa3b8;
+--r-unknown:#d06a6a;--r-normal:#c8cdd6;--r-magic:#6f9df0;--r-rare:#e2cf62;--r-unique:#d0a05f;--r-set:#4fd18f;--r-champion:#ff9d4d;--r-ancestor:#b98ad8;--r-first:#8fa3b8;--r-grown:#6fd1a4;--r-hand:#c9b37a;--r-tongue:#e3a6d6;
 --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--void);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
@@ -243,7 +253,7 @@ section{border-top:1px solid var(--edge);padding:30px 0 6px}
 .kc .kl{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase}
 .sigil{width:100%;height:100%;display:block}.sigil circle{stroke:currentColor;stroke-width:1.4;opacity:.55}
 .sigil .petals ellipse{fill:currentColor;fill-opacity:.22;stroke:currentColor;stroke-width:1.2}.sigil .core{fill:currentColor;opacity:1}
-.r-unknown{color:var(--r-unknown)}.r-normal{color:var(--r-normal)}.r-magic{color:var(--r-magic)}.r-rare{color:var(--r-rare)}.r-unique{color:var(--r-unique)}.r-set{color:var(--r-set)}.r-champion{color:var(--r-champion)}.r-ancestor{color:var(--r-ancestor)}.r-first{color:var(--r-first)}
+.r-unknown{color:var(--r-unknown)}.r-normal{color:var(--r-normal)}.r-magic{color:var(--r-magic)}.r-rare{color:var(--r-rare)}.r-unique{color:var(--r-unique)}.r-set{color:var(--r-set)}.r-champion{color:var(--r-champion)}.r-ancestor{color:var(--r-ancestor)}.r-first{color:var(--r-first)}.r-grown{color:var(--r-grown)}.r-hand{color:var(--r-hand)}.r-tongue{color:var(--r-tongue)}
 .scroll{overflow-x:auto;margin:8px 0 12px}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:6px 10px 6px 0;border-bottom:1px solid var(--edge)}

@@ -143,6 +143,7 @@ const jsonIf = (f) => { try { return JSON.parse(read(f)); } catch { return null;
 const vLadder = JSON.parse(read('vendor/fallforgemint/ladder.json'));
 const vCreatures = JSON.parse(read('vendor/kard-evolve/creatures.json'));
 const vOrgans = JSON.parse(read('vendor/pattern-organs/organs.json'));
+const vTongue = JSON.parse(read('vendor/konomi-tongue/tongue.json'));
 const nft = JSON.parse(read('nft.json'));
 const gPre = jsonIf('data/grow-prereg.json'), gRun = jsonIf('data/grow-run.json');
 const kit = read('vendor/fall-kit/fall-kit.js');
@@ -176,7 +177,7 @@ const ORGANS_ = {
   passed: vOrgans.passed, of: vOrgans.of, medians: vOrgans.medians, wins: vOrgans.wins, sure: vOrgans.sure, reference: vOrgans.reference,
   seeds: vOrgans.seeds, medianSeed: vOrgans.medianSeed, source: { sha: vOrgans.source.sha.slice(0, 7), sealedIn: vOrgans.source.sealedIn.slice(0, 7) },
 };
-const livingBlock = `const GROW = ${JSON.stringify(GROW)};\nconst CREATURES = ${JSON.stringify(CREATURES_)};\nconst ORGANS = ${JSON.stringify(ORGANS_)};\nconst NFT = ${JSON.stringify(nft.rows)};`;
+const livingBlock = `const GROW = ${JSON.stringify(GROW)};\nconst CREATURES = ${JSON.stringify(CREATURES_)};\nconst ORGANS = ${JSON.stringify(ORGANS_)};\nconst TONGUE = ${JSON.stringify({ passed: vTongue.passed, of: vTongue.of, text: vTongue.text, textGlyphs: vTongue.textGlyphs, json: vTongue.json, combined: vTongue.combined, bestPicture: vTongue.bestPicture, bestText: vTongue.bestText, source: { sha: vTongue.source.sha.slice(0, 7), sealedIn: vTongue.source.sealedIn.slice(0, 7) } })};\nconst NFT = ${JSON.stringify(nft.rows)};`;
 
 const kernel = [
   ...MODULES.map(([f, label, renames]) => scope(read(f), label, renames)),

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
+import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
 import { fnv1a } from './trial.mjs';
 
 const E = (o = {}) => ({ id: 'forge', name: 'The Forge', does: 'makes cards', rarity: 'unique', why: 'held', tier: 'proven', evidence: 'gate @ abc1234', seat: 'work', kind: 'mine', by: 'Simon Gant', live: true, url: 'https://x/', ...o });
@@ -11,7 +11,8 @@ test('the orders and the default export', () => {
   assert.deepEqual(CREATURE, { champion: 'Champion', ancestor: 'Ancestor', first: 'First of its line' });
   assert.deepEqual(ORGAN, { grown: 'Grown organ', hand: 'Hand-built organ' });
   assert.ok(Object.isFrozen(RARITY_ORDER) && Object.isFrozen(PROOF_ORDER) && Object.isFrozen(CREATURE) && Object.isFrozen(ORGAN));
-  assert.equal(Object.keys(D).length, 13);
+  assert.equal(Object.keys(D).length, 14);
+  assert.equal(D.tongueCard, tongueCard);
   assert.equal(D.organCard, organCard);
   assert.equal(D.realness, realness);
 });
@@ -60,6 +61,16 @@ test('organCard: the grown and the hand-built funnel organs, credited', () => {
   for (const [c, r] of [[null, 'grown'], [{ ...o, key: '' }, 'grown'], [{ ...o, seed: 1.5 }, 'grown'], [{ ...o, heldAuc: NaN }, 'grown'], [{ ...o, heldAuc: '0.8' }, 'hand'], [o, 'random'], [o, 'toString']]) {
     assert.equal(organCard(c, r), null);
   }
+});
+
+test('tongueCard: the Konomi Tongue against the 15× it was sealed to reach', () => {
+  const v = { passed: 3, of: 11, text: 1.05, json: 2.72, combined: 2.07 };
+  assert.deepEqual(tongueCard(v), {
+    id: 'tongue', name: 'The Konomi Tongue', does: 'text 1.05× · JSON 2.72× · coded text as a picture 2.07× — against 15× (sealed 3 of 11)',
+    rarity: 'tongue', label: 'Tongue', why: '', proof: 'proven', evidence: '', seat: 'language', kind: 'tongue', by: 'konomi-tongue', live: true,
+    url: 'https://sjgant80-hub.github.io/konomi-tongue/', genes: fnv1a('tongue|3|1.05|2.72'),
+  });
+  for (const bad of [null, [], { ...v, passed: 1.5 }, { ...v, of: '11' }, { ...v, text: NaN }, { ...v, json: '2' }, { ...v, combined: undefined }]) assert.equal(tongueCard(bad), null);
 });
 
 test('sigil: the same genes always grow the same art', () => {

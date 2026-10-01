@@ -1,0 +1,63 @@
+{
+ "source": {
+  "repo": "sjgant80-hub/konomi-tongue",
+  "sha": "0cac69d9936b0591f0ea53e316abc8f980000a04",
+  "file": "data/verdict.json",
+  "sha256": "733520a7b4b2215706fc4d60766555fc5bf113ed665ae0d36003a70a0ce34535",
+  "sealedIn": "59d37fefe6012b8ebb3322e8744bc09790a32140"
+ },
+ "passed": 3,
+ "of": 11,
+ "text": 1.05,
+ "textGlyphs": 4723,
+ "json": 2.72,
+ "combined": 2.07,
+ "bestPicture": 0,
+ "bestText": 6.98,
+ "rules": [
+  {
+   "id": "text-15x",
+   "pass": false
+  },
+  {
+   "id": "text-climbs",
+   "pass": false
+  },
+  {
+   "id": "text-lossless",
+   "pass": true
+  },
+  {
+   "id": "claude-reads-tongue",
+   "pass": false
+  },
+  {
+   "id": "json-15x",
+   "pass": false
+  },
+  {
+   "id": "json-lossless",
+   "pass": true
+  },
+  {
+   "id": "picture-beats-text",
+   "pass": false
+  },
+  {
+   "id": "familiar-beats-dots",
+   "pass": false
+  },
+  {
+   "id": "evolved-beats-familiar",
+   "pass": false
+  },
+  {
+   "id": "combined-15x",
+   "pass": false
+  },
+  {
+   "id": "reproducible",
+   "pass": true
+  }
+ ]
+}
