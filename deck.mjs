@@ -13,6 +13,7 @@ import { TIER_LABEL, fnv1a } from './trial.mjs';
 export const RARITY_ORDER = Object.freeze(['unknown', 'normal', 'magic', 'rare', 'unique', 'set']);
 export const PROOF_ORDER = Object.freeze(['prototype', 'works', 'proven']);
 export const CREATURE = Object.freeze({ champion: 'Champion', ancestor: 'Ancestor', first: 'First of its line' });
+export const ORGAN = Object.freeze({ grown: 'Grown organ', hand: 'Hand-built organ' });
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const str = (v) => (typeof v === 'string' ? v : '');
@@ -37,6 +38,20 @@ export function creatureCard(c, role) {
     rarity: role, label: CREATURE[role], why: '', proof: 'proven', evidence: '', seat: 'creature', kind: 'creature',
     by: 'the creatures of kard-evolve', live: true, url: 'https://sjgant80-hub.github.io/kard-evolve/',
     genes: fnv1a('creature|' + c.key),
+  };
+}
+
+// An organ from pattern-organs' sealed verdict → a card. `role` is grown or hand; `o` is that arm's champion in one
+// seed ({ seed, key, elements, heldAuc }), graded once on two months of shop sessions it never saw.
+export function organCard(o, role) {
+  if (!isObj(o) || !str(o.key) || !Number.isInteger(o.seed) || !Number.isFinite(o.heldAuc) || !Object.hasOwn(ORGAN, role)) return null;
+  const els = Array.isArray(o.elements) ? o.elements.filter((e) => typeof e === 'string') : [];
+  return {
+    id: 'organ-' + role + '-' + o.seed, name: (role === 'grown' ? 'Funnel organ, grown' : 'Funnel organ, hand-built') + ' · seed ' + o.seed,
+    does: 'held-out AUC ' + o.heldAuc.toFixed(3) + ' on November and December' + (els.length ? ' · ' + els.join(', ') : ''),
+    rarity: role, label: ORGAN[role], why: '', proof: 'proven', evidence: '', seat: 'organ', kind: 'organ',
+    by: 'pattern-organs', live: true, url: 'https://sjgant80-hub.github.io/pattern-organs/',
+    genes: fnv1a('organ|' + role + '|' + o.key),
   };
 }
 
@@ -105,4 +120,4 @@ export function realness(ids, cards) {
   return { state, found: found.map((c) => c.id), missing };
 }
 
-export default { RARITY_ORDER, PROOF_ORDER, CREATURE, cardOf, creatureCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
+export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };

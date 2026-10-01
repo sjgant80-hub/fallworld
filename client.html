@@ -240,7 +240,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .journey .jnote { margin-top: 3px; font-size: .78em; opacity: .55; }
 
 /* ── the living world: the loop, the cards, the growth ─────────────────────────────────── */
-:root{ --r-unknown:#d06a6a; --r-champion:#ff9d4d; --r-ancestor:#b98ad8; --r-first:#8fa3b8; }
+:root{ --r-unknown:#d06a6a; --r-champion:#ff9d4d; --r-ancestor:#b98ad8; --r-first:#8fa3b8; --r-grown:#6fd1a4; --r-hand:#c9b37a; }
 .living{border:1px solid var(--gold-deep);border-radius:10px;padding:18px 20px;margin-bottom:18px;
   background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--gold) 9%,transparent),transparent 60%),var(--deck)}
 .living h2{font-size:24px;margin:0 0 6px}
@@ -267,7 +267,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .sigil .petals ellipse{fill:currentColor;fill-opacity:.22;stroke:currentColor;stroke-width:1.2}
 .sigil .core{fill:currentColor;opacity:1}
 .r-unknown{color:var(--r-unknown)} .r-normal{color:var(--r-normal)} .r-magic{color:var(--r-magic)} .r-rare{color:var(--r-rare)}
-.r-unique{color:var(--r-unique)} .r-set{color:var(--r-set)} .r-champion{color:var(--r-champion)} .r-ancestor{color:var(--r-ancestor)} .r-first{color:var(--r-first)}
+.r-unique{color:var(--r-unique)} .r-set{color:var(--r-set)} .r-champion{color:var(--r-champion)} .r-ancestor{color:var(--r-ancestor)} .r-first{color:var(--r-first)} .r-grown{color:var(--r-grown)} .r-hand{color:var(--r-hand)}
 .kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:9px}
 .kgrid .kcard{width:auto}
 .rtable{display:grid;gap:5px;max-width:640px;margin-bottom:14px}
@@ -1082,6 +1082,20 @@ const P = {
       f.append(row);
     }
 
+    if (ORGAN_CARDS.length) {
+      const o = ORGANS, n3 = (v) => v.toFixed(3);
+      const kept = ['own', 'shape', 'remember', 'connect', 'prove', 'carry', 'run'].map((e) => [e, o.seeds.filter((s) => s.grown.elements.includes(e)).length]);
+      f.append(el('h3', null, 'the organs — grown, not set by hand'));
+      const n = el('p', 'lead');
+      n.textContent = `These are pattern-organs’ sealed run. A funnel organ grew from a stem carrying all seven elements — evolution chose which to keep — and met the same organ built by hand, on ${o.seeds.length} seeds of real shop sessions with November and December held out. `
+        + `The grown organ’s median score on those months was ${n3(o.medians.grown)} against ${n3(o.medians.hand)} for the hand-built one (${o.medians.random ? n3(o.medians.random) + ' for random draws, ' : ''}${n3(o.reference.heldAuc)} for one measure alone): ahead in ${o.wins} of ${o.seeds.length} seeds, sure in ${o.sure}, a small edge (sealed ${o.passed} of ${o.of}). `
+        + `Every grown champion kept ${kept.filter(([, k]) => k === o.seeds.length).map(([e]) => e).join(' and ')}; none kept ${kept.filter(([, k]) => k === 0).map(([e]) => e).join(' or ')}.`;
+      f.append(n);
+      const row = el('div', 'featured');
+      for (const x of ORGAN_CARDS) row.append(kcard(x));
+      f.append(row);
+    }
+
     f.append(el('h3', null, 'the collection'));
     const fl = el('div', 'filters');
     const q = el('input'); q.type = 'search'; q.placeholder = 'find a card'; q.value = deckQ.text; q.setAttribute('aria-label', 'find a card');
@@ -1664,9 +1678,15 @@ const LINE = CREATURES && CREATURES.line.length > 1 ? [
   ...CREATURES.line.slice(1, -1).map((x) => creatureCard(x, 'ancestor')),
   creatureCard(CREATURES.line[CREATURES.line.length - 1], 'first'),
 ].filter(Boolean) : [];
+// the funnel organs of pattern-organs' sealed run: the grown champion of every seed, then the hand-built one of the median seed
+const ORGAN_CARDS = ORGANS && ORGANS.seeds.length ? [
+  ...ORGANS.seeds.map((s) => organCard({ seed: s.seed, ...s.grown }, 'grown')),
+  ...ORGANS.seeds.filter((s) => s.seed === ORGANS.medianSeed).map((s) => organCard({ seed: s.seed, ...s.hand }, 'hand')),
+].filter(Boolean) : [];
+const MEDIAN_ORGAN = ORGAN_CARDS.find((c) => ORGANS && c.id === 'organ-grown-' + ORGANS.medianSeed);
 const STAGES = stagesFrom(GROW.ladder) || [];
 const SEATS = [...new Set(DECK.map((c) => c.seat))].sort();
-const KIND = { mine: 'built by', foundation: 'a foundation, built by', external: 'a wrapper around an outside service, by', creature: 'bred as' };
+const KIND = { mine: 'built by', foundation: 'a foundation, built by', external: 'a wrapper around an outside service, by', creature: 'bred as', organ: 'grown and graded in' };
 
 // The trial, re-graded here from the recorded replies — the page does not trust the run's own tally.
 function trialNow() {
@@ -1703,12 +1723,12 @@ function openCard(c) {
   row('does', c.does);
   row(c.kind === 'creature' ? 'bred by' : 'made by', c.by ? (c.kind === 'mine' ? c.by : (KIND[c.kind] || '') + ' ' + c.by).trim() : '');
   row('seat', c.seat);
-  row('checked', c.kind === 'creature' ? 'graded by rules on cards it never saw, in a sealed run' : c.proof === 'proven' ? 'a machine tried to break it and it held' : c.proof === 'works' ? 'a machine ran its tests and they passed' : 'nobody has checked it yet');
+  row('checked', c.kind === 'creature' ? 'graded by rules on cards it never saw, in a sealed run' : c.kind === 'organ' ? 'graded once on two months of shop sessions it never saw, in a sealed run' : c.proof === 'proven' ? 'a machine tried to break it and it held' : c.proof === 'works' ? 'a machine ran its tests and they passed' : 'nobody has checked it yet');
   row('evidence', c.evidence);
   inner.append(dl);
   const act = el('div', 'row');
   if (c.url) { const a = el('a', 'act', c.kind === 'creature' ? 'watch it evolve →' : 'open it →'); a.href = c.url; a.target = '_blank'; a.rel = 'noopener'; act.append(a); }
-  if (c.live && c.kind !== 'creature') { const a = el('a', 'act', 'carry it in a card →'); a.href = 'https://sjgant80-hub.github.io/fallkard-forge/'; a.target = '_blank'; a.rel = 'noopener'; act.append(a); }
+  if (c.live && c.kind !== 'creature' && c.kind !== 'organ') { const a = el('a', 'act', 'carry it in a card →'); a.href = 'https://sjgant80-hub.github.io/fallkard-forge/'; a.target = '_blank'; a.rel = 'noopener'; act.append(a); }
   const x = el('button', 'act', 'close'); x.type = 'button'; x.addEventListener('click', () => dlg.close()); act.append(x);
   inner.append(act);
   dlg.append(inner);
@@ -1748,7 +1768,7 @@ function livingWorld() {
   const feat = el('div', 'featured');
   // a hand dealt from every rarity, rarest first — the same hand every visit (by genes)
   const hand = Object.entries({ set: 2, unique: 2, rare: 1, magic: 1, normal: 1, unknown: 1 }).flatMap(([r, n]) => DECK.filter((c) => c.rarity === r).sort((a, b) => a.genes - b.genes).slice(0, n));
-  for (const c of [...LINE.slice(0, 1), ...hand]) feat.append(kcard(c));
+  for (const c of [...LINE.slice(0, 1), ...(MEDIAN_ORGAN ? [MEDIAN_ORGAN] : []), ...hand]) feat.append(kcard(c));
   box.append(feat);
   const more = el('div', 'row');
   const all = el('button', 'act', 'the whole deck'); all.type = 'button'; all.addEventListener('click', () => { at = 'deck'; draw(); });
@@ -1757,7 +1777,7 @@ function livingWorld() {
   box.append(more);
   const cr = el('p', 'credits');
   cr.innerHTML = '<b>Powered by the Konomi architecture, created by Thomas Frumkin.</b> The didy’s sleep-and-dream memory is built on Gary W. Floyd, Lumiea Systems Research Division — ThunderStruck Service LLC — “Dream State Architecture: GEP-Guided Memory Consolidation and Entropy Regulation in Artificial Consciousness Systems,” 2025. '
-    + 'The growth ladder is fallforgemint’s sizer; the creatures are kard-evolve’s.';
+    + 'The growth ladder is fallforgemint’s sizer; the creatures are kard-evolve’s; the organs are pattern-organs’, grown on the UCI Online Shoppers sessions (C. Sakar and Y. Kastro, CC BY 4.0).';
   box.append(cr);
   return box;
 }

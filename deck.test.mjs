@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, cardOf, creatureCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
+import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
 import { fnv1a } from './trial.mjs';
 
 const E = (o = {}) => ({ id: 'forge', name: 'The Forge', does: 'makes cards', rarity: 'unique', why: 'held', tier: 'proven', evidence: 'gate @ abc1234', seat: 'work', kind: 'mine', by: 'Simon Gant', live: true, url: 'https://x/', ...o });
@@ -9,8 +9,10 @@ test('the orders and the default export', () => {
   assert.deepEqual(RARITY_ORDER, ['unknown', 'normal', 'magic', 'rare', 'unique', 'set']);
   assert.deepEqual(PROOF_ORDER, ['prototype', 'works', 'proven']);
   assert.deepEqual(CREATURE, { champion: 'Champion', ancestor: 'Ancestor', first: 'First of its line' });
-  assert.ok(Object.isFrozen(RARITY_ORDER) && Object.isFrozen(PROOF_ORDER) && Object.isFrozen(CREATURE));
-  assert.equal(Object.keys(D).length, 11);
+  assert.deepEqual(ORGAN, { grown: 'Grown organ', hand: 'Hand-built organ' });
+  assert.ok(Object.isFrozen(RARITY_ORDER) && Object.isFrozen(PROOF_ORDER) && Object.isFrozen(CREATURE) && Object.isFrozen(ORGAN));
+  assert.equal(Object.keys(D).length, 13);
+  assert.equal(D.organCard, organCard);
   assert.equal(D.realness, realness);
 });
 
@@ -39,6 +41,24 @@ test('creatureCard: the evolution\'s creatures, credited', () => {
   assert.equal(creatureCard({ key: 'U7|545', gen: 7 }, 'ancestor').rarity, 'ancestor');
   for (const [c, r] of [[null, 'champion'], [{ key: '', gen: 1 }, 'champion'], [{ key: 'k', gen: 1.5 }, 'champion'], [{ key: 'k', gen: 1 }, 'queen'], [{ key: 'k' }, 'first']]) {
     assert.equal(creatureCard(c, r), null);
+  }
+});
+
+test('organCard: the grown and the hand-built funnel organs, credited', () => {
+  const o = { seed: 4, key: '91.2.1516397.4.7.2.0.5.0.1.1.4', elements: ['own', 'shape', 7, 'connect'], heldAuc: 0.826104 };
+  assert.deepEqual(organCard(o, 'grown'), {
+    id: 'organ-grown-4', name: 'Funnel organ, grown · seed 4', does: 'held-out AUC 0.826 on November and December · own, shape, connect',
+    rarity: 'grown', label: 'Grown organ', why: '', proof: 'proven', evidence: '', seat: 'organ', kind: 'organ', by: 'pattern-organs', live: true,
+    url: 'https://sjgant80-hub.github.io/pattern-organs/', genes: fnv1a('organ|grown|91.2.1516397.4.7.2.0.5.0.1.1.4'),
+  });
+  const h = organCard({ ...o, elements: undefined }, 'hand');
+  assert.equal(h.name, 'Funnel organ, hand-built · seed 4');
+  assert.equal(h.label, 'Hand-built organ');
+  assert.equal(h.does, 'held-out AUC 0.826 on November and December');
+  assert.equal(h.genes, fnv1a('organ|hand|' + o.key));
+  assert.equal(organCard({ ...o, elements: [] }, 'grown').does, 'held-out AUC 0.826 on November and December');
+  for (const [c, r] of [[null, 'grown'], [{ ...o, key: '' }, 'grown'], [{ ...o, seed: 1.5 }, 'grown'], [{ ...o, heldAuc: NaN }, 'grown'], [{ ...o, heldAuc: '0.8' }, 'hand'], [o, 'random'], [o, 'toString']]) {
+    assert.equal(organCard(c, r), null);
   }
 });
 

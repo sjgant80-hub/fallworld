@@ -1,12 +1,14 @@
-// sync-sources.mjs — two things this world shows and does not own, fetched from the repos that do,
+// sync-sources.mjs — three things this world shows and does not own, fetched from the repos that do,
 // at pinned commits, and checked by CI so they cannot drift into something typed.
 //
 //   vendor/fallforgemint/ladder.json   the sizer's size ladder (~1B → ~100–200B), from fallforgemint
 //   vendor/kard-evolve/creatures.json  the creatures' sealed evolution: the champion, its line, gen 0,
 //                                      and the self-observing run's summary, from kard-evolve
+//   vendor/pattern-organs/organs.json  the funnel organs' sealed verdict: the grown and the hand-built champions of every
+//                                      seed, graded on two held-out months, from pattern-organs
 //
-//   node scripts/sync-sources.mjs          write both
-//   node scripts/sync-sources.mjs --check  exit 1 unless both are exactly what the pinned commits give
+//   node scripts/sync-sources.mjs          write them
+//   node scripts/sync-sources.mjs --check  exit 1 unless each is exactly what its pinned commit gives
 import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +18,7 @@ const here = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const PINS = {
   fallforgemint: '2db5257bd79562679a908573f4489d2ccc580aa8',
   'kard-evolve': '3c1986582199ec09dd9c3cbc5a8ca91a19af1d5f',
+  'pattern-organs': 'c5ce42c28e5e9ac87e2e59ccc18b511d3b210754',
 };
 const raw = (repo, file) => `https://raw.githubusercontent.com/sjgant80-hub/${repo}/${PINS[repo]}/${file}`;
 const normalise = (t) => String(t).split('\r\n').join('\n');
@@ -64,9 +67,22 @@ async function creatures() {
   };
 }
 
+// the organs' verdict as pattern-organs' own grade() wrote it (data/verdict.json, a CI fixpoint there) — nothing re-graded here
+async function organs() {
+  const text = await grab(raw('pattern-organs', 'data/verdict.json'));
+  const v = JSON.parse(text);
+  return {
+    source: { repo: 'sjgant80-hub/pattern-organs', sha: PINS['pattern-organs'], file: 'data/verdict.json', sha256: createHash('sha256').update(text).digest('hex'), sealedIn: v.sealedIn },
+    passed: v.passed, of: v.of, medians: v.medians, wins: v.wins, sure: v.sure, reference: v.reference,
+    seeds: v.seeds.map((s) => ({ seed: s.seed, grown: { key: s.grown.key, elements: s.grown.elements, heldAuc: s.grown.heldAuc }, hand: { key: s.hand.key, elements: s.hand.elements, heldAuc: s.hand.heldAuc } })),
+    medianSeed: v.medianSeed,
+  };
+}
+
 const TARGETS = [
   ['vendor/fallforgemint/ladder.json', ladder],
   ['vendor/kard-evolve/creatures.json', creatures],
+  ['vendor/pattern-organs/organs.json', organs],
 ];
 
 const check = process.argv.includes('--check');

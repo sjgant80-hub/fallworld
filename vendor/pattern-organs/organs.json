@@ -1,0 +1,138 @@
+{
+ "source": {
+  "repo": "sjgant80-hub/pattern-organs",
+  "sha": "c5ce42c28e5e9ac87e2e59ccc18b511d3b210754",
+  "file": "data/verdict.json",
+  "sha256": "2ba818d6e15eb28df084a9ef36aca22eb28bf3af650951a301acbf27992d480f",
+  "sealedIn": "63af0d7f6658dc7940f5bf3cfc4c5a3ceda649ca"
+ },
+ "passed": 6,
+ "of": 6,
+ "medians": {
+  "grown": 0.826104,
+  "hand": 0.822631,
+  "random": 0.815975
+ },
+ "wins": 5,
+ "sure": 3,
+ "reference": {
+  "measure": "PageValues",
+  "heldAuc": 0.806814
+ },
+ "seeds": [
+  {
+   "seed": 1,
+   "grown": {
+    "key": "86.2.2092543.4.4.2.2.4.3.2.3.2",
+    "elements": [
+     "own",
+     "shape",
+     "remember",
+     "connect"
+    ],
+    "heldAuc": 0.823374
+   },
+   "hand": {
+    "key": "71.1.2097151.1.2.2.5.1.0.5.6.2",
+    "elements": [
+     "prove",
+     "own",
+     "shape",
+     "connect"
+    ],
+    "heldAuc": 0.822631
+   }
+  },
+  {
+   "seed": 2,
+   "grown": {
+    "key": "23.0.1963838.7.4.0.2.4.3.1.5.2",
+    "elements": [
+     "prove",
+     "own",
+     "shape",
+     "remember"
+    ],
+    "heldAuc": 0.819399
+   },
+   "hand": {
+    "key": "71.1.2097151.4.4.5.4.0.4.4.1.2",
+    "elements": [
+     "prove",
+     "own",
+     "shape",
+     "connect"
+    ],
+    "heldAuc": 0.809559
+   }
+  },
+  {
+   "seed": 3,
+   "grown": {
+    "key": "6.1.1605446.6.3.3.3.1.5.1.5.5",
+    "elements": [
+     "own",
+     "shape"
+    ],
+    "heldAuc": 0.827258
+   },
+   "hand": {
+    "key": "71.1.2097151.7.5.0.0.2.0.0.0.1",
+    "elements": [
+     "prove",
+     "own",
+     "shape",
+     "connect"
+    ],
+    "heldAuc": 0.823244
+   }
+  },
+  {
+   "seed": 4,
+   "grown": {
+    "key": "86.2.1702891.4.7.2.2.3.5.3.5.3",
+    "elements": [
+     "own",
+     "shape",
+     "remember",
+     "connect"
+    ],
+    "heldAuc": 0.826104
+   },
+   "hand": {
+    "key": "71.1.2097151.4.8.0.3.2.6.4.2.3",
+    "elements": [
+     "prove",
+     "own",
+     "shape",
+     "connect"
+    ],
+    "heldAuc": 0.814539
+   }
+  },
+  {
+   "seed": 5,
+   "grown": {
+    "key": "71.0.838484.7.8.2.2.3.2.5.0.4",
+    "elements": [
+     "prove",
+     "own",
+     "shape",
+     "connect"
+    ],
+    "heldAuc": 0.838534
+   },
+   "hand": {
+    "key": "71.1.2097151.4.3.0.2.1.1.5.4.2",
+    "elements": [
+     "prove",
+     "own",
+     "shape",
+     "connect"
+    ],
+    "heldAuc": 0.823147
+   }
+  }
+ ],
+ "medianSeed": 4
+}
