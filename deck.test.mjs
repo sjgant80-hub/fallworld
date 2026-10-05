@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
+import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, attestCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
 import { fnv1a } from './trial.mjs';
 
 const E = (o = {}) => ({ id: 'forge', name: 'The Forge', does: 'makes cards', rarity: 'unique', why: 'held', tier: 'proven', evidence: 'gate @ abc1234', seat: 'work', kind: 'mine', by: 'Simon Gant', live: true, url: 'https://x/', ...o });
@@ -11,12 +11,13 @@ test('the orders and the default export', () => {
   assert.deepEqual(CREATURE, { champion: 'Champion', ancestor: 'Ancestor', first: 'First of its line' });
   assert.deepEqual(ORGAN, { grown: 'Grown organ', hand: 'Hand-built organ' });
   assert.ok(Object.isFrozen(RARITY_ORDER) && Object.isFrozen(PROOF_ORDER) && Object.isFrozen(CREATURE) && Object.isFrozen(ORGAN));
-  assert.equal(Object.keys(D).length, 18);
+  assert.equal(Object.keys(D).length, 19);
   assert.equal(D.tongueCard, tongueCard);
   assert.equal(D.sentinelCard, sentinelCard);
   assert.equal(D.airgapCard, airgapCard);
   assert.equal(D.ledgerCard, ledgerCard);
   assert.equal(D.seedLibraryCard, seedLibraryCard);
+  assert.equal(D.attestCard, attestCard);
   assert.equal(D.organCard, organCard);
   assert.equal(D.realness, realness);
 });
@@ -115,6 +116,17 @@ test('ledgerCard: IndexedDB as the Shadow Fold, step 4 of 4', () => {
     by: 'kestrel-ledger', live: true, url: 'https://sjgant80-hub.github.io/kestrel-ledger/', genes: fnv1a('ledger|6|25.9|10000'),
   });
   for (const bad of [null, [], { ...v, N: 1.5 }, { ...v, N: '10000' }, { ...v, verdictPassed: 1.5 }, { ...v, verdictOf: '6' }, { ...v, ratioPayloadVsJson: NaN }, { ...v, replayMs10k: undefined }]) assert.equal(ledgerCard(bad), null);
+});
+
+test('attestCard: the trust rail turned inward, the estate’s own claims re-run', () => {
+  const v = { held: 18, of: 18, total: 1768, pages: 1545, live: 540 };
+  assert.deepEqual(attestCard(v), {
+    id: 'estate-attest', name: 'ESTATE-ATTEST',
+    does: '18 of 18 of the estate’s own claims re-run and HOLD against the real index · 1768 repos recomputed · 1545 pages enabled but only 540 verified live',
+    rarity: 'attest', label: 'Attest', why: '', proof: 'proven', evidence: '', seat: 'trust', kind: 'attest',
+    by: 'estate-attest', live: true, url: 'https://sjgant80-hub.github.io/estate-attest/', genes: fnv1a('attest|18|1768|540'),
+  });
+  for (const bad of [null, [], { ...v, held: 1.5 }, { ...v, of: '18' }, { ...v, total: NaN }, { ...v, pages: undefined }, { ...v, live: '540' }]) assert.equal(attestCard(bad), null);
 });
 
 test('seedLibraryCard: knowledge in tiny seeds, not weights', () => {

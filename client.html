@@ -240,7 +240,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .journey .jnote { margin-top: 3px; font-size: .78em; opacity: .55; }
 
 /* ── the living world: the loop, the cards, the growth ─────────────────────────────────── */
-:root{ --r-unknown:#d06a6a; --r-champion:#ff9d4d; --r-ancestor:#b98ad8; --r-first:#8fa3b8; --r-grown:#6fd1a4; --r-hand:#c9b37a; --r-tongue:#e3a6d6; --r-sentinel:#7fb2e3; --r-airgap:#5eead4; --r-ledger:#9bd1c4; --r-seedlib:#b6d47a; }
+:root{ --r-unknown:#d06a6a; --r-champion:#ff9d4d; --r-ancestor:#b98ad8; --r-first:#8fa3b8; --r-grown:#6fd1a4; --r-hand:#c9b37a; --r-tongue:#e3a6d6; --r-sentinel:#7fb2e3; --r-airgap:#5eead4; --r-ledger:#9bd1c4; --r-seedlib:#b6d47a; --r-attest:#e8c45a; }
 .living{border:1px solid var(--gold-deep);border-radius:10px;padding:18px 20px;margin-bottom:18px;
   background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--gold) 9%,transparent),transparent 60%),var(--deck)}
 .living h2{font-size:24px;margin:0 0 6px}
@@ -267,7 +267,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .sigil .petals ellipse{fill:currentColor;fill-opacity:.22;stroke:currentColor;stroke-width:1.2}
 .sigil .core{fill:currentColor;opacity:1}
 .r-unknown{color:var(--r-unknown)} .r-normal{color:var(--r-normal)} .r-magic{color:var(--r-magic)} .r-rare{color:var(--r-rare)}
-.r-unique{color:var(--r-unique)} .r-set{color:var(--r-set)} .r-champion{color:var(--r-champion)} .r-ancestor{color:var(--r-ancestor)} .r-first{color:var(--r-first)} .r-grown{color:var(--r-grown)} .r-hand{color:var(--r-hand)} .r-tongue{color:var(--r-tongue)} .r-sentinel{color:var(--r-sentinel)} .r-airgap{color:var(--r-airgap)} .r-ledger{color:var(--r-ledger)} .r-seedlib{color:var(--r-seedlib)}
+.r-unique{color:var(--r-unique)} .r-set{color:var(--r-set)} .r-champion{color:var(--r-champion)} .r-ancestor{color:var(--r-ancestor)} .r-first{color:var(--r-first)} .r-grown{color:var(--r-grown)} .r-hand{color:var(--r-hand)} .r-tongue{color:var(--r-tongue)} .r-sentinel{color:var(--r-sentinel)} .r-airgap{color:var(--r-airgap)} .r-ledger{color:var(--r-ledger)} .r-seedlib{color:var(--r-seedlib)} .r-attest{color:var(--r-attest)}
 .kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:9px}
 .kgrid .kcard{width:auto}
 .rtable{display:grid;gap:5px;max-width:640px;margin-bottom:14px}
@@ -1151,6 +1151,17 @@ const P = {
       f.append(row);
     }
 
+    if (ATTEST_CARD) {
+      const a = ATTEST;
+      f.append(el('h3', null, 'estate-attest — the trust rail, turned inward'));
+      const n = el('p', 'lead');
+      n.textContent = `ESTATE-ATTEST points the estate's one defensible asset — proof-by-re-running — at the estate itself. It takes the estate's own claims about itself (repository counts, the public and private split, named repositories) and re-runs each against the real index: ${a.held} of ${a.of} hold. ${a.total.toLocaleString()} repositories recomputed, and the honest gap it will not paper over — ${a.pages.toLocaleString()} have Pages enabled but only ${a.live.toLocaleString()} are HTTP-verified live. The same kernel runs in your browser, in CI, and here; a number that drifts in memory turns red the moment the index moves.`;
+      f.append(n);
+      const row = el('div', 'featured');
+      row.append(kcard(ATTEST_CARD));
+      f.append(row);
+    }
+
     f.append(el('h3', null, 'the collection'));
     const fl = el('div', 'filters');
     const q = el('input'); q.type = 'search'; q.placeholder = 'find a card'; q.value = deckQ.text; q.setAttribute('aria-label', 'find a card');
@@ -1749,6 +1760,7 @@ const AIRGAP_CARD = typeof AIRGAP !== "undefined" && AIRGAP ? airgapCard(AIRGAP)
 const LEDGER_CARD = typeof LEDGER !== "undefined" && LEDGER ? ledgerCard(LEDGER) : null;
 // SEED-LIBRARY, knowledge in tiny konomi seeds, not weights
 const SEEDLIB_CARD = typeof SEEDLIB !== "undefined" && SEEDLIB ? seedLibraryCard(SEEDLIB) : null;
+const ATTEST_CARD = typeof ATTEST !== "undefined" && ATTEST ? attestCard(ATTEST) : null;
 const STAGES = stagesFrom(GROW.ladder) || [];
 const SEATS = [...new Set(DECK.map((c) => c.seat))].sort();
 const KIND = { mine: 'built by', foundation: 'a foundation, built by', external: 'a wrapper around an outside service, by', creature: 'bred as', organ: 'grown and graded in', tongue: 'grown and measured in', sentinel: 'built and sealed in', airgap: 'built and measured in', ledger: 'built and sealed in', seedlib: 'built and sealed in' };

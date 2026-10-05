@@ -1,0 +1,16 @@
+{
+ "source": {
+  "repo": "sjgant80-hub/estate-attest",
+  "sha": "d5bac08bae3bba4b5543e41a95bafb24626fd8dc",
+  "file": "data/verdict.json",
+  "sha256": "6552db2b2906f4b88915d63a24db7b154a764716e63451d5d565462ad3e52a45"
+ },
+ "held": 18,
+ "of": 18,
+ "total": 1768,
+ "public": 1721,
+ "private": 47,
+ "live": 540,
+ "pages": 1545,
+ "withDesc": 1710
+}

@@ -28,6 +28,7 @@ export const PINS = {
   'fall-airgap': 'e0d0af0cb1505abe78fd2ed0c38644905263b397',
   'kestrel-ledger': '4e6e506bfc8228b30fcdcc514e0b649d6663c424',
   'seed-library': '67d361c8e207f29e1158aacb98f770757b52b575',
+  'estate-attest': 'd5bac08bae3bba4b5543e41a95bafb24626fd8dc',
 };
 const raw = (repo, file) => `https://raw.githubusercontent.com/sjgant80-hub/${repo}/${PINS[repo]}/${file}`;
 const normalise = (t) => String(t).split('\r\n').join('\n');
@@ -162,6 +163,17 @@ async function seedLibrary() {
   };
 }
 
+// estate-attest's own re-runnable verdict (data/verdict.json, its generated fixpoint): the estate's
+// claims about itself, re-run against the real index — how many hold, and the headline recompute.
+async function attest() {
+  const t = await grab(raw('estate-attest', 'data/verdict.json'));
+  const v = JSON.parse(t);
+  return {
+    source: { repo: 'sjgant80-hub/estate-attest', sha: PINS['estate-attest'], file: 'data/verdict.json', sha256: createHash('sha256').update(t).digest('hex') },
+    held: v.held, of: v.of, total: v.total, public: v.public, private: v.private, live: v.live, pages: v.pages, withDesc: v.withDesc,
+  };
+}
+
 const TARGETS = [
   ['vendor/fallforgemint/ladder.json', ladder],
   ['vendor/kard-evolve/creatures.json', creatures],
@@ -171,6 +183,7 @@ const TARGETS = [
   ['vendor/fall-airgap/airgap.json', airgap],
   ['vendor/kestrel-ledger/kestrel-ledger.json', kestrelLedger],
   ['vendor/seed-library/seed-library.json', seedLibrary],
+  ['vendor/estate-attest/estate-attest.json', attest],
 ];
 
 const check = process.argv.includes('--check');

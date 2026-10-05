@@ -114,6 +114,18 @@ export function seedLibraryCard(v) {
   };
 }
 
+// estate-attest's recomputed verdict → one card: the trust rail turned inward. The estate's own claims
+// re-run against the real index, every one graded HOLDS, with the honest pages-vs-live gap on its face.
+export function attestCard(v) {
+  if (!isObj(v) || ![v.held, v.of, v.total, v.pages, v.live].every(Number.isInteger)) return null;
+  return {
+    id: 'estate-attest', name: 'ESTATE-ATTEST',
+    does: v.held + ' of ' + v.of + ' of the estate’s own claims re-run and HOLD against the real index · ' + v.total + ' repos recomputed · ' + v.pages + ' pages enabled but only ' + v.live + ' verified live',
+    rarity: 'attest', label: 'Attest', why: '', proof: 'proven', evidence: '', seat: 'trust', kind: 'attest',
+    by: 'estate-attest', live: true, url: 'https://sjgant80-hub.github.io/estate-attest/', genes: fnv1a('attest|' + v.held + '|' + v.total + '|' + v.live),
+  };
+}
+
 // The art. `genes` decides the symmetry, the petals and the turn; `rings` is how far the proof got
 // (1 prototype, 2 works, 3 proven). Colour comes from the card's rarity class on the page.
 export function sigil(genes, rings) {
@@ -179,4 +191,4 @@ export function realness(ids, cards) {
   return { state, found: found.map((c) => c.id), missing };
 }
 
-export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
+export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, attestCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
