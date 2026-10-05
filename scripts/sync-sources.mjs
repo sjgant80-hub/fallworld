@@ -9,6 +9,7 @@
 //   vendor/konomi-tongue/tongue.json   the Konomi Tongue's sealed verdict against 15×, from konomi-tongue
 //   vendor/sentinel/sentinel.json      SENTINEL's sealed verdict (the immune gate + grown detector), from sentinel
 //   vendor/kestrel-ledger/kestrel-ledger.json  kestrel-ledger's sealed verdict (IndexedDB as the Shadow Fold, step 4 of 4), from kestrel-ledger
+//   vendor/seed-library/seed-library.json  the Seed Library's sealed measure (knowledge in tiny seeds, not weights), from seed-library
 //
 //   node scripts/sync-sources.mjs          write them
 //   node scripts/sync-sources.mjs --check  exit 1 unless each is exactly what its pinned commit gives
@@ -26,6 +27,7 @@ export const PINS = {
   'sentinel': '41fb41c1d99d03d218d2229fd2d957fbce725250',
   'fall-airgap': 'e0d0af0cb1505abe78fd2ed0c38644905263b397',
   'kestrel-ledger': '4e6e506bfc8228b30fcdcc514e0b649d6663c424',
+  'seed-library': '67d361c8e207f29e1158aacb98f770757b52b575',
 };
 const raw = (repo, file) => `https://raw.githubusercontent.com/sjgant80-hub/${repo}/${PINS[repo]}/${file}`;
 const normalise = (t) => String(t).split('\r\n').join('\n');
@@ -137,6 +139,29 @@ async function kestrelLedger() {
   };
 }
 
+// the Seed Library's sealed measure (data/run.json @ the measure commit of its two-commit seal): knowledge
+// stored as tiny, readable konomi seeds — no weights — and a general ribosome germinates each on the node's
+// own data, offline. The whole 4-domain library is a few hundred bytes; every seed grows a working build.
+async function seedLibrary() {
+  const t = await grab(raw('seed-library', 'data/run.json'));
+  const v = JSON.parse(t);
+  const L = v.library, S = L.seeds;
+  const auc = (d) => S.find((s) => s.domain === d).heldAuc;
+  const round = (x, n) => Number(x.toFixed(n));
+  const ratios = S.map((s) => s.ratio);
+  const spore = v.bonus.fallSpore;
+  return {
+    source: { repo: 'sjgant80-hub/seed-library', sha: PINS['seed-library'], file: 'data/run.json', sha256: createHash('sha256').update(t).digest('hex') },
+    libraryBytes: L.totalSeedBytes, grownBytes: L.totalGrownBytes, domains: L.domains, sessions: v.sessions,
+    shopperAuc: round(auc('shopper'), 2), triageAuc: round(auc('triage'), 2), waterAuc: round(auc('water'), 2), cropAuc: round(auc('crop'), 2),
+    minRatio: round(Math.min(...ratios), 1), maxRatio: round(Math.max(...ratios), 1),
+    growMs: v.growOnDemand.ms, growDomain: v.growOnDemand.domain,
+    sporeBytes: spore.sporeBytes, sporeGrownBytes: spore.grownBytes, sporeRatio: Math.round(spore.ratio), sporeAuc: round(spore.heldAuc, 2),
+    allOffline: S.every((s) => s.offline) && v.growOnDemand.offline && spore.offline,
+    allGuarded: S.every((s) => s.guardValid && s.guardTamperedRejected),
+  };
+}
+
 const TARGETS = [
   ['vendor/fallforgemint/ladder.json', ladder],
   ['vendor/kard-evolve/creatures.json', creatures],
@@ -145,6 +170,7 @@ const TARGETS = [
   ['vendor/sentinel/sentinel.json', sentinel],
   ['vendor/fall-airgap/airgap.json', airgap],
   ['vendor/kestrel-ledger/kestrel-ledger.json', kestrelLedger],
+  ['vendor/seed-library/seed-library.json', seedLibrary],
 ];
 
 const check = process.argv.includes('--check');

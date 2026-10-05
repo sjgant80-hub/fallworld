@@ -240,7 +240,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .journey .jnote { margin-top: 3px; font-size: .78em; opacity: .55; }
 
 /* ── the living world: the loop, the cards, the growth ─────────────────────────────────── */
-:root{ --r-unknown:#d06a6a; --r-champion:#ff9d4d; --r-ancestor:#b98ad8; --r-first:#8fa3b8; --r-grown:#6fd1a4; --r-hand:#c9b37a; --r-tongue:#e3a6d6; --r-sentinel:#7fb2e3; --r-airgap:#5eead4; --r-ledger:#9bd1c4; }
+:root{ --r-unknown:#d06a6a; --r-champion:#ff9d4d; --r-ancestor:#b98ad8; --r-first:#8fa3b8; --r-grown:#6fd1a4; --r-hand:#c9b37a; --r-tongue:#e3a6d6; --r-sentinel:#7fb2e3; --r-airgap:#5eead4; --r-ledger:#9bd1c4; --r-seedlib:#b6d47a; }
 .living{border:1px solid var(--gold-deep);border-radius:10px;padding:18px 20px;margin-bottom:18px;
   background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--gold) 9%,transparent),transparent 60%),var(--deck)}
 .living h2{font-size:24px;margin:0 0 6px}
@@ -267,7 +267,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .sigil .petals ellipse{fill:currentColor;fill-opacity:.22;stroke:currentColor;stroke-width:1.2}
 .sigil .core{fill:currentColor;opacity:1}
 .r-unknown{color:var(--r-unknown)} .r-normal{color:var(--r-normal)} .r-magic{color:var(--r-magic)} .r-rare{color:var(--r-rare)}
-.r-unique{color:var(--r-unique)} .r-set{color:var(--r-set)} .r-champion{color:var(--r-champion)} .r-ancestor{color:var(--r-ancestor)} .r-first{color:var(--r-first)} .r-grown{color:var(--r-grown)} .r-hand{color:var(--r-hand)} .r-tongue{color:var(--r-tongue)} .r-sentinel{color:var(--r-sentinel)} .r-airgap{color:var(--r-airgap)} .r-ledger{color:var(--r-ledger)}
+.r-unique{color:var(--r-unique)} .r-set{color:var(--r-set)} .r-champion{color:var(--r-champion)} .r-ancestor{color:var(--r-ancestor)} .r-first{color:var(--r-first)} .r-grown{color:var(--r-grown)} .r-hand{color:var(--r-hand)} .r-tongue{color:var(--r-tongue)} .r-sentinel{color:var(--r-sentinel)} .r-airgap{color:var(--r-airgap)} .r-ledger{color:var(--r-ledger)} .r-seedlib{color:var(--r-seedlib)}
 .kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:9px}
 .kgrid .kcard{width:auto}
 .rtable{display:grid;gap:5px;max-width:640px;margin-bottom:14px}
@@ -1140,6 +1140,17 @@ const P = {
       f.append(row);
     }
 
+    if (SEEDLIB_CARD) {
+      const s = SEEDLIB;
+      f.append(el('h3', null, 'the seed library — knowledge in seeds, not weights'));
+      const n = el('p', 'lead');
+      n.textContent = `SEED-LIBRARY stores what a domain knows as a tiny, readable konomi seed — a packed scorecard genome, no weights — and a general ribosome germinates each on the node's own data, offline. The whole ${s.domains}-domain library is ${s.libraryBytes} bytes and grows ${s.grownBytes} bytes of working build. Every seed predicts on held-out cases it never grew on: AUC shopper ${s.shopperAuc} (the real ${s.sessions.toLocaleString()}-session UCI set) / triage ${s.triageAuc} / water ${s.waterAuc} / crop ${s.cropAuc}, each ${s.minRatio}–${s.maxRatio}× smaller than its grown body. One domain grows on demand in ${s.growMs} ms touching only its own data, every germination runs offline, and a tampered seed is refused by the guard. A bonus: fall-spore's own engine grew a ${s.sporeBytes}-byte spore into a ${s.sporeGrownBytes.toLocaleString()}-byte organ (${s.sporeRatio}×, AUC ${s.sporeAuc}) on the same real data. The seeds are konomi tags; the Konomi architecture is Thomas Frumkin's.`;
+      f.append(n);
+      const row = el('div', 'featured');
+      row.append(kcard(SEEDLIB_CARD));
+      f.append(row);
+    }
+
     f.append(el('h3', null, 'the collection'));
     const fl = el('div', 'filters');
     const q = el('input'); q.type = 'search'; q.placeholder = 'find a card'; q.value = deckQ.text; q.setAttribute('aria-label', 'find a card');
@@ -1736,9 +1747,11 @@ const SENTINEL_CARD = typeof SENTINEL !== "undefined" && SENTINEL ? sentinelCard
 const AIRGAP_CARD = typeof AIRGAP !== "undefined" && AIRGAP ? airgapCard(AIRGAP) : null;
 // KESTREL-LEDGER, IndexedDB as the Shadow Fold (step 4 of 4)
 const LEDGER_CARD = typeof LEDGER !== "undefined" && LEDGER ? ledgerCard(LEDGER) : null;
+// SEED-LIBRARY, knowledge in tiny konomi seeds, not weights
+const SEEDLIB_CARD = typeof SEEDLIB !== "undefined" && SEEDLIB ? seedLibraryCard(SEEDLIB) : null;
 const STAGES = stagesFrom(GROW.ladder) || [];
 const SEATS = [...new Set(DECK.map((c) => c.seat))].sort();
-const KIND = { mine: 'built by', foundation: 'a foundation, built by', external: 'a wrapper around an outside service, by', creature: 'bred as', organ: 'grown and graded in', tongue: 'grown and measured in', sentinel: 'built and sealed in', airgap: 'built and measured in', ledger: 'built and sealed in' };
+const KIND = { mine: 'built by', foundation: 'a foundation, built by', external: 'a wrapper around an outside service, by', creature: 'bred as', organ: 'grown and graded in', tongue: 'grown and measured in', sentinel: 'built and sealed in', airgap: 'built and measured in', ledger: 'built and sealed in', seedlib: 'built and sealed in' };
 
 // The trial, re-graded here from the recorded replies — the page does not trust the run's own tally.
 function trialNow() {
@@ -1780,7 +1793,7 @@ function openCard(c) {
   inner.append(dl);
   const act = el('div', 'row');
   if (c.url) { const a = el('a', 'act', c.kind === 'creature' ? 'watch it evolve →' : 'open it →'); a.href = c.url; a.target = '_blank'; a.rel = 'noopener'; act.append(a); }
-  if (c.live && !['creature', 'organ', 'tongue', 'sentinel', 'airgap', 'ledger'].includes(c.kind)) { const a = el('a', 'act', 'carry it in a card →'); a.href = 'https://sjgant80-hub.github.io/fallkard-forge/'; a.target = '_blank'; a.rel = 'noopener'; act.append(a); }
+  if (c.live && !['creature', 'organ', 'tongue', 'sentinel', 'airgap', 'ledger', 'seedlib'].includes(c.kind)) { const a = el('a', 'act', 'carry it in a card →'); a.href = 'https://sjgant80-hub.github.io/fallkard-forge/'; a.target = '_blank'; a.rel = 'noopener'; act.append(a); }
   const x = el('button', 'act', 'close'); x.type = 'button'; x.addEventListener('click', () => dlg.close()); act.append(x);
   inner.append(act);
   dlg.append(inner);

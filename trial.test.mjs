@@ -8,7 +8,7 @@ const F = (o = {}) => ({ name: 'x', says: 'does x', described: true, live: true,
 test('the labels and constants', () => {
   assert.deepEqual(LABELS, ['Unidentified', 'Normal', 'Magic', 'Rare', 'Unique', 'Set']);
   assert.ok(Object.isFrozen(LABELS) && Object.isFrozen(TIER_LABEL));
-  assert.deepEqual(TIER_LABEL, { unknown: 'Unidentified', normal: 'Normal', magic: 'Magic', rare: 'Rare', unique: 'Unique', set: 'Set', ledger: 'Ledger' });
+  assert.deepEqual(TIER_LABEL, { unknown: 'Unidentified', normal: 'Normal', magic: 'Magic', rare: 'Rare', unique: 'Unique', set: 'Set', ledger: 'Ledger', seedlib: 'Seed' });
   assert.equal(FULL_SET, 3);
   assert.equal(SAYS_MAX, 160);
   assert.equal(T.factsOf, factsOf);

@@ -100,6 +100,20 @@ export function ledgerCard(v) {
   };
 }
 
+// the Seed Library's sealed measure → one card: knowledge in tiny konomi seeds, not weights. The whole
+// 4-domain library is a few hundred bytes, every seed germinates a working build on the node's own data
+// offline, each grows larger than its seed, and the SENTINEL-style guard refuses every tampered seed.
+export function seedLibraryCard(v) {
+  if (!isObj(v) || ![v.libraryBytes, v.grownBytes, v.domains].every(Number.isInteger)) return null;
+  if (![v.shopperAuc, v.triageAuc, v.waterAuc, v.cropAuc, v.growMs, v.sporeRatio].every(Number.isFinite)) return null;
+  return {
+    id: 'seed-library', name: 'SEED-LIBRARY',
+    does: 'knowledge in seeds, not weights: the whole ' + v.domains + '-domain library is ' + v.libraryBytes + ' bytes → ' + v.grownBytes + '-byte builds · held-out AUC shopper ' + v.shopperAuc + ' / triage ' + v.triageAuc + ' / water ' + v.waterAuc + ' / crop ' + v.cropAuc + ' · seeds ' + v.minRatio + '–' + v.maxRatio + '× smaller than grown · grows one domain offline in ' + v.growMs + 'ms · every tampered seed refused · fall-spore bonus ' + v.sporeRatio + '× on real UCI',
+    rarity: 'seedlib', label: 'Seed', why: '', proof: 'proven', evidence: '', seat: 'memory', kind: 'seedlib',
+    by: 'seed-library', live: true, url: 'https://sjgant80-hub.github.io/seed-library/', genes: fnv1a('seedlib|' + v.libraryBytes + '|' + v.domains + '|' + v.shopperAuc),
+  };
+}
+
 // The art. `genes` decides the symmetry, the petals and the turn; `rings` is how far the proof got
 // (1 prototype, 2 works, 3 proven). Colour comes from the card's rarity class on the page.
 export function sigil(genes, rings) {
@@ -165,4 +179,4 @@ export function realness(ids, cards) {
   return { state, found: found.map((c) => c.id), missing };
 }
 
-export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
+export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };

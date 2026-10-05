@@ -1,0 +1,26 @@
+{
+ "source": {
+  "repo": "sjgant80-hub/seed-library",
+  "sha": "67d361c8e207f29e1158aacb98f770757b52b575",
+  "file": "data/run.json",
+  "sha256": "6b06249bbf62329017cdd3ffbaf5d04762cee375180fa08cfae2d0855e6d1f31"
+ },
+ "libraryBytes": 226,
+ "grownBytes": 1129,
+ "domains": 4,
+ "sessions": 12330,
+ "shopperAuc": 0.82,
+ "triageAuc": 0.95,
+ "waterAuc": 0.75,
+ "cropAuc": 0.75,
+ "minRatio": 3.4,
+ "maxRatio": 6.2,
+ "growMs": 357,
+ "growDomain": "triage",
+ "sporeBytes": 32,
+ "sporeGrownBytes": 4739,
+ "sporeRatio": 148,
+ "sporeAuc": 0.82,
+ "allOffline": true,
+ "allGuarded": true
+}
