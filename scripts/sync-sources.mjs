@@ -22,7 +22,7 @@ export const PINS = {
   'kard-evolve': '3c1986582199ec09dd9c3cbc5a8ca91a19af1d5f',
   'pattern-organs': 'c5ce42c28e5e9ac87e2e59ccc18b511d3b210754',
   'konomi-tongue': '0cac69d9936b0591f0ea53e316abc8f980000a04',
-  'sentinel': '0100fa1f4a7e1e1ca2e6ca01529122d2f61b1387',
+  'sentinel': '41fb41c1d99d03d218d2229fd2d957fbce725250',
 };
 const raw = (repo, file) => `https://raw.githubusercontent.com/sjgant80-hub/${repo}/${PINS[repo]}/${file}`;
 const normalise = (t) => String(t).split('\r\n').join('\n');
