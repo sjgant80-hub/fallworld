@@ -240,7 +240,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .journey .jnote { margin-top: 3px; font-size: .78em; opacity: .55; }
 
 /* ── the living world: the loop, the cards, the growth ─────────────────────────────────── */
-:root{ --r-unknown:#d06a6a; --r-champion:#ff9d4d; --r-ancestor:#b98ad8; --r-first:#8fa3b8; --r-grown:#6fd1a4; --r-hand:#c9b37a; --r-tongue:#e3a6d6; --r-sentinel:#7fb2e3; }
+:root{ --r-unknown:#d06a6a; --r-champion:#ff9d4d; --r-ancestor:#b98ad8; --r-first:#8fa3b8; --r-grown:#6fd1a4; --r-hand:#c9b37a; --r-tongue:#e3a6d6; --r-sentinel:#7fb2e3; --r-airgap:#5eead4; }
 .living{border:1px solid var(--gold-deep);border-radius:10px;padding:18px 20px;margin-bottom:18px;
   background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--gold) 9%,transparent),transparent 60%),var(--deck)}
 .living h2{font-size:24px;margin:0 0 6px}
@@ -267,7 +267,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .sigil .petals ellipse{fill:currentColor;fill-opacity:.22;stroke:currentColor;stroke-width:1.2}
 .sigil .core{fill:currentColor;opacity:1}
 .r-unknown{color:var(--r-unknown)} .r-normal{color:var(--r-normal)} .r-magic{color:var(--r-magic)} .r-rare{color:var(--r-rare)}
-.r-unique{color:var(--r-unique)} .r-set{color:var(--r-set)} .r-champion{color:var(--r-champion)} .r-ancestor{color:var(--r-ancestor)} .r-first{color:var(--r-first)} .r-grown{color:var(--r-grown)} .r-hand{color:var(--r-hand)} .r-tongue{color:var(--r-tongue)} .r-sentinel{color:var(--r-sentinel)}
+.r-unique{color:var(--r-unique)} .r-set{color:var(--r-set)} .r-champion{color:var(--r-champion)} .r-ancestor{color:var(--r-ancestor)} .r-first{color:var(--r-first)} .r-grown{color:var(--r-grown)} .r-hand{color:var(--r-hand)} .r-tongue{color:var(--r-tongue)} .r-sentinel{color:var(--r-sentinel)} .r-airgap{color:var(--r-airgap)}
 .kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:9px}
 .kgrid .kcard{width:auto}
 .rtable{display:grid;gap:5px;max-width:640px;margin-bottom:14px}
@@ -1118,6 +1118,17 @@ const P = {
       f.append(row);
     }
 
+    if (AIRGAP_CARD) {
+      const a = AIRGAP;
+      f.append(el('h3', null, 'the air-gap — the 6-byte transport'));
+      const n = el('p', 'lead');
+      n.textContent = `FALL-AIRGAP moves an estate state-event as six bytes — signed, and verified before it is ever parsed — over WebRTC, sound or NFC with no HTTP. Measured in real wire bytes: the 6-byte coordinate beats self-describing JSON up to ${a.coord}×, a recurring 1-byte delta up to ${a.delta}×, but a signed-per-packet frame pays the 64-byte Ed25519 floor and lands at ${a.wire}× — the 42–100× is real only when one handshake signature carries a whole session. Sealed ${a.passed} of ${a.of}. The κ-witness is Thomas Frumkin’s fold; the gate is SENTINEL’s.`;
+      f.append(n);
+      const row = el('div', 'featured');
+      row.append(kcard(AIRGAP_CARD));
+      f.append(row);
+    }
+
     f.append(el('h3', null, 'the collection'));
     const fl = el('div', 'filters');
     const q = el('input'); q.type = 'search'; q.placeholder = 'find a card'; q.value = deckQ.text; q.setAttribute('aria-label', 'find a card');
@@ -1710,9 +1721,11 @@ const MEDIAN_ORGAN = ORGAN_CARDS.find((c) => ORGANS && c.id === 'organ-grown-' +
 const TONGUE_CARD = TONGUE ? tongueCard(TONGUE) : null;
 // SENTINEL, the structural immune system
 const SENTINEL_CARD = typeof SENTINEL !== "undefined" && SENTINEL ? sentinelCard(SENTINEL) : null;
+// FALL-AIRGAP, the 6-byte transport
+const AIRGAP_CARD = typeof AIRGAP !== "undefined" && AIRGAP ? airgapCard(AIRGAP) : null;
 const STAGES = stagesFrom(GROW.ladder) || [];
 const SEATS = [...new Set(DECK.map((c) => c.seat))].sort();
-const KIND = { mine: 'built by', foundation: 'a foundation, built by', external: 'a wrapper around an outside service, by', creature: 'bred as', organ: 'grown and graded in', tongue: 'grown and measured in', sentinel: 'built and sealed in' };
+const KIND = { mine: 'built by', foundation: 'a foundation, built by', external: 'a wrapper around an outside service, by', creature: 'bred as', organ: 'grown and graded in', tongue: 'grown and measured in', sentinel: 'built and sealed in', airgap: 'built and measured in' };
 
 // The trial, re-graded here from the recorded replies — the page does not trust the run's own tally.
 function trialNow() {
@@ -1749,12 +1762,12 @@ function openCard(c) {
   row('does', c.does);
   row(c.kind === 'creature' ? 'bred by' : 'made by', c.by ? (c.kind === 'mine' ? c.by : (KIND[c.kind] || '') + ' ' + c.by).trim() : '');
   row('seat', c.seat);
-  row('checked', c.kind === 'creature' ? 'graded by rules on cards it never saw, in a sealed run' : c.kind === 'organ' ? 'graded once on two months of shop sessions it never saw, in a sealed run' : c.kind === 'tongue' ? 'measured in Claude tokens on held-out messages, against a 15× sealed before the run' : c.kind === 'sentinel' ? 'thrown attacks it had never seen, on a battery sealed before the run' : c.proof === 'proven' ? 'a machine tried to break it and it held' : c.proof === 'works' ? 'a machine ran its tests and they passed' : 'nobody has checked it yet');
+  row('checked', c.kind === 'creature' ? 'graded by rules on cards it never saw, in a sealed run' : c.kind === 'organ' ? 'graded once on two months of shop sessions it never saw, in a sealed run' : c.kind === 'tongue' ? 'measured in Claude tokens on held-out messages, against a 15× sealed before the run' : c.kind === 'sentinel' ? 'thrown attacks it had never seen, on a battery sealed before the run' : c.kind === 'airgap' ? 'counted in real wire bytes against the JSON it replaces, sealed before the run' : c.proof === 'proven' ? 'a machine tried to break it and it held' : c.proof === 'works' ? 'a machine ran its tests and they passed' : 'nobody has checked it yet');
   row('evidence', c.evidence);
   inner.append(dl);
   const act = el('div', 'row');
   if (c.url) { const a = el('a', 'act', c.kind === 'creature' ? 'watch it evolve →' : 'open it →'); a.href = c.url; a.target = '_blank'; a.rel = 'noopener'; act.append(a); }
-  if (c.live && !['creature', 'organ', 'tongue', 'sentinel'].includes(c.kind)) { const a = el('a', 'act', 'carry it in a card →'); a.href = 'https://sjgant80-hub.github.io/fallkard-forge/'; a.target = '_blank'; a.rel = 'noopener'; act.append(a); }
+  if (c.live && !['creature', 'organ', 'tongue', 'sentinel', 'airgap'].includes(c.kind)) { const a = el('a', 'act', 'carry it in a card →'); a.href = 'https://sjgant80-hub.github.io/fallkard-forge/'; a.target = '_blank'; a.rel = 'noopener'; act.append(a); }
   const x = el('button', 'act', 'close'); x.type = 'button'; x.addEventListener('click', () => dlg.close()); act.append(x);
   inner.append(act);
   dlg.append(inner);

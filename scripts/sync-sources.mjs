@@ -23,6 +23,7 @@ export const PINS = {
   'pattern-organs': 'c5ce42c28e5e9ac87e2e59ccc18b511d3b210754',
   'konomi-tongue': '0cac69d9936b0591f0ea53e316abc8f980000a04',
   'sentinel': '41fb41c1d99d03d218d2229fd2d957fbce725250',
+  'fall-airgap': '881502f92be1a606663e3c2f00fe66abe1400a38',
 };
 const raw = (repo, file) => `https://raw.githubusercontent.com/sjgant80-hub/${repo}/${PINS[repo]}/${file}`;
 const normalise = (t) => String(t).split('\r\n').join('\n');
@@ -104,12 +105,27 @@ async function tongue() {
   };
 }
 
+// fall-airgap's measured run (data/run.json, a CI fixpoint there): the 6-byte transport's byte-ratios in real wire bytes
+async function airgap() {
+  const t = await grab(raw('fall-airgap', 'data/run.json'));
+  const v = JSON.parse(t);
+  const coord = Math.max(...v.rows.map((r) => r.ratioPayload));
+  const delta = Math.max(...v.rows.filter((r) => r.ratioDelta).map((r) => r.ratioDelta));
+  const wire = Math.min(...v.rows.map((r) => r.ratioWireVsJsonSigned));
+  const vals = Object.values(v.verdict);
+  return {
+    source: { repo: 'sjgant80-hub/fall-airgap', sha: PINS['fall-airgap'], file: 'data/run.json', sha256: createHash('sha256').update(t).digest('hex'), measured: v.measured },
+    passed: vals.filter(Boolean).length, of: vals.length, coord, delta, wire,
+  };
+}
+
 const TARGETS = [
   ['vendor/fallforgemint/ladder.json', ladder],
   ['vendor/kard-evolve/creatures.json', creatures],
   ['vendor/pattern-organs/organs.json', organs],
   ['vendor/konomi-tongue/tongue.json', tongue],
   ['vendor/sentinel/sentinel.json', sentinel],
+  ['vendor/fall-airgap/airgap.json', airgap],
 ];
 
 const check = process.argv.includes('--check');

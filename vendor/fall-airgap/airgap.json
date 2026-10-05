@@ -1,0 +1,14 @@
+{
+ "source": {
+  "repo": "sjgant80-hub/fall-airgap",
+  "sha": "881502f92be1a606663e3c2f00fe66abe1400a38",
+  "file": "data/run.json",
+  "sha256": "640205d554931b02f881e4c967934d066c98ed8f2398f33d1e006313120c1c3a",
+  "measured": "2026-10-05"
+ },
+ "passed": 5,
+ "of": 5,
+ "coord": 31,
+ "delta": 145,
+ "wire": 3.28
+}

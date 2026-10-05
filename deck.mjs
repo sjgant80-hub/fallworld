@@ -76,6 +76,16 @@ export function sentinelCard(v) {
   };
 }
 
+// fall-airgap's measured verdict → one card: the 6-byte transport, the ratios it hit and the signature floor it cannot beat.
+export function airgapCard(v) {
+  if (!isObj(v) || !Number.isInteger(v.passed) || !Number.isInteger(v.of) || ![v.coord, v.delta, v.wire].every(Number.isFinite)) return null;
+  return {
+    id: 'airgap', name: 'FALL-AIRGAP', does: '6-byte coordinate ' + v.coord + '× · 1-byte delta ' + v.delta + '× · signed per-packet ' + v.wire + '× (the Ed25519 floor) — measured in real wire bytes (sealed ' + v.passed + ' of ' + v.of + ')',
+    rarity: 'airgap', label: 'Air-gap', why: '', proof: 'proven', evidence: '', seat: 'transport', kind: 'airgap',
+    by: 'fall-airgap', live: true, url: 'https://sjgant80-hub.github.io/fall-airgap/', genes: fnv1a('airgap|' + v.passed + '|' + v.coord + '|' + v.delta),
+  };
+}
+
 // The art. `genes` decides the symmetry, the petals and the turn; `rings` is how far the proof got
 // (1 prototype, 2 works, 3 proven). Colour comes from the card's rarity class on the page.
 export function sigil(genes, rings) {
@@ -141,4 +151,4 @@ export function realness(ids, cards) {
   return { state, found: found.map((c) => c.id), missing };
 }
 
-export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
+export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
