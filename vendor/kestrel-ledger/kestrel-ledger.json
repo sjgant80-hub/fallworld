@@ -1,0 +1,18 @@
+{
+ "source": {
+  "repo": "sjgant80-hub/kestrel-ledger",
+  "sha": "4e6e506bfc8228b30fcdcc514e0b649d6663c424",
+  "file": "data/run.json",
+  "sha256": "547bb5e4d91585205ba71dc9638ba882d0be773ed1db36674a34ca0bc988228d"
+ },
+ "N": 10000,
+ "byteIdentical": true,
+ "ratioPayloadVsJson": 25.9,
+ "ratioSignedVsJsonSigned": 3.55,
+ "ledgerPayloadKB": 58.6,
+ "jsonMB": 1.48,
+ "replayMs10k": 16.252,
+ "poisonedEqualsClean": true,
+ "verdictPassed": 6,
+ "verdictOf": 6
+}

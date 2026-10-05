@@ -8,6 +8,7 @@
 //                                      seed, graded on two held-out months, from pattern-organs
 //   vendor/konomi-tongue/tongue.json   the Konomi Tongue's sealed verdict against 15×, from konomi-tongue
 //   vendor/sentinel/sentinel.json      SENTINEL's sealed verdict (the immune gate + grown detector), from sentinel
+//   vendor/kestrel-ledger/kestrel-ledger.json  kestrel-ledger's sealed verdict (IndexedDB as the Shadow Fold, step 4 of 4), from kestrel-ledger
 //
 //   node scripts/sync-sources.mjs          write them
 //   node scripts/sync-sources.mjs --check  exit 1 unless each is exactly what its pinned commit gives
@@ -24,6 +25,7 @@ export const PINS = {
   'konomi-tongue': '0cac69d9936b0591f0ea53e316abc8f980000a04',
   'sentinel': '41fb41c1d99d03d218d2229fd2d957fbce725250',
   'fall-airgap': 'e0d0af0cb1505abe78fd2ed0c38644905263b397',
+  'kestrel-ledger': '4e6e506bfc8228b30fcdcc514e0b649d6663c424',
 };
 const raw = (repo, file) => `https://raw.githubusercontent.com/sjgant80-hub/${repo}/${PINS[repo]}/${file}`;
 const normalise = (t) => String(t).split('\r\n').join('\n');
@@ -119,6 +121,22 @@ async function airgap() {
   };
 }
 
+// kestrel-ledger's sealed record (data/run.json, its CI fixpoint): IndexedDB as the Shadow Fold — the
+// ledger resumes mid-thought, N mutations reconstruct byte-identical, a six-byte ledger coordinate that
+// is far smaller than JSON, a fast replay, and a poisoned ledger rejected to the same clean state.
+async function kestrelLedger() {
+  const t = await grab(raw('kestrel-ledger', 'data/run.json'));
+  const v = JSON.parse(t);
+  return {
+    source: { repo: 'sjgant80-hub/kestrel-ledger', sha: PINS['kestrel-ledger'], file: 'data/run.json', sha256: createHash('sha256').update(t).digest('hex') },
+    N: v.N, byteIdentical: v.reconstruction.byteIdentical,
+    ratioPayloadVsJson: v.storage.ratioPayloadVsJson, ratioSignedVsJsonSigned: v.storage.ratioSignedVsJsonSigned,
+    ledgerPayloadKB: v.storage.ledgerPayloadKB, jsonMB: v.storage.jsonMB,
+    replayMs10k: v.replay.replayMs10k, poisonedEqualsClean: v.tamper.poisonedEqualsClean,
+    verdictPassed: v.verdict.passed, verdictOf: v.verdict.of,
+  };
+}
+
 const TARGETS = [
   ['vendor/fallforgemint/ladder.json', ladder],
   ['vendor/kard-evolve/creatures.json', creatures],
@@ -126,6 +144,7 @@ const TARGETS = [
   ['vendor/konomi-tongue/tongue.json', tongue],
   ['vendor/sentinel/sentinel.json', sentinel],
   ['vendor/fall-airgap/airgap.json', airgap],
+  ['vendor/kestrel-ledger/kestrel-ledger.json', kestrelLedger],
 ];
 
 const check = process.argv.includes('--check');

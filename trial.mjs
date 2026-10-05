@@ -12,7 +12,7 @@
 // Pure: no I/O, no clock. The pick is seeded, so the same world and seed give the same trial.
 
 export const LABELS = Object.freeze(['Unidentified', 'Normal', 'Magic', 'Rare', 'Unique', 'Set']);
-export const TIER_LABEL = Object.freeze({ unknown: 'Unidentified', normal: 'Normal', magic: 'Magic', rare: 'Rare', unique: 'Unique', set: 'Set' });
+export const TIER_LABEL = Object.freeze({ unknown: 'Unidentified', normal: 'Normal', magic: 'Magic', rare: 'Rare', unique: 'Unique', set: 'Set', ledger: 'Ledger' });
 export const FULL_SET = 3;
 export const SAYS_MAX = 160;
 

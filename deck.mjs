@@ -86,6 +86,20 @@ export function airgapCard(v) {
   };
 }
 
+// kestrel-ledger's sealed verdict → one card: IndexedDB as the Shadow Fold (step 4 of 4). The ledger
+// resumes mid-thought, N mutations reconstruct byte-identical, its coordinate is far smaller than JSON,
+// a 10k replay is quick, and a poisoned ledger lands on the same clean state it started from.
+export function ledgerCard(v) {
+  if (!isObj(v) || ![v.N, v.verdictPassed, v.verdictOf].every(Number.isInteger)) return null;
+  if (![v.ratioPayloadVsJson, v.replayMs10k].every(Number.isFinite)) return null;
+  return {
+    id: 'kestrel-ledger', name: 'KESTREL-LEDGER',
+    does: 'resumes mid-thought: ' + v.N + ' mutations reconstruct byte-identical · 6-byte ledger ~' + v.ratioPayloadVsJson + '× smaller than JSON · 10k replay ' + v.replayMs10k + 'ms · poisoned ledger rejected (sealed ' + v.verdictPassed + ' of ' + v.verdictOf + ')',
+    rarity: 'ledger', label: 'Ledger', why: '', proof: 'proven', evidence: '', seat: 'memory', kind: 'ledger',
+    by: 'kestrel-ledger', live: true, url: 'https://sjgant80-hub.github.io/kestrel-ledger/', genes: fnv1a('ledger|' + v.verdictPassed + '|' + v.ratioPayloadVsJson + '|' + v.N),
+  };
+}
+
 // The art. `genes` decides the symmetry, the petals and the turn; `rings` is how far the proof got
 // (1 prototype, 2 works, 3 proven). Colour comes from the card's rarity class on the page.
 export function sigil(genes, rings) {
@@ -151,4 +165,4 @@ export function realness(ids, cards) {
   return { state, found: found.map((c) => c.id), missing };
 }
 
-export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
+export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };

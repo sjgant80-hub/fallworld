@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
+import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
 import { fnv1a } from './trial.mjs';
 
 const E = (o = {}) => ({ id: 'forge', name: 'The Forge', does: 'makes cards', rarity: 'unique', why: 'held', tier: 'proven', evidence: 'gate @ abc1234', seat: 'work', kind: 'mine', by: 'Simon Gant', live: true, url: 'https://x/', ...o });
@@ -11,10 +11,11 @@ test('the orders and the default export', () => {
   assert.deepEqual(CREATURE, { champion: 'Champion', ancestor: 'Ancestor', first: 'First of its line' });
   assert.deepEqual(ORGAN, { grown: 'Grown organ', hand: 'Hand-built organ' });
   assert.ok(Object.isFrozen(RARITY_ORDER) && Object.isFrozen(PROOF_ORDER) && Object.isFrozen(CREATURE) && Object.isFrozen(ORGAN));
-  assert.equal(Object.keys(D).length, 16);
+  assert.equal(Object.keys(D).length, 17);
   assert.equal(D.tongueCard, tongueCard);
   assert.equal(D.sentinelCard, sentinelCard);
   assert.equal(D.airgapCard, airgapCard);
+  assert.equal(D.ledgerCard, ledgerCard);
   assert.equal(D.organCard, organCard);
   assert.equal(D.realness, realness);
 });
@@ -102,6 +103,17 @@ test('airgapCard: the 6-byte transport, the ratios and the signature floor', () 
   assert.ok(c.does.includes('31×') && c.does.includes('145×') && c.does.includes('3.28×') && c.does.includes('5 of 5'));
   assert.equal(c.genes, fnv1a('airgap|5|31|145'));
   for (const bad of [null, [], { ...v, passed: 1.5 }, { ...v, of: '5' }, { ...v, coord: NaN }, { ...v, delta: '145' }, { ...v, wire: undefined }]) assert.equal(airgapCard(bad), null);
+});
+
+test('ledgerCard: IndexedDB as the Shadow Fold, step 4 of 4', () => {
+  const v = { N: 10000, byteIdentical: true, ratioPayloadVsJson: 25.9, ratioSignedVsJsonSigned: 3.55, ledgerPayloadKB: 58.6, jsonMB: 1.48, replayMs10k: 16.252, poisonedEqualsClean: true, verdictPassed: 6, verdictOf: 6 };
+  assert.deepEqual(ledgerCard(v), {
+    id: 'kestrel-ledger', name: 'KESTREL-LEDGER',
+    does: 'resumes mid-thought: 10000 mutations reconstruct byte-identical · 6-byte ledger ~25.9× smaller than JSON · 10k replay 16.252ms · poisoned ledger rejected (sealed 6 of 6)',
+    rarity: 'ledger', label: 'Ledger', why: '', proof: 'proven', evidence: '', seat: 'memory', kind: 'ledger',
+    by: 'kestrel-ledger', live: true, url: 'https://sjgant80-hub.github.io/kestrel-ledger/', genes: fnv1a('ledger|6|25.9|10000'),
+  });
+  for (const bad of [null, [], { ...v, N: 1.5 }, { ...v, N: '10000' }, { ...v, verdictPassed: 1.5 }, { ...v, verdictOf: '6' }, { ...v, ratioPayloadVsJson: NaN }, { ...v, replayMs10k: undefined }]) assert.equal(ledgerCard(bad), null);
 });
 
 test('sigil: the same genes always grow the same art', () => {
