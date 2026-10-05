@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
+import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
 import { fnv1a } from './trial.mjs';
 
 const E = (o = {}) => ({ id: 'forge', name: 'The Forge', does: 'makes cards', rarity: 'unique', why: 'held', tier: 'proven', evidence: 'gate @ abc1234', seat: 'work', kind: 'mine', by: 'Simon Gant', live: true, url: 'https://x/', ...o });
@@ -11,8 +11,9 @@ test('the orders and the default export', () => {
   assert.deepEqual(CREATURE, { champion: 'Champion', ancestor: 'Ancestor', first: 'First of its line' });
   assert.deepEqual(ORGAN, { grown: 'Grown organ', hand: 'Hand-built organ' });
   assert.ok(Object.isFrozen(RARITY_ORDER) && Object.isFrozen(PROOF_ORDER) && Object.isFrozen(CREATURE) && Object.isFrozen(ORGAN));
-  assert.equal(Object.keys(D).length, 14);
+  assert.equal(Object.keys(D).length, 15);
   assert.equal(D.tongueCard, tongueCard);
+  assert.equal(D.sentinelCard, sentinelCard);
   assert.equal(D.organCard, organCard);
   assert.equal(D.realness, realness);
 });
@@ -71,6 +72,20 @@ test('tongueCard: the Konomi Tongue against the 15× it was sealed to reach', ()
     url: 'https://sjgant80-hub.github.io/konomi-tongue/', genes: fnv1a('tongue|3|1.05|2.72'),
   });
   for (const bad of [null, [], { ...v, passed: 1.5 }, { ...v, of: '11' }, { ...v, text: NaN }, { ...v, json: '2' }, { ...v, combined: undefined }]) assert.equal(tongueCard(bad), null);
+});
+
+test('sentinelCard: the immune system, what it caught and let through', () => {
+  const v = { passed: 6, of: 6, hard: { caught: 72, attacks: 72, falsePass: 0 }, grown: { grownCatch: 27, baselineCatch: 11, heldAttacks: 27 } };
+  const c = sentinelCard(v);
+  assert.equal(c.id, 'sentinel');
+  assert.equal(c.rarity, 'sentinel');
+  assert.equal(c.label, 'Sentinel');
+  assert.equal(c.kind, 'sentinel');
+  assert.equal(c.proof, 'proven');
+  assert.equal(c.url, 'https://sjgant80-hub.github.io/sentinel/');
+  assert.ok(c.does.includes('72 of 72') && c.does.includes('27 of 27') && c.does.includes('6 of 6'));
+  assert.equal(c.genes, fnv1a('sentinel|6|72|27'));
+  for (const bad of [null, [], { ...v, passed: 1.5 }, { ...v, hard: null }, { ...v, grown: null }, { ...v, hard: { ...v.hard, caught: '72' } }]) assert.equal(sentinelCard(bad), null);
 });
 
 test('sigil: the same genes always grow the same art', () => {

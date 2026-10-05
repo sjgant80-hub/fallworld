@@ -1,0 +1,61 @@
+{
+ "source": {
+  "repo": "sjgant80-hub/sentinel",
+  "sha": "0100fa1f4a7e1e1ca2e6ca01529122d2f61b1387",
+  "file": "data/verdict.json",
+  "sha256": "da4743dda73e75d6f1001f944f9568da67c1b43b3cfa45f45c905e7b8894edae",
+  "sealedIn": "154b65c022657119dffd711f3a25ceecfe27ed29"
+ },
+ "passed": 6,
+ "of": 6,
+ "hard": {
+  "valid": 48,
+  "falsePass": 0,
+  "attacks": 72,
+  "caught": 72,
+  "parsedForged": 0,
+  "byType": {
+   "forged": {
+    "n": 8,
+    "caught": 8
+   },
+   "tampered": {
+    "n": 8,
+    "caught": 8
+   },
+   "budget-exceeded": {
+    "n": 8,
+    "caught": 8
+   },
+   "resource-denied": {
+    "n": 8,
+    "caught": 8
+   },
+   "malformed": {
+    "n": 8,
+    "caught": 8
+   },
+   "off-kappa": {
+    "n": 8,
+    "caught": 8
+   },
+   "unknown-source": {
+    "n": 8,
+    "caught": 8
+   },
+   "source-mismatch": {
+    "n": 8,
+    "caught": 8
+   },
+   "replay": {
+    "n": 8,
+    "caught": 8
+   }
+  }
+ },
+ "grown": {
+  "grownCatch": 27,
+  "baselineCatch": 11,
+  "heldAttacks": 27
+ }
+}

@@ -1,4 +1,4 @@
-// sync-sources.mjs — four things this world shows and does not own, fetched from the repos that do,
+// sync-sources.mjs — five things this world shows and does not own, fetched from the repos that do,
 // at pinned commits, and checked by CI so they cannot drift into something typed.
 //
 //   vendor/fallforgemint/ladder.json   the sizer's size ladder (~1B → ~100–200B), from fallforgemint
@@ -7,6 +7,7 @@
 //   vendor/pattern-organs/organs.json  the funnel organs' sealed verdict: the grown and the hand-built champions of every
 //                                      seed, graded on two held-out months, from pattern-organs
 //   vendor/konomi-tongue/tongue.json   the Konomi Tongue's sealed verdict against 15×, from konomi-tongue
+//   vendor/sentinel/sentinel.json      SENTINEL's sealed verdict (the immune gate + grown detector), from sentinel
 //
 //   node scripts/sync-sources.mjs          write them
 //   node scripts/sync-sources.mjs --check  exit 1 unless each is exactly what its pinned commit gives
@@ -21,6 +22,7 @@ export const PINS = {
   'kard-evolve': '3c1986582199ec09dd9c3cbc5a8ca91a19af1d5f',
   'pattern-organs': 'c5ce42c28e5e9ac87e2e59ccc18b511d3b210754',
   'konomi-tongue': '0cac69d9936b0591f0ea53e316abc8f980000a04',
+  'sentinel': '0100fa1f4a7e1e1ca2e6ca01529122d2f61b1387',
 };
 const raw = (repo, file) => `https://raw.githubusercontent.com/sjgant80-hub/${repo}/${PINS[repo]}/${file}`;
 const normalise = (t) => String(t).split('\r\n').join('\n');
@@ -81,6 +83,16 @@ async function organs() {
   };
 }
 
+// SENTINEL's sealed verdict (data/verdict.json, a CI fixpoint there): what the immune gate caught and the grown detector found
+async function sentinel() {
+  const t = await grab(raw('sentinel', 'data/verdict.json'));
+  const v = JSON.parse(t);
+  return {
+    source: { repo: 'sjgant80-hub/sentinel', sha: PINS['sentinel'], file: 'data/verdict.json', sha256: createHash('sha256').update(t).digest('hex'), sealedIn: v.sealedIn },
+    passed: v.passed, of: v.of, hard: v.hard, grown: v.grown,
+  };
+}
+
 // the Konomi Tongue's verdict as its own grade() wrote it (data/verdict.json, a CI fixpoint there)
 async function tongue() {
   const text = await grab(raw('konomi-tongue', 'data/verdict.json'));
@@ -97,6 +109,7 @@ const TARGETS = [
   ['vendor/kard-evolve/creatures.json', creatures],
   ['vendor/pattern-organs/organs.json', organs],
   ['vendor/konomi-tongue/tongue.json', tongue],
+  ['vendor/sentinel/sentinel.json', sentinel],
 ];
 
 const check = process.argv.includes('--check');

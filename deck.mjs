@@ -65,6 +65,17 @@ export function tongueCard(v) {
   };
 }
 
+// SENTINEL's sealed verdict → one card: the immune system, what it caught and what it let through.
+export function sentinelCard(v) {
+  if (!isObj(v) || !Number.isInteger(v.passed) || !Number.isInteger(v.of) || !isObj(v.hard) || !isObj(v.grown)) return null;
+  if (![v.hard.caught, v.hard.attacks, v.hard.falsePass, v.grown.grownCatch, v.grown.baselineCatch, v.grown.heldAttacks].every(Number.isInteger)) return null;
+  return {
+    id: 'sentinel', name: 'SENTINEL', does: 'dropped ' + v.hard.caught + ' of ' + v.hard.attacks + ' attacks, ' + v.hard.falsePass + ' false pass · grown detector caught ' + v.grown.grownCatch + ' of ' + v.grown.heldAttacks + ' held-out streams vs ' + v.grown.baselineCatch + ' (sealed ' + v.passed + ' of ' + v.of + ')',
+    rarity: 'sentinel', label: 'Sentinel', why: '', proof: 'proven', evidence: '', seat: 'defense', kind: 'sentinel',
+    by: 'sentinel', live: true, url: 'https://sjgant80-hub.github.io/sentinel/', genes: fnv1a('sentinel|' + v.passed + '|' + v.hard.caught + '|' + v.grown.grownCatch),
+  };
+}
+
 // The art. `genes` decides the symmetry, the petals and the turn; `rings` is how far the proof got
 // (1 prototype, 2 works, 3 proven). Colour comes from the card's rarity class on the page.
 export function sigil(genes, rings) {
@@ -130,4 +141,4 @@ export function realness(ids, cards) {
   return { state, found: found.map((c) => c.id), missing };
 }
 
-export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
+export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
