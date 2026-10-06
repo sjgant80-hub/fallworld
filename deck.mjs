@@ -126,6 +126,20 @@ export function attestCard(v) {
   };
 }
 
+// pattern-forge's sealed run → one card: the whole sovereign pattern loop on one organ. A pattern
+// survives only if it generalises; breeding lifts it; the LOCAL model proposes forms no stump can
+// express; the observer learns which forms win and reprioritises; and it ships a generated book.
+export function patternForgeCard(v) {
+  if (!isObj(v) || ![v.signalTestBA, v.breedSingleBestTestBA, v.breedChampionTestBA, v.llmChampionTestBA, v.llmBestStumpTestBA].every(Number.isFinite)) return null;
+  if (![v.observerUnguidedPos, v.observerGuidedPos, v.bookSize].every(Number.isInteger)) return null;
+  return {
+    id: 'pattern-forge', name: 'PATTERN-FORGE',
+    does: 'the sovereign pattern loop: a pattern survives only if it generalises (signal held-out ' + v.signalTestBA + ') · breeding lifts ' + v.breedSingleBestTestBA + '→' + v.breedChampionTestBA + ' · the local model proposes a ' + v.llmChampionKind + ' form no stump can express (held-out ' + v.llmChampionTestBA + ' vs best stump ' + v.llmBestStumpTestBA + ') · the observer moves the winner ' + v.observerUnguidedPos + '→' + v.observerGuidedPos + ' · a ' + v.bookSize + '-pattern book shipped',
+    rarity: 'forge', label: 'Forge', why: '', proof: 'proven', evidence: '', seat: 'mind', kind: 'forge',
+    by: 'pattern-forge', live: true, url: 'https://sjgant80-hub.github.io/pattern-forge/', genes: fnv1a('forge|' + v.signalTestBA + '|' + v.breedChampionTestBA + '|' + v.bookSize),
+  };
+}
+
 // The art. `genes` decides the symmetry, the petals and the turn; `rings` is how far the proof got
 // (1 prototype, 2 works, 3 proven). Colour comes from the card's rarity class on the page.
 export function sigil(genes, rings) {
@@ -191,4 +205,4 @@ export function realness(ids, cards) {
   return { state, found: found.map((c) => c.id), missing };
 }
 
-export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, attestCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
+export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, attestCard, patternForgeCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };

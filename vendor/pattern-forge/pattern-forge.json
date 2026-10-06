@@ -1,0 +1,17 @@
+{
+ "source": {
+  "repo": "sjgant80-hub/pattern-forge",
+  "sha": "0f6efb119343a84d13e8a249bf2eb94b2c16f841",
+  "file": "run.json",
+  "sha256": "0a5e6a574d444a8c87c78335bcba3ffe1737112ddeaf0bb1bc180a1c4e57f37d"
+ },
+ "signalTestBA": 1,
+ "breedSingleBestTestBA": 0.8269,
+ "breedChampionTestBA": 1,
+ "llmChampionKind": "compare",
+ "llmChampionTestBA": 1,
+ "llmBestStumpTestBA": 0.7684,
+ "observerUnguidedPos": 3,
+ "observerGuidedPos": 1,
+ "bookSize": 3
+}

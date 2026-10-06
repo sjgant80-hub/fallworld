@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, attestCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
+import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, attestCard, patternForgeCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
 import { fnv1a } from './trial.mjs';
 
 const E = (o = {}) => ({ id: 'forge', name: 'The Forge', does: 'makes cards', rarity: 'unique', why: 'held', tier: 'proven', evidence: 'gate @ abc1234', seat: 'work', kind: 'mine', by: 'Simon Gant', live: true, url: 'https://x/', ...o });
@@ -11,13 +11,14 @@ test('the orders and the default export', () => {
   assert.deepEqual(CREATURE, { champion: 'Champion', ancestor: 'Ancestor', first: 'First of its line' });
   assert.deepEqual(ORGAN, { grown: 'Grown organ', hand: 'Hand-built organ' });
   assert.ok(Object.isFrozen(RARITY_ORDER) && Object.isFrozen(PROOF_ORDER) && Object.isFrozen(CREATURE) && Object.isFrozen(ORGAN));
-  assert.equal(Object.keys(D).length, 19);
+  assert.equal(Object.keys(D).length, 20);
   assert.equal(D.tongueCard, tongueCard);
   assert.equal(D.sentinelCard, sentinelCard);
   assert.equal(D.airgapCard, airgapCard);
   assert.equal(D.ledgerCard, ledgerCard);
   assert.equal(D.seedLibraryCard, seedLibraryCard);
   assert.equal(D.attestCard, attestCard);
+  assert.equal(D.patternForgeCard, patternForgeCard);
   assert.equal(D.organCard, organCard);
   assert.equal(D.realness, realness);
 });
@@ -127,6 +128,17 @@ test('attestCard: the trust rail turned inward, the estate’s own claims re-run
     by: 'estate-attest', live: true, url: 'https://sjgant80-hub.github.io/estate-attest/', genes: fnv1a('attest|18|1768|540'),
   });
   for (const bad of [null, [], { ...v, held: 1.5 }, { ...v, of: '18' }, { ...v, total: NaN }, { ...v, pages: undefined }, { ...v, live: '540' }]) assert.equal(attestCard(bad), null);
+});
+
+test('patternForgeCard: the whole sovereign pattern loop on one organ', () => {
+  const v = { signalTestBA: 1, breedSingleBestTestBA: 0.8269, breedChampionTestBA: 1, llmChampionKind: 'compare', llmChampionTestBA: 1, llmBestStumpTestBA: 0.7684, observerUnguidedPos: 3, observerGuidedPos: 1, bookSize: 3 };
+  assert.deepEqual(patternForgeCard(v), {
+    id: 'pattern-forge', name: 'PATTERN-FORGE',
+    does: 'the sovereign pattern loop: a pattern survives only if it generalises (signal held-out 1) · breeding lifts 0.8269→1 · the local model proposes a compare form no stump can express (held-out 1 vs best stump 0.7684) · the observer moves the winner 3→1 · a 3-pattern book shipped',
+    rarity: 'forge', label: 'Forge', why: '', proof: 'proven', evidence: '', seat: 'mind', kind: 'forge',
+    by: 'pattern-forge', live: true, url: 'https://sjgant80-hub.github.io/pattern-forge/', genes: fnv1a('forge|1|1|3'),
+  });
+  for (const bad of [null, [], { ...v, signalTestBA: '1' }, { ...v, breedChampionTestBA: NaN }, { ...v, bookSize: 3.5 }, { ...v, observerGuidedPos: undefined }, { ...v, llmBestStumpTestBA: 'x' }]) assert.equal(patternForgeCard(bad), null);
 });
 
 test('seedLibraryCard: knowledge in tiny seeds, not weights', () => {

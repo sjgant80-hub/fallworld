@@ -29,6 +29,7 @@ export const PINS = {
   'kestrel-ledger': '4e6e506bfc8228b30fcdcc514e0b649d6663c424',
   'seed-library': '67d361c8e207f29e1158aacb98f770757b52b575',
   'estate-attest': 'd5bac08bae3bba4b5543e41a95bafb24626fd8dc',
+  'pattern-forge': '0f6efb119343a84d13e8a249bf2eb94b2c16f841',
 };
 const raw = (repo, file) => `https://raw.githubusercontent.com/sjgant80-hub/${repo}/${PINS[repo]}/${file}`;
 const normalise = (t) => String(t).split('\r\n').join('\n');
@@ -174,6 +175,20 @@ async function attest() {
   };
 }
 
+// pattern-forge's sealed run (run.json, its generated measurement): the full sovereign pattern loop —
+// find a pattern that survives held-out, breed it, let the local model propose richer forms, learn which
+// forms win, and ship the book. The headline numbers the card shows.
+async function patternForge() {
+  const t = await grab(raw('pattern-forge', 'run.json'));
+  const m = JSON.parse(t).measured;
+  return {
+    source: { repo: 'sjgant80-hub/pattern-forge', sha: PINS['pattern-forge'], file: 'run.json', sha256: createHash('sha256').update(t).digest('hex') },
+    signalTestBA: m.signalTestBA, breedSingleBestTestBA: m.breedSingleBestTestBA, breedChampionTestBA: m.breedChampionTestBA,
+    llmChampionKind: m.llmChampionKind, llmChampionTestBA: m.llmChampionTestBA, llmBestStumpTestBA: m.llmBestStumpTestBA,
+    observerUnguidedPos: m.observerUnguidedPos, observerGuidedPos: m.observerGuidedPos, bookSize: m.bookSize,
+  };
+}
+
 const TARGETS = [
   ['vendor/fallforgemint/ladder.json', ladder],
   ['vendor/kard-evolve/creatures.json', creatures],
@@ -184,6 +199,7 @@ const TARGETS = [
   ['vendor/kestrel-ledger/kestrel-ledger.json', kestrelLedger],
   ['vendor/seed-library/seed-library.json', seedLibrary],
   ['vendor/estate-attest/estate-attest.json', attest],
+  ['vendor/pattern-forge/pattern-forge.json', patternForge],
 ];
 
 const check = process.argv.includes('--check');
