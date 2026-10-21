@@ -240,7 +240,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .journey .jnote { margin-top: 3px; font-size: .78em; opacity: .55; }
 
 /* ── the living world: the loop, the cards, the growth ─────────────────────────────────── */
-:root{ --r-unknown:#d06a6a; --r-champion:#ff9d4d; --r-ancestor:#b98ad8; --r-first:#8fa3b8; --r-grown:#6fd1a4; --r-hand:#c9b37a; --r-tongue:#e3a6d6; --r-sentinel:#7fb2e3; --r-airgap:#5eead4; --r-ledger:#9bd1c4; --r-seedlib:#b6d47a; --r-attest:#e8c45a;--r-forge:#e07b53; }
+:root{ --r-unknown:#d06a6a; --r-champion:#ff9d4d; --r-ancestor:#b98ad8; --r-first:#8fa3b8; --r-grown:#6fd1a4; --r-hand:#c9b37a; --r-tongue:#e3a6d6; --r-sentinel:#7fb2e3; --r-airgap:#5eead4; --r-ledger:#9bd1c4; --r-seedlib:#b6d47a; --r-attest:#e8c45a;--r-forge:#e07b53; --r-digi:#ff2bd6; }
 .living{border:1px solid var(--gold-deep);border-radius:10px;padding:18px 20px;margin-bottom:18px;
   background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--gold) 9%,transparent),transparent 60%),var(--deck)}
 .living h2{font-size:24px;margin:0 0 6px}
@@ -267,7 +267,7 @@ main{overflow-y:auto;padding:18px 20px 44px;min-width:0}
 .sigil .petals ellipse{fill:currentColor;fill-opacity:.22;stroke:currentColor;stroke-width:1.2}
 .sigil .core{fill:currentColor;opacity:1}
 .r-unknown{color:var(--r-unknown)} .r-normal{color:var(--r-normal)} .r-magic{color:var(--r-magic)} .r-rare{color:var(--r-rare)}
-.r-unique{color:var(--r-unique)} .r-set{color:var(--r-set)} .r-champion{color:var(--r-champion)} .r-ancestor{color:var(--r-ancestor)} .r-first{color:var(--r-first)} .r-grown{color:var(--r-grown)} .r-hand{color:var(--r-hand)} .r-tongue{color:var(--r-tongue)} .r-sentinel{color:var(--r-sentinel)} .r-airgap{color:var(--r-airgap)} .r-ledger{color:var(--r-ledger)} .r-seedlib{color:var(--r-seedlib)} .r-attest{color:var(--r-attest)}.r-forge{color:var(--r-forge)}
+.r-unique{color:var(--r-unique)} .r-set{color:var(--r-set)} .r-champion{color:var(--r-champion)} .r-ancestor{color:var(--r-ancestor)} .r-first{color:var(--r-first)} .r-grown{color:var(--r-grown)} .r-hand{color:var(--r-hand)} .r-tongue{color:var(--r-tongue)} .r-sentinel{color:var(--r-sentinel)} .r-airgap{color:var(--r-airgap)} .r-ledger{color:var(--r-ledger)} .r-seedlib{color:var(--r-seedlib)} .r-attest{color:var(--r-attest)}.r-forge{color:var(--r-forge)} .r-digi{color:var(--r-digi)}
 .kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:9px}
 .kgrid .kcard{width:auto}
 .rtable{display:grid;gap:5px;max-width:640px;margin-bottom:14px}
@@ -1173,6 +1173,17 @@ const P = {
       f.append(row);
     }
 
+    if (DIGI_CARD) {
+      const p = DIGI;
+      f.append(el('h3', null, 'DIGI — your character in the agent economy'));
+      const n = el('p', 'lead');
+      n.textContent = `DIGI is the character this world's agent economy is played with: a card that is a working mind you own. Kit it out — node slots from birth for your own cards of other departments, each joining only if it measurably adds, and tool slots for the estate's proven apps, which never change a score — then fight it in the arena (both owners sign, every duel re-runs), raid the problems nobody has solved, and strike whole businesses as a party, each member's measured share on the record. Its organ ${p.organ} was sealed before it was measured: ${p.held} of ${p.rules} rules held${p.failed.length ? ' (' + p.failed.join(', ') + ' failed, kept on show)' : ''}. Nothing is staked or bought.`;
+      f.append(n);
+      const row = el('div', 'featured');
+      row.append(kcard(DIGI_CARD));
+      f.append(row);
+    }
+
     f.append(el('h3', null, 'the collection'));
     const fl = el('div', 'filters');
     const q = el('input'); q.type = 'search'; q.placeholder = 'find a card'; q.value = deckQ.text; q.setAttribute('aria-label', 'find a card');
@@ -1774,6 +1785,8 @@ const SEEDLIB_CARD = typeof SEEDLIB !== "undefined" && SEEDLIB ? seedLibraryCard
 const ATTEST_CARD = typeof ATTEST !== "undefined" && ATTEST ? attestCard(ATTEST) : null;
 // PATTERN-FORGE, the complete sovereign pattern loop (find / breed / propose / observe / book)
 const FORGE_CARD = typeof FORGE !== "undefined" && FORGE ? patternForgeCard(FORGE) : null;
+// DIGI, the character the agent economy is played with: kitted, duelling, raiding, every win a receipt
+const DIGI_CARD = typeof DIGI !== "undefined" && DIGI ? digiCard(DIGI) : null;
 const STAGES = stagesFrom(GROW.ladder) || [];
 const SEATS = [...new Set(DECK.map((c) => c.seat))].sort();
 const KIND = { mine: 'built by', foundation: 'a foundation, built by', external: 'a wrapper around an outside service, by', creature: 'bred as', organ: 'grown and graded in', tongue: 'grown and measured in', sentinel: 'built and sealed in', airgap: 'built and measured in', ledger: 'built and sealed in', seedlib: 'built and sealed in', forge: 'built and sealed in' };

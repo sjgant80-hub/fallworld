@@ -1,0 +1,18 @@
+{
+ "source": {
+  "repo": "sjgant80-hub/digi-card",
+  "sha": "9b8ed461d88e11bb0ee815c2813b12e5948c9cd8",
+  "file": "data/organ-10/verdict.json",
+  "sha256": "389eadcacfcaf67ed07200c46cf06e7907eb78fd9077a28bc86400bf730266cc"
+ },
+ "organ": 10,
+ "held": 10,
+ "rules": 10,
+ "failed": [],
+ "saw": {
+  "P1": "100 of 100 kits measured twice the same, every worth exact, the loadout checking; 300 of 300 kit duels re-ran to the same receipt",
+  "Q1": "88 of 88 kits that lifted GATE by 0.005 or more (100%) also lifted TEST",
+  "Q3": "kitted, the DIGI won 244 of 298 decided duels (81.9%); alone against the same cards it won 133 of 272 (48.9%)",
+  "Q4": "3 of 5 world bosses fell to their best-card party: telco 0.840751 ≥ 0.828213, shop 0.924174 < 0.931634, bank 0.778161 < 0.780582, adult 0.890793 ≥ 0.817504, credit 0.774217 ≥ 0.748587"
+ }
+}

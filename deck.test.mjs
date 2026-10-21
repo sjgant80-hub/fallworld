@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, attestCard, patternForgeCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
+import D, { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, attestCard, patternForgeCard, digiCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness } from './deck.mjs';
 import { fnv1a } from './trial.mjs';
 
 const E = (o = {}) => ({ id: 'forge', name: 'The Forge', does: 'makes cards', rarity: 'unique', why: 'held', tier: 'proven', evidence: 'gate @ abc1234', seat: 'work', kind: 'mine', by: 'Simon Gant', live: true, url: 'https://x/', ...o });
@@ -11,7 +11,7 @@ test('the orders and the default export', () => {
   assert.deepEqual(CREATURE, { champion: 'Champion', ancestor: 'Ancestor', first: 'First of its line' });
   assert.deepEqual(ORGAN, { grown: 'Grown organ', hand: 'Hand-built organ' });
   assert.ok(Object.isFrozen(RARITY_ORDER) && Object.isFrozen(PROOF_ORDER) && Object.isFrozen(CREATURE) && Object.isFrozen(ORGAN));
-  assert.equal(Object.keys(D).length, 20);
+  assert.equal(Object.keys(D).length, 21);
   assert.equal(D.tongueCard, tongueCard);
   assert.equal(D.sentinelCard, sentinelCard);
   assert.equal(D.airgapCard, airgapCard);
@@ -19,6 +19,7 @@ test('the orders and the default export', () => {
   assert.equal(D.seedLibraryCard, seedLibraryCard);
   assert.equal(D.attestCard, attestCard);
   assert.equal(D.patternForgeCard, patternForgeCard);
+  assert.equal(D.digiCard, digiCard);
   assert.equal(D.organCard, organCard);
   assert.equal(D.realness, realness);
 });
@@ -223,4 +224,18 @@ test('realness is read from the cards, never said', () => {
   assert.deepEqual(realness(['zz'], d), { state: 'designed', found: [], missing: ['zz'] });
   assert.equal(realness(['a'], [null, ...d]).state, 'proven');
   for (const [ids, c] of [[[], d], [null, d], [['a'], null]]) assert.equal(realness(ids, c), null);
+});
+
+test('digiCard: the character the agent economy is played with, and its sealed organ as it came out', () => {
+  const v = { organ: 10, held: 9, rules: 10, failed: ['Q2'], saw: { P1: 'p1 saw', Q1: 'q1 saw', Q3: 'q3 saw', Q4: 'q4 saw' } };
+  assert.deepEqual(digiCard(v), {
+    id: 'digi-card', name: 'DIGI',
+    does: 'your character in the agent economy: kit it out, fight it in the arena, raid what nobody has solved, strike a whole business as a party · organ 10: 9 of 10 sealed rules held (Q2 failed, kept) · p1 saw · q1 saw · q3 saw · q4 saw',
+    rarity: 'digi', label: 'Character', why: '', proof: 'proven', evidence: '', seat: 'character', kind: 'digi',
+    by: 'digi-card', live: true, url: 'https://sjgant80-hub.github.io/digi-card/', genes: fnv1a('digi|10|9|10|Q2'),
+  });
+  assert.equal(digiCard({ ...v, held: 10, failed: [] }).does.includes('failed'), false, 'nothing failed, nothing said');
+  assert.equal(digiCard({ ...v, held: 10, failed: [] }).does, 'your character in the agent economy: kit it out, fight it in the arena, raid what nobody has solved, strike a whole business as a party · organ 10: 10 of 10 sealed rules held · p1 saw · q1 saw · q3 saw · q4 saw');
+  assert.equal(digiCard({ ...v, held: 0, failed: Array.from({ length: 10 }, (_, k) => 'R' + k) }).does.startsWith('your character in the agent economy: kit it out, fight it in the arena, raid what nobody has solved, strike a whole business as a party · organ 10: 0 of 10'), true);
+  for (const bad of [null, [], 'x', { ...v, organ: 1.5 }, { ...v, held: '9' }, { ...v, rules: undefined }, { ...v, held: -1, failed: Array(11).fill('x') }, { ...v, held: 11, failed: [] }, { ...v, failed: 'Q2' }, { ...v, failed: [5] }, { ...v, failed: [] }, { ...v, failed: ['Q2', 'Q5'] }, { ...v, saw: null }, { ...v, saw: [] }, { ...v, saw: { ...v.saw, Q4: '' } }, { ...v, saw: { ...v.saw, P1: 5 } }, { ...v, saw: { P1: 'a', Q1: 'b', Q3: 'c' } }]) assert.equal(digiCard(bad), null);
 });

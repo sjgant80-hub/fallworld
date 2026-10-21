@@ -10,6 +10,7 @@
 //   vendor/sentinel/sentinel.json      SENTINEL's sealed verdict (the immune gate + grown detector), from sentinel
 //   vendor/kestrel-ledger/kestrel-ledger.json  kestrel-ledger's sealed verdict (IndexedDB as the Shadow Fold, step 4 of 4), from kestrel-ledger
 //   vendor/seed-library/seed-library.json  the Seed Library's sealed measure (knowledge in tiny seeds, not weights), from seed-library
+//   vendor/digi-card/digi-card.json   the DIGI card's sealed organ 10 (the kit and the party), from digi-card
 //
 //   node scripts/sync-sources.mjs          write them
 //   node scripts/sync-sources.mjs --check  exit 1 unless each is exactly what its pinned commit gives
@@ -30,6 +31,7 @@ export const PINS = {
   'seed-library': '67d361c8e207f29e1158aacb98f770757b52b575',
   'estate-attest': 'd5bac08bae3bba4b5543e41a95bafb24626fd8dc',
   'pattern-forge': '0f6efb119343a84d13e8a249bf2eb94b2c16f841',
+  'digi-card': '9b8ed461d88e11bb0ee815c2813b12e5948c9cd8',
 };
 const raw = (repo, file) => `https://raw.githubusercontent.com/sjgant80-hub/${repo}/${PINS[repo]}/${file}`;
 const normalise = (t) => String(t).split('\r\n').join('\n');
@@ -189,6 +191,18 @@ async function patternForge() {
   };
 }
 
+// the DIGI card's sealed organ 10, the kit and the party: how many of its sealed rules held, which failed, and what its
+// record saw for the four rules the card shows — the agent economy's character, kitted, duelling and raiding.
+async function digi() {
+  const t = await grab(raw('digi-card', 'data/organ-10/verdict.json'));
+  const v = JSON.parse(t), by = Object.fromEntries(v.verdicts.map((x) => [x.id, x]));
+  return {
+    source: { repo: 'sjgant80-hub/digi-card', sha: PINS['digi-card'], file: 'data/organ-10/verdict.json', sha256: createHash('sha256').update(t).digest('hex') },
+    organ: 10, held: v.verdicts.filter((x) => x.pass).length, rules: v.verdicts.length, failed: v.verdicts.filter((x) => !x.pass).map((x) => x.id),
+    saw: { P1: by.P1.saw, Q1: by.Q1.saw, Q3: by.Q3.saw, Q4: by.Q4.saw },
+  };
+}
+
 const TARGETS = [
   ['vendor/fallforgemint/ladder.json', ladder],
   ['vendor/kard-evolve/creatures.json', creatures],
@@ -200,6 +214,7 @@ const TARGETS = [
   ['vendor/seed-library/seed-library.json', seedLibrary],
   ['vendor/estate-attest/estate-attest.json', attest],
   ['vendor/pattern-forge/pattern-forge.json', patternForge],
+  ['vendor/digi-card/digi-card.json', digi],
 ];
 
 const check = process.argv.includes('--check');

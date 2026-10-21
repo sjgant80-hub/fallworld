@@ -8,7 +8,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { cardOf, creatureCard, organCard, tongueCard, sentinelCard, ledgerCard, seedLibraryCard, attestCard, patternForgeCard, sigil, ringsOf, rarityTable, realness, RARITY_ORDER } from '../deck.mjs';
+import { cardOf, creatureCard, organCard, tongueCard, sentinelCard, ledgerCard, seedLibraryCard, attestCard, patternForgeCard, digiCard, sigil, ringsOf, rarityTable, realness, RARITY_ORDER } from '../deck.mjs';
 import { stagesFrom, bitsPerWeight, memoryGB, largestHeld, evolve } from '../grow.mjs';
 import { RULES_TEXT, LABELS, scoreStage, judgeTrial } from '../trial.mjs';
 
@@ -32,6 +32,7 @@ const lc = ledgerCard(kl);
 const slc = seedLibraryCard(sl);
 const ac = attestCard(ea);
 const pfc = patternForgeCard(pf);
+const dg = json('vendor/digi-card/digi-card.json'), dgc = digiCard(dg);
 const kept = (e) => og.seeds.filter((x) => x.grown.elements.includes(e)).length;
 const pre = jsonIf('data/grow-prereg.json'), run = jsonIf('data/grow-run.json');
 
@@ -174,6 +175,9 @@ S.push(`<section><h2><span>4</span> The creatures</h2>
 <h3>The pattern forge</h3>
 <p>PATTERN-FORGE is the complete pattern organ, the whole loop on the node&rsquo;s own metal: a pattern survives only if it predicts a held-out split graded by a rule, never an LLM judge (the planted signal held-out ${pf.signalTestBA}). Breeding evolves single rules into compounds that generalise better (${pf.breedSingleBestTestBA}&rarr;${pf.breedChampionTestBA} on a conjunction no single feature catches). The sovereign local model then proposes richer forms a threshold cannot express &mdash; it offered a <code>${esc(pf.llmChampionKind)}</code> between features that holds out at ${pf.llmChampionTestBA} where its best stump managed ${pf.llmBestStumpTestBA}. The observer watches which forms generalise and reprioritises, surfacing the winner at search position ${pf.observerGuidedPos} instead of ${pf.observerUnguidedPos}. And it ships a generated pattern book of ${pf.bookSize}. Measured at <code>${esc(pf.source.sha.slice(0, 7))}</code>.</p>
 <div class="deck">${pfc ? card(pfc) : ''}</div>
+<h3>The character</h3>
+<p>DIGI is the character the agent economy is played with: a card that is a working mind its owner holds. It is kitted out (node slots from birth for the owner&rsquo;s own cards of other departments, each joining only if it measurably adds; tool slots for the estate&rsquo;s proven apps, which never change a score), fights in the arena (both owners sign, every duel re-runs), raids what nobody has solved and strikes whole businesses as a party, each member&rsquo;s measured share on the record. Its organ ${dg.organ} was sealed before it was measured: ${dg.held} of ${dg.rules} rules held${dg.failed.length ? ' (' + dg.failed.join(', ') + ' failed, kept on show)' : ''}.</p>
+<div class="deck">${dgc ? card(dgc) : ''}</div>
 <h3>The seed library</h3>
 <p>SEED-LIBRARY is the claim made concrete: knowledge stored as tiny, readable konomi seeds — a packed scorecard genome, no weights — germinated by one general ribosome on the node&rsquo;s own data, offline. The whole ${sl.domains}-domain library is ${sl.libraryBytes} bytes and grows ${sl.grownBytes} bytes of working build. Every seed predicts on held-out cases it never grew on: AUC shopper ${sl.shopperAuc} (the real ${sl.sessions.toLocaleString()}-session UCI Online Shoppers set) / triage ${sl.triageAuc} / water ${sl.waterAuc} / crop ${sl.cropAuc}, each ${sl.minRatio}&ndash;${sl.maxRatio}&times; smaller than its grown body. One domain grows on demand in ${sl.growMs} ms touching only its own data, every germination runs with fetch/XHR/WebSocket trapped, and a tampered seed is refused by the SENTINEL-style guard. A literal-reuse bonus: fall-spore&rsquo;s own engine grew a ${sl.sporeBytes}-byte spore into a ${sl.sporeGrownBytes.toLocaleString()}-byte organ (${sl.sporeRatio}&times;, held-out AUC ${sl.sporeAuc}) on the same real data. Sealed two-commit, measured at <code>${esc(sl.source.sha.slice(0, 7))}</code>. The seeds are konomi tags; the Konomi architecture is Thomas Frumkin&rsquo;s.</p>
 <div class="deck">${slc ? card(slc) : ''}</div>
@@ -238,7 +242,7 @@ const html = `<!doctype html>
 ${ld.map((x) => '<script type="application/ld+json">' + JSON.stringify(x).replace(/</g, '\\u003c') + '</script>').join('\n')}
 <style>
 :root{--void:#0a0c10;--deck:#12161d;--sunk:#0d1016;--edge:#232a35;--soft:#181d26;--ink:#e2e8f0;--mid:#a3aebb;--faint:#6f7a89;--gold:#dcb264;--gold-deep:#7d6224;--mine:#54d199;--stop:#dd6055;--cool:#5fa8e8;
---r-unknown:#d06a6a;--r-normal:#c8cdd6;--r-magic:#6f9df0;--r-rare:#e2cf62;--r-unique:#d0a05f;--r-set:#4fd18f;--r-champion:#ff9d4d;--r-ancestor:#b98ad8;--r-first:#8fa3b8;--r-grown:#6fd1a4;--r-hand:#c9b37a;--r-tongue:#e3a6d6;--r-sentinel:#7fb2e3;--r-ledger:#9bd1c4;--r-seedlib:#b6d47a;--r-attest:#e8c45a;--r-forge:#e07b53;
+--r-unknown:#d06a6a;--r-normal:#c8cdd6;--r-magic:#6f9df0;--r-rare:#e2cf62;--r-unique:#d0a05f;--r-set:#4fd18f;--r-champion:#ff9d4d;--r-ancestor:#b98ad8;--r-first:#8fa3b8;--r-grown:#6fd1a4;--r-hand:#c9b37a;--r-tongue:#e3a6d6;--r-sentinel:#7fb2e3;--r-ledger:#9bd1c4;--r-seedlib:#b6d47a;--r-attest:#e8c45a;--r-forge:#e07b53;--r-digi:#ff2bd6;
 --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--void);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
@@ -277,7 +281,7 @@ section{border-top:1px solid var(--edge);padding:30px 0 6px}
 .kc .kl{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase}
 .sigil{width:100%;height:100%;display:block}.sigil circle{stroke:currentColor;stroke-width:1.4;opacity:.55}
 .sigil .petals ellipse{fill:currentColor;fill-opacity:.22;stroke:currentColor;stroke-width:1.2}.sigil .core{fill:currentColor;opacity:1}
-.r-unknown{color:var(--r-unknown)}.r-normal{color:var(--r-normal)}.r-magic{color:var(--r-magic)}.r-rare{color:var(--r-rare)}.r-unique{color:var(--r-unique)}.r-set{color:var(--r-set)}.r-champion{color:var(--r-champion)}.r-ancestor{color:var(--r-ancestor)}.r-first{color:var(--r-first)}.r-grown{color:var(--r-grown)}.r-hand{color:var(--r-hand)}.r-tongue{color:var(--r-tongue)}.r-sentinel{color:var(--r-sentinel)}.r-ledger{color:var(--r-ledger)}.r-seedlib{color:var(--r-seedlib)}.r-attest{color:var(--r-attest)}.r-forge{color:var(--r-forge)}
+.r-unknown{color:var(--r-unknown)}.r-normal{color:var(--r-normal)}.r-magic{color:var(--r-magic)}.r-rare{color:var(--r-rare)}.r-unique{color:var(--r-unique)}.r-set{color:var(--r-set)}.r-champion{color:var(--r-champion)}.r-ancestor{color:var(--r-ancestor)}.r-first{color:var(--r-first)}.r-grown{color:var(--r-grown)}.r-hand{color:var(--r-hand)}.r-tongue{color:var(--r-tongue)}.r-sentinel{color:var(--r-sentinel)}.r-ledger{color:var(--r-ledger)}.r-seedlib{color:var(--r-seedlib)}.r-attest{color:var(--r-attest)}.r-forge{color:var(--r-forge)}.r-digi{color:var(--r-digi)}
 .scroll{overflow-x:auto;margin:8px 0 12px}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:6px 10px 6px 0;border-bottom:1px solid var(--edge)}

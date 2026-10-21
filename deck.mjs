@@ -140,6 +140,23 @@ export function patternForgeCard(v) {
   };
 }
 
+// The DIGI card's sealed organ 10 → one card: the character the agent economy is played with. It is kitted out (node
+// slots from birth, tools that carry the CI run that proved them), fights in the arena (both owners sign, every duel
+// re-runs), raids what nobody has solved, and strikes whole businesses as a party — and the card says how many of the
+// organ's sealed rules held, which failed, and what the record saw, in its own words.
+const DIGI_SAWS = ['P1', 'Q1', 'Q3', 'Q4'];
+export function digiCard(v) {
+  if (!isObj(v) || !Number.isInteger(v.organ) || !Number.isInteger(v.held) || !Number.isInteger(v.rules) || v.held < 0 || v.held > v.rules) return null;
+  if (!Array.isArray(v.failed) || !v.failed.every((x) => typeof x === 'string') || v.failed.length !== v.rules - v.held) return null;
+  if (!isObj(v.saw) || !DIGI_SAWS.every((k) => typeof v.saw[k] === 'string' && v.saw[k])) return null;
+  return {
+    id: 'digi-card', name: 'DIGI',
+    does: 'your character in the agent economy: kit it out, fight it in the arena, raid what nobody has solved, strike a whole business as a party · organ ' + v.organ + ': ' + v.held + ' of ' + v.rules + ' sealed rules held' + (v.failed.length ? ' (' + v.failed.join(', ') + ' failed, kept)' : '') + ' · ' + DIGI_SAWS.map((k) => v.saw[k]).join(' · '),
+    rarity: 'digi', label: 'Character', why: '', proof: 'proven', evidence: '', seat: 'character', kind: 'digi',
+    by: 'digi-card', live: true, url: 'https://sjgant80-hub.github.io/digi-card/', genes: fnv1a('digi|' + v.organ + '|' + v.held + '|' + v.rules + '|' + v.failed.join(',')),
+  };
+}
+
 // The art. `genes` decides the symmetry, the petals and the turn; `rings` is how far the proof got
 // (1 prototype, 2 works, 3 proven). Colour comes from the card's rarity class on the page.
 export function sigil(genes, rings) {
@@ -205,4 +222,4 @@ export function realness(ids, cards) {
   return { state, found: found.map((c) => c.id), missing };
 }
 
-export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, attestCard, patternForgeCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
+export default { RARITY_ORDER, PROOF_ORDER, CREATURE, ORGAN, cardOf, creatureCard, organCard, tongueCard, sentinelCard, airgapCard, ledgerCard, seedLibraryCard, attestCard, patternForgeCard, digiCard, sigil, ringsOf, rarityTable, traitTable, filterDeck, realness };
