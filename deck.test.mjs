@@ -232,7 +232,7 @@ test('digiCard: the character the agent economy is played with, and its sealed o
     id: 'digi-card', name: 'DIGI',
     does: 'your character in the agent economy: kit it out, fight it in the arena, raid what nobody has solved, strike a whole business as a party · organ 10: 9 of 10 sealed rules held (Q2 failed, kept) · p1 saw · q1 saw · q3 saw · q4 saw',
     rarity: 'digi', label: 'Character', why: '', proof: 'proven', evidence: '', seat: 'character', kind: 'digi',
-    by: 'digi-card', live: true, url: 'https://sjgant80-hub.github.io/digi-card/', genes: fnv1a('digi|10|9|10|Q2'),
+    by: 'digi-card', live: true, url: 'https://sjgant80-hub.github.io/kardlings/', genes: fnv1a('digi|10|9|10|Q2'),
   });
   assert.equal(digiCard({ ...v, held: 10, failed: [] }).does.includes('failed'), false, 'nothing failed, nothing said');
   assert.equal(digiCard({ ...v, held: 10, failed: [] }).does, 'your character in the agent economy: kit it out, fight it in the arena, raid what nobody has solved, strike a whole business as a party · organ 10: 10 of 10 sealed rules held · p1 saw · q1 saw · q3 saw · q4 saw');

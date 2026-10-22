@@ -31,7 +31,7 @@ export const PINS = {
   'seed-library': '67d361c8e207f29e1158aacb98f770757b52b575',
   'estate-attest': 'd5bac08bae3bba4b5543e41a95bafb24626fd8dc',
   'pattern-forge': '0f6efb119343a84d13e8a249bf2eb94b2c16f841',
-  'digi-card': '9b8ed461d88e11bb0ee815c2813b12e5948c9cd8',
+  kardlings: '9b8ed461d88e11bb0ee815c2813b12e5948c9cd8',   // the repo was digi-card until 2026-10-22
 };
 const raw = (repo, file) => `https://raw.githubusercontent.com/sjgant80-hub/${repo}/${PINS[repo]}/${file}`;
 const normalise = (t) => String(t).split('\r\n').join('\n');
@@ -194,10 +194,10 @@ async function patternForge() {
 // the DIGI card's sealed organ 10, the kit and the party: how many of its sealed rules held, which failed, and what its
 // record saw for the four rules the card shows — the agent economy's character, kitted, duelling and raiding.
 async function digi() {
-  const t = await grab(raw('digi-card', 'data/organ-10/verdict.json'));
+  const t = await grab(raw('kardlings', 'data/organ-10/verdict.json'));
   const v = JSON.parse(t), by = Object.fromEntries(v.verdicts.map((x) => [x.id, x]));
   return {
-    source: { repo: 'sjgant80-hub/digi-card', sha: PINS['digi-card'], file: 'data/organ-10/verdict.json', sha256: createHash('sha256').update(t).digest('hex') },
+    source: { repo: 'sjgant80-hub/kardlings', sha: PINS.kardlings, file: 'data/organ-10/verdict.json', sha256: createHash('sha256').update(t).digest('hex') },
     organ: 10, held: v.verdicts.filter((x) => x.pass).length, rules: v.verdicts.length, failed: v.verdicts.filter((x) => !x.pass).map((x) => x.id),
     saw: { P1: by.P1.saw, Q1: by.Q1.saw, Q3: by.Q3.saw, Q4: by.Q4.saw },
   };

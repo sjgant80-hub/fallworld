@@ -3072,7 +3072,7 @@ function digiCard(v) {
     id: 'digi-card', name: 'DIGI',
     does: 'your character in the agent economy: kit it out, fight it in the arena, raid what nobody has solved, strike a whole business as a party · organ ' + v.organ + ': ' + v.held + ' of ' + v.rules + ' sealed rules held' + (v.failed.length ? ' (' + v.failed.join(', ') + ' failed, kept)' : '') + ' · ' + DIGI_SAWS.map((k) => v.saw[k]).join(' · '),
     rarity: 'digi', label: 'Character', why: '', proof: 'proven', evidence: '', seat: 'character', kind: 'digi',
-    by: 'digi-card', live: true, url: 'https://sjgant80-hub.github.io/digi-card/', genes: fnv1a('digi|' + v.organ + '|' + v.held + '|' + v.rules + '|' + v.failed.join(',')),
+    by: 'digi-card', live: true, url: 'https://sjgant80-hub.github.io/kardlings/', genes: fnv1a('digi|' + v.organ + '|' + v.held + '|' + v.rules + '|' + v.failed.join(',')),
   };
 }
 
