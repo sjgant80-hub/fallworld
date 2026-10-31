@@ -32,6 +32,14 @@ const ORG = idx.org || 'sjgant80-hub';
 // someone else's work as yours takes credit you have not earned, and hiding the work your own estate
 // was built on erases the person who did it.
 const foundation = new Set(idx.nodes.filter(r => r.fork).map(r => r.name));
+// ⚑ A PRIVATE REPO NEVER ENTERS THE WORLD. world.json is served publicly, so a private repo's name,
+// description and links must not be in it at all (the pages already hid them, but the file carried 48).
+// The trios are still collapsed over EVERY repo, so a private base keeps its public companions inside
+// its own item, and that whole item is dropped below: exactly what the pages already hid, now absent
+// from the file too. Names in WITHHOLD (a file of one name per line, e.g. today's private list) count as
+// private: a repo made private after the index was taken. Only their number is kept, as an aggregate.
+const WITHHOLD = (() => { try { return new Set(process.env.WITHHOLD ? readFileSync(process.env.WITHHOLD, 'utf8').split(/\r?\n/).map(s => s.trim()).filter(Boolean) : []); } catch { return new Set(); } })();
+const isPrivate = (r) => !!r && (r.private === true || WITHHOLD.has(r.name));
 const all = idx.nodes;
 
 // ── COLLAPSE THE TRIOS ───────────────────────────────────────────────────────────────────────────
@@ -167,7 +175,7 @@ const out = items.map(({ root, base, set, members, memberText, synthetic }) => {
   const live = !!root.live;
   return {
     name: base, title: base.replace(/[-_]/g, ' '),
-    desc, recovered: !!recovered, live, private: !!root.private, lang: root.lang || null,
+    desc, recovered: !!recovered, live, private: isPrivate(root), lang: root.lang || null,
     url: root.url || (live ? `https://sjgant80-hub.github.io/${root.name}/` : null),
     repo: `https://github.com/${ORG}/${root.name}`,
     set, members: members || [], find: ((members||[]).length ? (memberText||"") : ""), synthetic: !!synthetic,
@@ -188,7 +196,7 @@ const out = items.map(({ root, base, set, members, memberText, synthetic }) => {
     proof: proofTier,
     pushed: root.pushed || null,
   };
-}).sort((a, b) => a.name.localeCompare(b.name));
+}).filter(i => !i.private).sort((a, b) => a.name.localeCompare(b.name));
 
 // Counts are over YOUR builds only, so the headline is never inflated by other people's work or by
 // wrappers around other people's services. The other two are tallied in their own right.
@@ -197,7 +205,7 @@ const mine = of('mine');
 const tally = (list, k) => list.reduce((m, i) => (m[i[k]] = (m[i[k]] || 0) + 1, m), {});
 const world = {
   generated: idx.generated, org: ORG, built: 'regenerate with: node build-world.mjs',
-  counts: { indexed: all.length, items: mine.length, live: mine.filter(i => i.live).length,
+  counts: { indexed: all.length, private: all.filter(isPrivate).length, items: mine.length, live: mine.filter(i => i.live).length,
             unidentified: mine.filter(i => i.tier === 'unknown').length,
             collapsed: all.length - out.length,
             external: of('external').length, foundation: of('foundation').length,
