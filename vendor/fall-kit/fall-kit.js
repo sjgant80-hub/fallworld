@@ -1,5 +1,5 @@
 /*!
- * Fall Kit · v2.0.0 · the shared cascade for every estate seed
+ * Fall Kit · v3.2.0 · the shared cascade for every estate seed (the brain stud of the estate's Lego socket)
  * MIT · AI-Native Solutions · ai-nativesolutions.com
  *
  * Inlineable JS module. Drop into any seed via <script> or copy-paste inline.
@@ -12,21 +12,34 @@
  *  - NEW · Universal video: FallKit.aiVideo(prompt, opts) → { url } | null
  *  - NEW · Universal TTS:   FallKit.aiTTS(text, opts)     → { url | blob } | null
  *  - NEW · Universal STT:   FallKit.aiSTT(blob, opts)     → { text } | null
+ *  - NEW in v3 · Conversation: FallKit.aiChat(system, history, user, maxTokens) → { text, assistant } | null
+ *    (the caller appends the user turn and `assistant` to its own history: a conversation only grows, never edited)
+ *  - NEW in v3 · Recycling: the system prompt is sent first and the same each call, marked for Anthropic's cache;
+ *    OpenAI, Google and OpenRouter cache repeated openings themselves. FallKit.lastUsage() says what the last call
+ *    read, how much of it the provider reused, and what it wrote.
+ *  - NEW in v3.1 · Ask about this page: the chip's panel answers questions from the page's own words through the brain
+ *    the person picked, so the chip is useful in any build: FallKit.askPage(question) → { text, why }
  *  - AI chip UI in header · settings modal with tabs for each modality
- *  - WebRTC P2P mesh (BroadcastChannel · same-device discovery)
+ *  - Same-device mesh (BroadcastChannel: estate seeds open on this device find each other; not cross-device)
+ *  - NEW in v3.2 · The mesh speaks LIGHT: every message is a LIGHT packet signed by this device's own key and checked
+ *    before it is read (the estate going live, Phase 2). The LIGHT part is one gated module on this origin
+ *    (/fall-kit/core/mesh.mjs), loaded only when the mesh is switched on; an old JSON message still arrives, marked
+ *    legacy; on a page served anywhere else the mesh speaks JSON as before. FallKit.meshStats() counts what it heard.
  *  - Help section partial: FallKit.helpSection()
  *  - Settings panel:       FallKit.openSettings()
  *
  * Doctrine:
  *  - T0 fallback ALWAYS works · aiComplete returns null · caller MUST degrade gracefully
  *  - NEVER hide a feature behind AI · NEVER proxy API keys · NEVER log keys
- *  - Keys live in localStorage only · sent direct to the provider · never proxied through us
+ *  - Keys are held in this tab only, unless the owner ticks "remember my keys on this device" (v3: every estate
+ *    page at this address shares one browser storage, so a key kept there can be read by any of them) · sent direct
+ *    to the provider · never proxied through us
  *  - WebLLM is lazy-loaded · model weights download ONLY on user opt-in
  */
 (function (root) {
   'use strict';
 
-  const FALL_KIT_VERSION = '2.0.0';
+  const FALL_KIT_VERSION = '3.2.0';
 
   // ─── WebLLM (T2) model registry ─────────────────────────────────────
   const WEBLLM_MODELS = {
@@ -40,7 +53,7 @@
 
   // ─── T3 · BYOK · TEXT providers ─────────────────────────────────────
   const TEXT_PROVIDERS = {
-    anthropic:  { label: 'Anthropic Claude',   models: ['claude-sonnet-4-5','claude-opus-4-8','claude-haiku-4-5'],                default: 'claude-sonnet-4-5',   type: 'anthropic' },
+    anthropic:  { label: 'Anthropic Claude',   models: ['claude-opus-5-5','claude-sonnet-5-5','claude-haiku-5-5'],                default: 'claude-opus-5-5',     type: 'anthropic' },
     openai:     { label: 'OpenAI',             models: ['gpt-4o','gpt-4o-mini','o1-mini','gpt-4.1'],                              default: 'gpt-4o-mini',         type: 'openai' },
     google:     { label: 'Google Gemini',      models: ['gemini-2.5-pro','gemini-2.5-flash','gemini-2.0-flash'],                  default: 'gemini-2.5-flash',    type: 'google' },
     groq:       { label: 'Groq (fast)',        models: ['llama-3.3-70b-versatile','llama-3.1-70b-versatile','mixtral-8x7b-32768'], default: 'llama-3.3-70b-versatile', type: 'openai_compat', url: 'https://api.groq.com/openai/v1/chat/completions' },
@@ -91,34 +104,77 @@
   };
 
   // ─── State ──────────────────────────────────────────────────────────
+  const MODALITIES = ['text', 'image', 'video', 'tts', 'stt'];
+  const emptyKeys = () => ({ text: {}, image: {}, video: {}, tts: {}, stt: {} });
+  /**
+   * What a stored config holds, split into what may be stored (the tier, providers, models) and what is held in this
+   * tab only (the keys). Keys stay stored only when the owner chose "remember my keys on this device"; a config written
+   * the old way (keys stored, no choice made) has its keys moved into the tab and stored no longer. Pure.
+   * → { config, secrets, moved } (moved: how many keys were taken out of storage)
+   */
+  function configFrom(c) {
+    c = c && typeof c === 'object' && !Array.isArray(c) ? Object.assign({}, c) : {};
+    if (c.api_key && !c.keys) {   // v1 → v2: one text key at the top level
+      c.keys = emptyKeys();
+      c.keys.text[c.api_provider || 'anthropic'] = { key: c.api_key, model: c.api_model };
+    }
+    delete c.api_key;
+    const secrets = emptyKeys(), models = emptyKeys();
+    let moved = 0;
+    for (const m of MODALITIES) {
+      const held = c.keys && c.keys[m] && typeof c.keys[m] === 'object' ? c.keys[m] : {};
+      for (const pk of Object.keys(held)) {
+        const e = held[pk] || {};
+        if (typeof e.key === 'string' && e.key) { secrets[m][pk] = e.key; moved++; }
+        if (typeof e.model === 'string' && e.model) models[m][pk] = e.model;
+      }
+      const kept = c.models && c.models[m] && typeof c.models[m] === 'object' ? c.models[m] : {};
+      for (const pk of Object.keys(kept)) if (typeof kept[pk] === 'string' && kept[pk]) models[m][pk] = models[m][pk] || kept[pk];
+    }
+    c.models = models;
+    const remember = c.remember_keys === true;
+    if (!remember) delete c.keys;
+    return { config: c, secrets: secrets, moved: remember ? 0 : moved };
+  }
+  /** what is written to storage: the config, with the keys only if the owner chose to remember them. Pure. */
+  function storedForm(config, secrets) {
+    const out = Object.assign({}, config);
+    delete out.keys;
+    if (config.remember_keys === true) {
+      out.keys = emptyKeys();
+      for (const m of MODALITIES) for (const pk of Object.keys(secrets[m] || {})) out.keys[m][pk] = { key: secrets[m][pk], model: (config.models && config.models[m] && config.models[m][pk]) || undefined };
+    }
+    return out;
+  }
+  const BOOT = (function () {
+    let stored = {};
+    try { stored = JSON.parse(localStorage.getItem('fall-kit.config') || '{}'); } catch (e) { stored = {}; }
+    return configFrom(stored);
+  })();
   const STATE = {
-    config: loadConfig(),
+    config: BOOT.config,
+    secrets: BOOT.secrets,   // the keys: this tab only, unless remember_keys
     ai: { ready: false, loading: false, progress: 0, engine: null, model: null },
-    mesh: { active: false, peers: new Map(), bc: null, signal: null },
+    mesh: { active: false, peers: new Map(), bc: null, signal: null, light: null, stats: { sent: 0, admitted: 0, legacy: 0, refused: {} } },
+    lastUsage: null,
+    ask: { opening: null, talk: [], last: null },   // the talk about this page: its opening, kept identical, and its turns
   };
 
-  function loadConfig() {
-    try {
-      const c = JSON.parse(localStorage.getItem('fall-kit.config') || '{}');
-      // v1 → v2 migration
-      if (c.api_key && !c.keys) {
-        c.keys = { text: {}, image: {}, video: {}, tts: {}, stt: {} };
-        c.keys.text[c.api_provider || 'anthropic'] = { key: c.api_key, model: c.api_model };
-      }
-      if (!c.keys) c.keys = { text: {}, image: {}, video: {}, tts: {}, stt: {} };
-      return c;
-    } catch (e) { return { keys: { text: {}, image: {}, video: {}, tts: {}, stt: {} } }; }
-  }
-  function saveConfig() { try { localStorage.setItem('fall-kit.config', JSON.stringify(STATE.config)); } catch (e) {} }
-  function getKey(modality, providerKey) { return STATE.config.keys?.[modality]?.[providerKey]?.key || ''; }
+  function saveConfig() { try { localStorage.setItem('fall-kit.config', JSON.stringify(storedForm(STATE.config, STATE.secrets))); } catch (e) {} }
+  if (BOOT.moved) saveConfig();   // keys stored the old way leave shared storage now; they stay usable in this tab
+  function getKey(modality, providerKey) { return (STATE.secrets[modality] && STATE.secrets[modality][providerKey]) || ''; }
   function getModel(modality, providerKey, registry) {
-    return STATE.config.keys?.[modality]?.[providerKey]?.model || registry[providerKey]?.default;
+    return (STATE.config.models && STATE.config.models[modality] && STATE.config.models[modality][providerKey]) || registry[providerKey]?.default;
   }
   function setKey(modality, providerKey, key, model) {
-    STATE.config.keys[modality] = STATE.config.keys[modality] || {};
-    STATE.config.keys[modality][providerKey] = { key: key, model: model };
+    STATE.secrets[modality] = STATE.secrets[modality] || {};
+    if (key) STATE.secrets[modality][providerKey] = key;
+    STATE.config.models = STATE.config.models || emptyKeys();
+    STATE.config.models[modality] = STATE.config.models[modality] || {};
+    if (model) STATE.config.models[modality][providerKey] = model;
     saveConfig();
   }
+  function forgetKeys() { STATE.secrets = emptyKeys(); STATE.config.remember_keys = false; saveConfig(); renderAiChip(); }
 
   // ─── DOM helpers ────────────────────────────────────────────────────
   function $(s, root) { return (root || document).querySelector(s); }
@@ -169,78 +225,148 @@
     }
   }
 
-  // ═══════════════════════ TEXT · aiComplete ════════════════════════
+  // ═══════════════════════ TEXT · aiComplete · aiChat ═══════════════
+  // One way to ask every text provider: the system prompt first and the same each call (so a provider can reuse its
+  // reading of it), then the conversation, which only ever grows. Pure pieces (requestOf, textOf, usageOf) are exposed
+  // on FallKit for tests; nothing pure here touches the network.
+  const isObj = (x) => x !== null && typeof x === 'object' && !Array.isArray(x);
+  const count = (x) => (Number.isInteger(x) && x >= 0 ? x : 0);
+  /** Claude models from 5.x think before they answer: room for that, and a light effort for an assistant's reply */
+  const THINKS = (model) => /^claude-(?:opus|sonnet|haiku|fable|mythos)-5/.test(model);
+  /** Claude models with a server-side fallback when a request is declined (Haiku has none) */
+  const FALLS_BACK = (model) => /^claude-(?:opus|sonnet|fable)-5/.test(model);
+  /** a message's words, whatever shape a provider keeps it in */
+  function wordsOf(m) {
+    if (!isObj(m)) return '';
+    if (typeof m.content === 'string') return m.content;
+    if (Array.isArray(m.content)) return m.content.filter((b) => isObj(b) && b.type === 'text' && typeof b.text === 'string').map((b) => b.text).join('\n');
+    return '';
+  }
+  /**
+   * The request a text provider is sent: { url, headers, body } for type (anthropic | openai | google | openai_compat |
+   * cohere | hf_inference). messages: [{ role: 'user' | 'assistant', content }]. Pure: the key is placed, never kept.
+   */
+  function requestOf(type, opts) {
+    const { model, key, system, messages, maxTokens, url } = opts;
+    const max = Number.isInteger(maxTokens) && maxTokens > 0 ? maxTokens : 600;
+    const plain = messages.map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: wordsOf(m) }));
+    if (type === 'anthropic') {
+      const headers = { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' };
+      const body = { model, max_tokens: THINKS(model) ? Math.max(max * 4, 4000) : max, system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
+        messages: messages.map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })) };
+      if (THINKS(model)) body.output_config = { effort: 'low' };
+      if (FALLS_BACK(model)) { headers['anthropic-beta'] = 'server-side-fallback-2026-07-01'; body.fallbacks = 'default'; }
+      return { url: 'https://api.anthropic.com/v1/messages', headers, body };
+    }
+    if (type === 'openai') return { url: 'https://api.openai.com/v1/chat/completions', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + key }, body: { model, max_completion_tokens: max, messages: [{ role: 'system', content: system }].concat(plain) } };
+    if (type === 'google') return { url: 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent', headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
+      body: { systemInstruction: { parts: [{ text: system }] }, contents: plain.map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })), generationConfig: { maxOutputTokens: max } } };
+    if (type === 'cohere') return { url: 'https://api.cohere.com/v2/chat', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + key }, body: { model, max_tokens: max, messages: [{ role: 'system', content: system }].concat(plain) } };
+    if (type === 'hf_inference') return { url: 'https://api-inference.huggingface.co/models/' + model + '/v1/chat/completions', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + key }, body: { model, max_tokens: max, messages: [{ role: 'system', content: system }].concat(plain) } };
+    if (type === 'openai_compat') return { url: url, headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + key }, body: { model, max_tokens: max, messages: [{ role: 'system', content: system }].concat(plain) } };
+    return null;
+  }
+  /** the answer's words from a provider's reply, or null when it declined or said nothing. Pure. */
+  function textOf(type, j) {
+    if (!isObj(j)) return null;
+    let t = '';
+    if (type === 'anthropic') { if (j.stop_reason === 'refusal' || !Array.isArray(j.content)) return null; t = wordsOf({ content: j.content }); }
+    else if (type === 'google') { const c = Array.isArray(j.candidates) ? j.candidates[0] : null; t = c && isObj(c.content) && Array.isArray(c.content.parts) ? c.content.parts.map((p) => (isObj(p) && typeof p.text === 'string' ? p.text : '')).join('') : ''; }
+    else if (type === 'cohere') { t = isObj(j.message) && Array.isArray(j.message.content) ? wordsOf({ content: j.message.content.map((b) => Object.assign({ type: 'text' }, b)) }) : ''; }
+    else { const c = Array.isArray(j.choices) ? j.choices[0] : null; t = c && isObj(c.message) && typeof c.message.content === 'string' ? c.message.content : ''; }
+    t = t.trim();
+    return t ? t : null;
+  }
+  /** what a call used, read from a provider's own usage record: { read, recycled, written, out }. Pure. */
+  function usageOf(type, j) {
+    const u = isObj(j) ? (type === 'google' ? j.usageMetadata : type === 'cohere' && isObj(j.usage) ? j.usage.tokens : j.usage) : null;
+    if (!isObj(u)) return { read: 0, recycled: 0, written: 0, out: 0 };
+    if (type === 'anthropic') { const recycled = count(u.cache_read_input_tokens), written = count(u.cache_creation_input_tokens); return { read: count(u.input_tokens) + recycled + written, recycled, written, out: count(u.output_tokens) }; }
+    if (type === 'google') { const read = count(u.promptTokenCount); return { read, recycled: Math.min(read, count(u.cachedContentTokenCount)), written: 0, out: count(u.candidatesTokenCount) + count(u.thoughtsTokenCount) }; }
+    if (type === 'cohere') return { read: count(u.input_tokens), recycled: 0, written: 0, out: count(u.output_tokens) };
+    const read = count(u.prompt_tokens), d = isObj(u.prompt_tokens_details) ? u.prompt_tokens_details : {};
+    return { read, recycled: Math.min(read, count(d.cached_tokens)), written: 0, out: count(u.completion_tokens) };
+  }
+
   async function aiComplete(systemPrompt, userMsg, maxTokens) {
+    const r = await aiChat(systemPrompt, [], userMsg, maxTokens);
+    return r ? r.text : null;
+  }
+  /**
+   * One turn of a conversation: the system prompt, the history so far (unchanged), and the user's words. → { text,
+   * assistant } — the caller appends { role: 'user', content: userMsg } and `assistant` to its history (assistant is the
+   * reply as the provider gave it, so a provider that checks its own earlier turns sees them unchanged) — or null when no
+   * tier can answer.
+   */
+  async function aiChat(systemPrompt, history, userMsg, maxTokens) {
     maxTokens = maxTokens || 600;
+    const messages = (Array.isArray(history) ? history : []).concat([{ role: 'user', content: String(userMsg == null ? '' : userMsg) }]);
     const tier = aiTier();
     if (tier === 'T2' && STATE.ai.ready && STATE.ai.engine) {
       const r = await STATE.ai.engine.chat.completions.create({
-        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMsg }], max_tokens: maxTokens,
+        messages: [{ role: 'system', content: systemPrompt }].concat(messages.map((m) => ({ role: m.role, content: wordsOf(m) }))), max_tokens: maxTokens,
       });
-      return r.choices[0].message.content;
+      const text = r.choices[0].message.content;
+      STATE.lastUsage = Object.assign({ provider: 'webllm' }, usageOf('openai', r));
+      return { text: text, assistant: { role: 'assistant', content: text } };
     }
     if (tier === 'T3') {
       const p = activeTextProvider(); const key = getKey('text', p);
       if (!key) return null;
-      return await textCall(p, systemPrompt, userMsg, maxTokens);
+      return await textCall(p, systemPrompt, messages, maxTokens);
     }
     return null;
   }
 
-  async function textCall(providerKey, sys, msg, maxTokens) {
+  async function textCall(providerKey, sys, messages, maxTokens) {
     const p = TEXT_PROVIDERS[providerKey];
-    const key = getKey('text', providerKey);
     const model = getModel('text', providerKey, TEXT_PROVIDERS);
-    if (p.type === 'anthropic') {
-      const r = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify({ model, max_tokens: maxTokens, system: sys, messages: [{ role: 'user', content: msg }] }),
-      });
-      if (!r.ok) throw new Error(p.label + ' ' + r.status);
-      return (await r.json()).content[0].text;
+    const req = requestOf(p.type, { model, key: getKey('text', providerKey), system: sys, messages, maxTokens, url: p.url });
+    if (!req) throw new Error('unknown text provider type: ' + p.type);
+    const r = await fetch(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify(req.body) });
+    if (!r.ok) throw new Error(p.label + ' ' + r.status);
+    const j = await r.json();
+    STATE.lastUsage = Object.assign({ provider: providerKey, model: model }, usageOf(p.type, j));
+    const text = textOf(p.type, j);
+    if (text === null) return null;
+    return { text: text, assistant: p.type === 'anthropic' ? { role: 'assistant', content: j.content } : { role: 'assistant', content: text } };
+  }
+
+  // ═══════════════════════ ASK · about this page ═════════════════════
+  // The kit's own use of the brain, so the chip is useful in any build, wired or not: a question about the page, answered
+  // from the page's own words. The opening is read once per talk and sent byte-identical every question, so a provider
+  // that caches recycles it; a talk starts afresh after MAX_ASKS questions or when the person starts again.
+  const PAGE_MAX = 12000, MAX_ASKS = 20;
+  const ASK_OPENING = 'You are the helper inside a web page. Answer questions about this page and how to use it, briefly and in plain words. Use only what the page says below; when it does not say, say so.';
+  /** the opening for questions about a page: who the helper is, then the page's title, description and text. Pure. */
+  function pageOpening(page) {
+    const p = isObj(page) ? page : {};
+    const line = (s, n) => (typeof s === 'string' ? s : '').replace(/\s+/g, ' ').trim().slice(0, n);
+    const text = (typeof p.text === 'string' ? p.text : '').replace(/[ \t\r\f\v]+/g, ' ').replace(/ *\n[\s]*/g, '\n').trim().slice(0, PAGE_MAX);
+    const about = line(p.description, 400);
+    return ASK_OPENING + '\n\nPAGE: ' + (line(p.title, 200) || '(no title)') + '\n' + (about ? 'ABOUT: ' + about + '\n' : '') + 'TEXT:\n' + text;
+  }
+  function readPage() {   // the page as its reader has it, without the kit's own chip, panel and code
+    const d = document.querySelector('meta[name="description"]');
+    const body = document.body ? document.body.cloneNode(true) : null;
+    if (body) {
+      body.querySelectorAll('#fk-modal-bg, #fk-ai-chip, #fk-toast, script, style, noscript, template').forEach((e) => e.remove());
+      body.querySelectorAll('td, th').forEach((e) => e.append(' | '));   // keep cells and blocks apart, as a reader sees them
+      body.querySelectorAll('p, div, li, tr, h1, h2, h3, h4, h5, h6, br, pre, dt, dd, figcaption, blockquote, section, article, header, footer, nav, label, button, option').forEach((e) => e.append('\n'));
     }
-    if (p.type === 'openai') {
-      const r = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST', headers: { 'content-type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({ model, max_tokens: maxTokens, messages: [{ role: 'system', content: sys }, { role: 'user', content: msg }] }),
-      });
-      if (!r.ok) throw new Error(p.label + ' ' + r.status);
-      return (await r.json()).choices[0].message.content;
-    }
-    if (p.type === 'google') {
-      const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key), {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: sys + '\n\n---\n\n' + msg }] }], generationConfig: { maxOutputTokens: maxTokens } }),
-      });
-      if (!r.ok) throw new Error(p.label + ' ' + r.status);
-      return (await r.json()).candidates[0].content.parts[0].text;
-    }
-    if (p.type === 'openai_compat') {
-      const r = await fetch(p.url, {
-        method: 'POST', headers: { 'content-type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({ model, max_tokens: maxTokens, messages: [{ role: 'system', content: sys }, { role: 'user', content: msg }] }),
-      });
-      if (!r.ok) throw new Error(p.label + ' ' + r.status);
-      return (await r.json()).choices[0].message.content;
-    }
-    if (p.type === 'cohere') {
-      const r = await fetch('https://api.cohere.com/v2/chat', {
-        method: 'POST', headers: { 'content-type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({ model, max_tokens: maxTokens, messages: [{ role: 'system', content: sys }, { role: 'user', content: msg }] }),
-      });
-      if (!r.ok) throw new Error(p.label + ' ' + r.status);
-      return (await r.json()).message.content[0].text;
-    }
-    if (p.type === 'hf_inference') {
-      const r = await fetch('https://api-inference.huggingface.co/models/' + model + '/v1/chat/completions', {
-        method: 'POST', headers: { 'content-type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({ model, max_tokens: maxTokens, messages: [{ role: 'system', content: sys }, { role: 'user', content: msg }] }),
-      });
-      if (!r.ok) throw new Error(p.label + ' ' + r.status);
-      return (await r.json()).choices[0].message.content;
-    }
-    throw new Error('unknown text provider type: ' + p.type);
+    return { title: document.title, description: d ? d.getAttribute('content') : '', text: body ? body.textContent : '' };
+  }
+  async function askPage(question) {
+    const q = String(question == null ? '' : question).trim();
+    if (!q) return { text: null, why: 'Type a question first.' };
+    if (aiTier() === 'T0') return { text: null, why: 'AI is off. Pick T2 (a model in your browser) or T3 (your own key) below, press Save, then ask.' };
+    const t = STATE.ask;
+    if (!t.opening || t.talk.length >= MAX_ASKS * 2) { t.opening = pageOpening(readPage()); t.talk = []; }
+    const r = await aiChat(t.opening, t.talk, q, 600);
+    if (!r) return { text: null, why: aiTier() === 'T2' ? 'The in-browser model is not loaded yet: press Load model below.' : 'No key is set for this provider: add one below and press Save.' };
+    t.talk.push({ role: 'user', content: q }, r.assistant);
+    t.last = r.text;
+    return { text: r.text, why: null };
   }
 
   // ═══════════════════════ IMAGE · aiImage ═══════════════════════════
@@ -478,26 +604,57 @@
 
   // ─── WebRTC P2P mesh ────────────────────────────────────────────────
   const MESH_CHANNEL = 'fall-signal';
-  function meshStart(opts) {
+  const MESH_MODULE = '/fall-kit/core/mesh.mjs', MESH_DEVICE = '/fall-kit/core/mesh-device.mjs';
+  // v3.2: the LIGHT mesh, loaded from this origin when the mesh is switched on. null = JSON, as before v3.2.
+  async function lightMesh() {
+    try {
+      const [M, D] = await Promise.all([import(MESH_MODULE), import(MESH_DEVICE)]);
+      const dev = await D.openDevice();
+      const tab = crypto.getRandomValues(new Uint32Array(1))[0];
+      return { M, dev, tab, seq: 0, last: new Map() };
+    } catch (e) { return null; }
+  }
+  function meshSend(value) {
+    const L = STATE.mesh.light, bc = STATE.mesh.bc;
+    if (!L) { bc.postMessage(value); STATE.mesh.stats.sent++; return; }
+    L.seq += 1;
+    L.M.speak(value, { slot: L.dev.slot, tab: L.tab, seq: L.seq, sign: L.dev.sign }).then((r) => { if (r.ok && STATE.mesh.bc) { STATE.mesh.bc.postMessage(r.bytes); STATE.mesh.stats.sent++; } });
+  }
+  async function meshStart(opts) {
     if (STATE.mesh.active) return;
     opts = opts || {};
     const seedId = opts.seedId || (location.pathname + '#' + Math.random().toString(36).slice(2, 8));
     STATE.mesh.seedId = seedId;
     try { STATE.mesh.bc = new BroadcastChannel(MESH_CHANNEL); }
     catch (e) { console.warn('fall-kit: BroadcastChannel unavailable'); return; }
-    STATE.mesh.bc.onmessage = e => {
-      const m = e.data;
-      if (!m || !m.kind || m.peerId === seedId) return;
-      if (opts.onMessage) opts.onMessage(m);
-    };
-    STATE.mesh.bc.postMessage({ kind: 'fall-kit:hello', peerId: seedId, ts: Date.now(), seedName: opts.seedName || 'unknown' });
     STATE.mesh.active = true;
-    notify('Mesh active · channel ' + MESH_CHANNEL, 'ok');
+    STATE.mesh.light = opts.light === false ? null : await lightMesh();
+    const st = STATE.mesh.stats;
+    STATE.mesh.bc.onmessage = async (e) => {
+      const L = STATE.mesh.light;
+      if (!L) {
+        const m = e.data;
+        if (!m || !m.kind || m.peerId === seedId) return;
+        if (opts.onMessage) opts.onMessage(m);
+        return;
+      }
+      const r = await L.M.hearMesh(e.data, { slot: L.dev.slot, id: L.dev.id, raw: L.dev.raw, verifyBytes: L.dev.verifyBytes, last: L.last });
+      if (!r.ok) { st.refused[r.stage] = (st.refused[r.stage] || 0) + 1; return; }
+      if (r.legacy) st.legacy++; else st.admitted++;
+      if (r.value.peerId === seedId) return;
+      if (opts.onMessage) opts.onMessage(Object.assign({}, r.value, r.legacy ? { legacy: true } : { light: true, tab: r.tab }));
+    };
+    meshSend({ kind: 'fall-kit:hello', peerId: seedId, ts: Date.now(), seedName: opts.seedName || 'unknown' });
+    notify('Mesh active · channel ' + MESH_CHANNEL + (STATE.mesh.light ? ' · LIGHT' : ''), 'ok');
   }
   function meshPost(kind, payload) {
     if (!STATE.mesh.active || !STATE.mesh.bc) return false;
-    STATE.mesh.bc.postMessage({ kind: kind, peerId: STATE.mesh.seedId, ts: Date.now(), payload: payload });
+    meshSend({ kind: kind, peerId: STATE.mesh.seedId, ts: Date.now(), payload: payload });
     return true;
+  }
+  function meshStats() {
+    const s = STATE.mesh.stats;
+    return { active: STATE.mesh.active, light: !!STATE.mesh.light, tab: STATE.mesh.light ? STATE.mesh.light.tab : null, sent: s.sent, admitted: s.admitted, legacy: s.legacy, refused: Object.assign({}, s.refused) };
   }
 
   // ─── Toast ──────────────────────────────────────────────────────────
@@ -555,13 +712,24 @@
         <select id="fk-${modality}-model" style="${styleInput}">${modelOptions(registry, currentProvider, currentModel)}</select>
         <label style="${styleLabel}">API key</label>
         <input type="password" id="fk-${modality}-key" value="${esc(currentKeyVal)}" placeholder="${currentKeyVal ? '(set · leave to keep)' : 'paste key here'}" autocomplete="off" style="${styleInput};font-family:ui-monospace,Menlo,monospace">
-        <div style="font-size:11px;color:#6e6a5e;line-height:1.55;margin-top:2px">Key lives in this browser only. Sent direct to the provider — never proxied through us.</div>
+        <div style="font-size:11px;color:#6e6a5e;line-height:1.55;margin-top:2px">Key held in this tab only (unless you tick “remember” below). Sent direct to the provider — never proxied through us.</div>
       `;
     }
 
     bg.innerHTML = `
       <div style="background:#13121a;border:1px solid #c08a3a;border-radius:5px;max-width:640px;width:100%;padding:22px 24px;color:#ebe3d2;font-family:system-ui,-apple-system,sans-serif;font-size:13.5px;line-height:1.55">
-        <h3 style="font-family:Georgia,serif;font-size:18px;color:#c08a3a;margin-bottom:14px">◊ Fall Kit · AI cascade settings</h3>
+        <h3 style="font-family:Georgia,serif;font-size:18px;color:#c08a3a;margin-bottom:14px">◊ Fall Kit · your AI helper</h3>
+
+        <div style="margin-bottom:14px;padding:12px 14px;background:#1a1922;border:1px solid #2a2934;border-radius:4px">
+          <label for="fk-ask" style="${styleLabel}">Ask about this page</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input id="fk-ask" type="text" placeholder="How do I use this?" autocomplete="off" style="${styleInput};flex:1;min-width:180px;margin-bottom:0">
+            <button id="fk-ask-go" style="padding:7px 14px;background:#c08a3a;color:#0a0a0a;border:none;border-radius:3px;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit">Ask</button>
+            <button id="fk-ask-new" style="padding:7px 12px;background:transparent;color:#a89e88;border:1px solid #3a342c;border-radius:3px;font-size:11px;cursor:pointer;font-family:inherit">Start again</button>
+          </div>
+          <div id="fk-ask-out" aria-live="polite" style="white-space:pre-wrap;margin-top:10px;font-size:13px;color:#ebe3d2;line-height:1.6"></div>
+          <div style="font-size:11px;color:#6e6a5e;line-height:1.55;margin-top:6px">Answered from this page’s own words, by the brain you pick below. The page is read once per talk and sent the same each time, so a provider that caches pays for it once.</div>
+        </div>
 
         <div style="margin-bottom:14px"><label style="${styleLabel}">Tier</label>
           <select id="fk-tier" style="${styleInput}">
@@ -593,6 +761,9 @@
             ${tab==='tts'   ? modalityBlock('tts',   TTS_PROVIDERS,   ttsP,  getKey('tts',   ttsP),  getModel('tts',   ttsP,   TTS_PROVIDERS))   : ''}
             ${tab==='stt'   ? modalityBlock('stt',   STT_PROVIDERS,   sttP,  getKey('stt',   sttP),  getModel('stt',   sttP,   STT_PROVIDERS))   : ''}
           </div>
+          <label style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:12px;color:#ebe3d2;cursor:pointer"><input type="checkbox" id="fk-remember"${STATE.config.remember_keys===true?' checked':''} style="margin-top:2px"> Remember my keys on this device</label>
+          <div style="font-size:11px;color:#a14a2a;line-height:1.55;margin:4px 0 0 22px">Every estate page at this web address shares this browser’s storage, so a remembered key can be read by any of them. Leave it off and your keys are held in this tab only: close it and they are gone.</div>
+          <button id="fk-forget" style="margin-top:10px;padding:6px 12px;background:transparent;color:#a89e88;border:1px solid #3a342c;border-radius:3px;font-size:11px;cursor:pointer;font-family:inherit">Forget my keys</button>
         </div>
 
         <div style="margin-bottom:14px;padding:12px 14px;background:#1a1922;border:1px solid #2a2934;border-radius:4px">
@@ -609,6 +780,18 @@
         </div>
         <div style="margin-top:14px;font-family:ui-monospace,Menlo,monospace;font-size:9px;color:#6e6a5e;letter-spacing:.08em;text-align:center">◊ Fall Kit v${FALL_KIT_VERSION} · MIT · ai-nativesolutions.com</div>
       </div>`;
+
+    const askOut = $('#fk-ask-out');
+    if (STATE.ask.last) askOut.textContent = STATE.ask.last;
+    const ask = async () => {
+      const go = $('#fk-ask-go'); go.disabled = true; askOut.textContent = '…';
+      try { const r = await askPage($('#fk-ask').value); askOut.textContent = r.text === null ? r.why : r.text; }
+      catch (e) { askOut.textContent = 'The provider said no: ' + e.message; }
+      go.disabled = false;
+    };
+    $('#fk-ask-go').onclick = ask;
+    $('#fk-ask').onkeydown = (e) => { if (e.key === 'Enter') ask(); };
+    $('#fk-ask-new').onclick = () => { STATE.ask = { opening: null, talk: [], last: null }; askOut.textContent = 'A fresh talk: the page is read again at the next question.'; };
 
     $('#fk-tier').onchange = () => {
       const t = $('#fk-tier').value;
@@ -639,8 +822,10 @@
       openSettings(STATE._lastTab);
     };
 
+    $('#fk-forget') && ($('#fk-forget').onclick = () => { forgetKeys(); notify('Keys forgotten · this tab and this device', 'ok'); openSettings(STATE._lastTab); });
     $('#fk-save').onclick = () => {
       STATE.config.ai_tier = $('#fk-tier').value;
+      if ($('#fk-remember')) STATE.config.remember_keys = $('#fk-remember').checked;
       if ($('#fk-model')) STATE.config.webllm_model = $('#fk-model').value;
       ['text','image','video','tts','stt'].forEach(m => {
         const provSel = $('#fk-' + m + '-provider');
@@ -667,7 +852,7 @@
         <tbody>
           <tr><td style="padding:6px 10px;border-top:1px solid #2a2934;color:#c08a3a;font-weight:600">T0</td><td style="padding:6px 10px;border-top:1px solid #2a2934;color:#a89e88">Off. The seed works fully. No AI · no downloads · no API calls.</td></tr>
           <tr><td style="padding:6px 10px;border-top:1px solid #2a2934;color:#c08a3a;font-weight:600">T2</td><td style="padding:6px 10px;border-top:1px solid #2a2934;color:#a89e88">WebLLM in-browser. Pick a model: 1B (700MB) → 3B (2GB, default) → 7B (5GB) → 70B (40GB). One-time download, offline forever. Zero data leaves.</td></tr>
-          <tr><td style="padding:6px 10px;border-top:1px solid #2a2934;color:#c08a3a;font-weight:600">T3</td><td style="padding:6px 10px;border-top:1px solid #2a2934;color:#a89e88">BYOK · 12 text providers (Claude, GPT, Gemini, Groq, Cerebras, DeepSeek, OpenRouter, Mistral, Cohere, Together, HuggingFace, Grok) · 7 image (fal, HF, Replicate, DALL-E, Imagen, Ideogram, Leonardo, Aurora) · 5 video (fal, Luma, Runway, Pika, Kling) · 4 TTS (ElevenLabs, OpenAI, PlayHT, Cartesia) · 3 STT (Deepgram, AssemblyAI, Whisper). You bring keys, you pay direct. Keys stay in your browser.</td></tr>
+          <tr><td style="padding:6px 10px;border-top:1px solid #2a2934;color:#c08a3a;font-weight:600">T3</td><td style="padding:6px 10px;border-top:1px solid #2a2934;color:#a89e88">BYOK · 12 text providers (Claude, GPT, Gemini, Groq, Cerebras, DeepSeek, OpenRouter, Mistral, Cohere, Together, HuggingFace, Grok) · 7 image (fal, HF, Replicate, DALL-E, Imagen, Ideogram, Leonardo, Aurora) · 5 video (fal, Luma, Runway, Pika, Kling) · 4 TTS (ElevenLabs, OpenAI, PlayHT, Cartesia) · 3 STT (Deepgram, AssemblyAI, Whisper). You bring keys, you pay direct. Keys are held in this tab only, unless you choose to remember them on this device. The same opening is sent first every time, so a provider that caches can reuse its reading of it.</td></tr>
         </tbody>
       </table>
       <p style="font-size:12px;color:#6e6a5e;line-height:1.6;margin-top:10px">Open the AI chip in the header to switch tier or check status. Cross-seed mesh activates a BroadcastChannel on <code style="background:#1a1922;padding:1px 5px;border-radius:2px">${MESH_CHANNEL}</code> so other estate seeds on the same device discover this one.</p>
@@ -676,7 +861,8 @@
 
   // ─── CSS for AI chip ────────────────────────────────────────────────
   function injectCss() {
-    if (document.getElementById('fk-css')) return;
+    if (STATE.cssIn) return;   // the kit knows it added its styles; no lookup of an id the build's own page never has
+    STATE.cssIn = true;
     const s = document.createElement('style');
     s.id = 'fk-css';
     s.textContent = `
@@ -695,6 +881,36 @@
     document.head.appendChild(s);
   }
 
+  // ─── The floating chip keeps clear of the build's own fixed bars and controls ─────────
+  // A build's bottom tab bar or floating button stays put while the page scrolls, so a chip over it would hide it. The
+  // chip looks at what is under it and moves up past it; a fixed container as tall as the page counts only by the
+  // control under the chip. Content that scrolls is not in the way.
+  function blockerUnder(el) {
+    let fixed = null;
+    for (let e = el; e && e !== document.body && e !== document.documentElement; e = e.parentElement) {
+      const pos = getComputedStyle(e).position;
+      if (pos === 'fixed' || pos === 'sticky') { fixed = e; break; }
+    }
+    if (!fixed) return null;
+    if (fixed.getBoundingClientRect().height <= innerHeight * 0.4) return fixed;
+    return el.closest('button, a, input, select, textarea, label, [role=button], [tabindex]');
+  }
+  function placeChip(chip) {
+    if (!chip || chip.dataset.anchored) return;
+    chip.style.top = ''; chip.style.bottom = '14px';
+    for (let i = 0; i < 6; i++) {
+      const r = chip.getBoundingClientRect();
+      chip.style.visibility = 'hidden';
+      const hit = [[r.left + 2, r.top + 2], [r.right - 2, r.top + 2], [r.left + 2, r.bottom - 2], [r.right - 2, r.bottom - 2]]
+        .map(([x, y]) => document.elementFromPoint(x, y)).filter(Boolean).map(blockerUnder).find(Boolean);
+      chip.style.visibility = '';
+      if (!hit) return;
+      const bottom = innerHeight - hit.getBoundingClientRect().top + 8;
+      if (bottom > innerHeight * 0.6) { chip.style.bottom = ''; chip.style.top = '14px'; return; }
+      chip.style.bottom = bottom + 'px';
+    }
+  }
+
   // ─── Init ───────────────────────────────────────────────────────────
   function init(opts) {
     opts = opts || {};
@@ -703,16 +919,20 @@
     if ($('#fk-ai-chip')) { renderAiChip(); return { version: FALL_KIT_VERSION, mounted: false }; }
     const chip = document.createElement('button');
     chip.id = 'fk-ai-chip';
-    chip.title = 'AI cascade · click to configure tier and provider';
+    chip.title = 'AI helper · ask about this page, or pick the brain';
     chip.innerHTML = '<span class="fk-dot"></span><span id="fk-ai-chip-text">T0 · off</span>';
     chip.onclick = () => openSettings();
     const anchor = opts.chipAnchor ? $(opts.chipAnchor) : null;
-    if (anchor) { anchor.appendChild(chip); }
+    if (anchor) { anchor.appendChild(chip); chip.dataset.anchored = '1'; }
     else {
       chip.style.cssText += ';position:fixed;bottom:14px;left:14px;z-index:9998;box-shadow:0 4px 14px rgba(0,0,0,.4)';
       document.body.appendChild(chip);
+      const place = () => placeChip(chip);
+      setTimeout(place, 0); setTimeout(place, 1200);   // once now, once after the build has laid itself out
+      let t = null; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(place, 200); });
     }
     renderAiChip();
+    if (BOOT.moved) notify('AI keys are now held in this tab only · tick “remember” in AI settings to keep them', 'info');
     return { version: FALL_KIT_VERSION, mounted: true };
   }
 
@@ -722,6 +942,16 @@
     init: init,
     aiTier: aiTier,
     aiComplete: aiComplete,
+    aiChat: aiChat,
+    askPage: askPage,
+    pageOpening: pageOpening,
+    lastUsage: () => STATE.lastUsage,
+    forgetKeys: forgetKeys,
+    requestOf: requestOf,
+    textOf: textOf,
+    usageOf: usageOf,
+    configFrom: configFrom,
+    storedForm: storedForm,
     aiImage: aiImage,
     aiVideo: aiVideo,
     aiTTS: aiTTS,
@@ -733,6 +963,7 @@
     helpSection: helpSection,
     meshStart: meshStart,
     meshPost: meshPost,
+    meshStats: meshStats,
     notify: notify,
     MODELS: WEBLLM_MODELS,
     TEXT_PROVIDERS: TEXT_PROVIDERS,
