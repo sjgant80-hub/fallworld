@@ -12,8 +12,14 @@ import { execFile } from 'node:child_process';
 
 const OUT = 'ci-evidence.json';
 const idx = JSON.parse(readFileSync('C:/Users/sjgan/.claude/projects/C--Users-sjgan--claude/memory/estate-index.json', 'utf8'));
-const N = idx.nodes.filter(n => !n.fork && !n.private);
-const names = new Set(N.map(n => n.name));
+// ⚑ ONLY WHAT IS PUBLIC NOW. This file is served on the public Pages site. Names in WITHHOLD (one per
+// line, e.g. today's private list) count as private, exactly as build-world.mjs reads them: a repo made
+// private after the index was taken.
+const WITHHOLD = (() => { try { return new Set(process.env.WITHHOLD ? readFileSync(process.env.WITHHOLD, 'utf8').split(/\r?\n/).map(s => s.trim()).filter(Boolean) : []); } catch { return new Set(); } })();
+const N = idx.nodes.filter(n => !n.fork && !n.private && !WITHHOLD.has(n.name));
+// Companions are found over EVERY repo, private bases included, exactly as build-world.mjs collapses
+// them: a public <thing>-api whose <thing> is private belongs to a dropped item, not a root of its own.
+const names = new Set(idx.nodes.map(n => n.name));
 const TAILS = ['onboard', 'paper', 'practice'];
 const companionOf = (n) => {
   const m = /^(.+)-(api|mcp|sdk)$/.exec(n.name);
@@ -28,6 +34,12 @@ const gh = (args) => new Promise((res) => {
 });
 
 const done = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : {};
+// ⚑ A REPO THAT IS NOT A PUBLIC ROOT NOW LEAVES THE EVIDENCE. The cache only ever grew, so a repo made
+// private after it was scanned kept its name and its CI history in this public file for good.
+const rootNames = new Set(roots.map(r => r.name));
+const pruned = Object.keys(done).filter(k => !rootNames.has(k));
+for (const k of pruned) delete done[k];
+if (pruned.length) console.log(`dropped ${pruned.length} that are no longer public roots`);
 const todo = roots.filter(r => !(r.name in done));
 console.log(`roots ${roots.length} · already scanned ${Object.keys(done).length} · to do ${todo.length}`);
 

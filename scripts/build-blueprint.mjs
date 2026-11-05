@@ -7,15 +7,24 @@
 // Room names and one-liners are read from the real pages in fallkard, and the counts from the estate
 // index — nothing on this page is typed by hand, so it cannot quietly go out of date.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { tierOf, tally } from '../tier.mjs';
+// ⚑ IT WROTE TO ANOTHER FOLDER. This read rooms.json through a join() and a `here` it never imported
+// (dead since rooms.mjs became rooms.json) and wrote to C:/Users/sjgan/fallworld, a different checkout,
+// so the committed page could only ever be whatever copy somebody last carried across by hand.
+const here = join(dirname(fileURLToPath(import.meta.url)), '..');
 // The world is data now, not a module — see rooms.test.mjs for why.
 const world_ = JSON.parse(readFileSync(join(here, 'rooms.json'), 'utf8'));
 const { wings: WINGS, wayIn: WAY_IN, roomCount: ROOM_COUNT } = world_;
 
-const EVIDENCE = existsSync('workflow-evidence.json') ? JSON.parse(readFileSync('workflow-evidence.json', 'utf8')) : {};
+const EVIDENCE = existsSync(join(here, 'workflow-evidence.json')) ? JSON.parse(readFileSync(join(here, 'workflow-evidence.json'), 'utf8')) : {};
 const idx = JSON.parse(readFileSync('C:/Users/sjgan/.claude/projects/C--Users-sjgan--claude/memory/estate-index.json', 'utf8'));
-const N = idx.nodes.filter(n => !n.fork);
-const names = new Set(N.map(n => n.name));
+// ⚑ PUBLIC ONLY, as build-world.mjs counts: this page is served publicly, so a private repo is not one of
+// its tools. Names in WITHHOLD (one per line) count as private: made private after the index was taken.
+const WITHHOLD = (() => { try { return new Set(process.env.WITHHOLD ? readFileSync(process.env.WITHHOLD, 'utf8').split(/\r?\n/).map(s => s.trim()).filter(Boolean) : []); } catch { return new Set(); } })();
+const names = new Set(idx.nodes.map(n => n.name));   // companions found over every repo, as build-world collapses them
+const N = idx.nodes.filter(n => !n.fork && !n.private && !WITHHOLD.has(n.name));
 const TAILS = ['onboard', 'paper', 'practice'];
 const companionOf = (n) => {
   const m = /^(.+)-(api|mcp|sdk)$/.exec(n.name);
@@ -120,8 +129,8 @@ links go to the real thing, and it all runs in a browser without an account.</di
 <div class="later">
  <p style="margin:0 0 .5rem;color:var(--dim)">There are a few hundred tools in the estate — accounts,
  invoices, notes, a clinic system, a CRM. <b style="color:var(--ink)">They are gear you carry into the
- world, not part of the map.</b> They get sorted onto shelves and tidied up after the world itself is
- finished, so the front door stays simple.</p>
+ world, not part of the map.</b> In the game they are the Store (press S), ranked by what a machine
+ checked and refusing anything nobody has, and the Deck (press K), every public build as a card.</p>
  <div class="nums">
   <span class="num"><b>${real.length}</b> tools described</span>
   <span class="num"><b>${roots.filter(r => r.live).length}</b> you can open today</span>
@@ -137,6 +146,6 @@ links go to the real thing, and it all runs in a browser without an account.</di
 </div></body></html>
 `;
 
-writeFileSync('C:/Users/sjgan/fallworld/blueprint.html', html);
+writeFileSync(join(here, 'blueprint.html'), html);
 console.log(`blueprint.html — ${WINGS.length} wings · ${roomCount} rooms · ${(html.length / 1024).toFixed(0)}KB`);
 for (const w of WINGS) console.log(`   ${String(w.rooms.length).padStart(2)}  ${w.title}`);

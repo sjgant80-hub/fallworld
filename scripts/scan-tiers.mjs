@@ -20,6 +20,12 @@ const gh = (args) => new Promise((res) => {
 const AUTOMATIC = /^(pages build and deployment|Deploy static content to Pages|pages-build-deployment)$/i;
 
 const done = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : {};
+// ⚑ WHAT LEFT ci-evidence.json LEAVES HERE TOO. scan-ci.mjs keeps only today's public roots, and this
+// file is served publicly as well, so a repo made private keeps no workflow list in it either.
+const keep = new Set(candidates);
+const pruned = Object.keys(done).filter(k => !keep.has(k));
+for (const k of pruned) delete done[k];
+if (pruned.length) console.log(`dropped ${pruned.length} that are no longer public repos with CI`);
 const todo = candidates.filter(c => !(c in done));
 console.log(`repos with any CI: ${candidates.length} · to do ${todo.length}`);
 
