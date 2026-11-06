@@ -11,6 +11,8 @@
 //   vendor/kestrel-ledger/kestrel-ledger.json  kestrel-ledger's sealed verdict (IndexedDB as the Shadow Fold, step 4 of 4), from kestrel-ledger
 //   vendor/seed-library/seed-library.json  the Seed Library's sealed measure (knowledge in tiny seeds, not weights), from seed-library
 //   vendor/digi-card/digi-card.json   the DIGI card's sealed organ 10 (the kit and the party), from digi-card
+//   vendor/sovereign-enterprise/data/basis.json  BYTE FOR BYTE: every outside figure the buyer's cost case
+//                                      (costcase.mjs) reads, each with its source, from sovereign-enterprise
 //
 //   node scripts/sync-sources.mjs          write them
 //   node scripts/sync-sources.mjs --check  exit 1 unless each is exactly what its pinned commit gives
@@ -32,6 +34,7 @@ export const PINS = {
   'estate-attest': 'd5bac08bae3bba4b5543e41a95bafb24626fd8dc',
   'pattern-forge': '0f6efb119343a84d13e8a249bf2eb94b2c16f841',
   kardlings: '9b8ed461d88e11bb0ee815c2813b12e5948c9cd8',   // the repo was digi-card until 2026-10-22
+  'sovereign-enterprise': '003e44795bc0ef90c92b7ee6a53160f51be1be79',   // the last commit to touch data/basis.json
 };
 const raw = (repo, file) => `https://raw.githubusercontent.com/sjgant80-hub/${repo}/${PINS[repo]}/${file}`;
 const normalise = (t) => String(t).split('\r\n').join('\n');
@@ -226,6 +229,24 @@ for (const [file, make] of TARGETS) {
     const have = existsSync(path) ? normalise(readFileSync(path, 'utf8')) : null;
     if (have !== want) { drift++; console.error(`DRIFT ${file} is not what the pinned commit gives`); }
     else console.log(`in step  ${file}`);
+  } else {
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, want);
+    console.log(`wrote    ${file}`);
+  }
+}
+// ⚑ BYTE FOR BYTE. These are not summarised: the page reads them whole, so the file here must be exactly the
+// file at the pinned commit (line endings aside, so a Windows checkout and a Linux runner agree).
+const VERBATIM = [
+  ['vendor/sovereign-enterprise/data/basis.json', 'sovereign-enterprise', 'data/basis.json'],
+];
+for (const [file, repo, from] of VERBATIM) {
+  const want = await grab(raw(repo, from));
+  const path = join(here, file);
+  if (check) {
+    const have = existsSync(path) ? normalise(readFileSync(path, 'utf8')) : null;
+    if (have !== want) { drift++; console.error(`DRIFT ${file} is not byte for byte what ${repo}@${PINS[repo].slice(0, 7)} holds`); }
+    else console.log(`in step  ${file}  (byte for byte, ${repo}@${PINS[repo].slice(0, 7)})`);
   } else {
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, want);

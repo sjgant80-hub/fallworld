@@ -308,6 +308,44 @@ dialog.kd::backdrop{background:rgba(5,6,9,.72)}
 .ttable td b{color:var(--ink)}
 .pass{color:var(--mine);font-family:var(--mono);font-size:11px} .fail{color:var(--stop);font-family:var(--mono);font-size:11px}
 .scroll{overflow-x:auto}
+
+/* ── the page explains itself: start here, how it works, the blueprint, for teams, for buyers, the paper ── */
+.ex-start{border:1px solid var(--edge);border-radius:10px;background:var(--deck);padding:16px 18px;margin-bottom:18px}
+.ex-start h2{margin-bottom:4px}
+.ex-steps{margin:8px 0 6px;padding:0;list-style:none;counter-reset:ex;display:grid;gap:7px}
+.ex-steps li{counter-increment:ex;position:relative;padding-left:34px;font-size:13.5px;color:var(--mid);line-height:1.5}
+.ex-steps li::before{content:counter(ex);position:absolute;left:0;top:0;width:24px;font-family:var(--mono);font-weight:700;color:var(--gold);font-size:13px;text-align:right}
+.ex-steps li b{color:var(--ink)}
+.ex-jump{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.ex-sec{border-top:1px solid var(--edge);margin-top:26px;padding-top:18px;scroll-margin-top:8px}
+.ex-sec>h2{font-size:22px}
+.ex-sec p{max-width:74ch;color:var(--mid);margin:0 0 10px}
+.ex-sec p b{color:var(--ink)}
+.ex-sec ul,.ex-sec ol{margin:0 0 12px;padding-left:20px;color:var(--mid);max-width:76ch}
+.ex-sec li{margin-bottom:6px}
+.ex-sec li b{color:var(--ink)}
+.ex-flow{width:100%;max-width:440px;height:auto;display:block;margin:6px 0 12px}
+.ex-flow .bx{fill:var(--sunk);stroke:var(--edge)}
+.ex-flow .bx.k{stroke:var(--gold-deep)}
+.ex-flow .bx.g{stroke:var(--mine)}
+.ex-flow .t{fill:var(--ink);font-family:var(--sans);font-size:13px;font-weight:650}
+.ex-flow .s{fill:var(--mid);font-family:var(--sans);font-size:11.5px}
+.ex-flow .n{fill:var(--gold);font-family:var(--mono);font-size:11px}
+.ex-flow .ar{stroke:var(--faint);stroke-width:1.4;fill:none}
+.ex-flow .ah{fill:var(--faint)}
+.ex-roles{display:grid;gap:9px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));margin:6px 0 14px}
+.ex-role{border:1px solid var(--edge);border-radius:7px;background:var(--sunk);padding:10px 12px}
+.ex-role .w{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.ex-role .d{font-size:13px;color:var(--mid);line-height:1.45}
+.ex-calc{display:grid;gap:4px 14px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin:8px 0 6px}
+.ex-calc .field{margin-bottom:8px;align-content:start}
+.ex-calc .field input{width:100%}
+.ex-out td.v,.ex-out th.v{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ex-out tr.sum td{color:var(--ink);font-weight:650}
+.ex-src{font-size:12px;color:var(--faint);margin:6px 0 12px;padding-left:18px}
+.ex-src li{margin-bottom:3px} .ex-src li b{color:var(--mid);font-family:var(--mono);font-weight:600}
+.ex-badge{vertical-align:middle;height:20px}
+.ex-wide{min-width:640px}
 </style>
 </head>
 <body>
@@ -1019,6 +1057,7 @@ const P = {
     const proven = CATALOGUE.filter(a => a.tier === 'proven').length;
     const working = CATALOGUE.filter(a => a.tier === 'works').length;
     f.append(journeyStrip());
+    f.append(startHere());   // what it is, in plain words, and the steps: first, before the living world
     f.append(livingWorld());
     f.append(head('One estate. All of it real, all of it running.',
       'Everything below was built by one person, the sovereign way: no cloud, no backend, no subscriptions. '
@@ -1042,6 +1081,7 @@ const P = {
       }
       s.append(z); f.append(s);
     }
+    f.append(explainer());
     return f;
   },
 
@@ -1885,6 +1925,333 @@ function livingWorld() {
   return box;
 }
 
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+// THE PAGE EXPLAINS ITSELF. Below the game, in plain words, for a stranger, a team and a buyer: how to
+// start, how it works (the path one number takes, traced from the build that made this page), the
+// blueprint part by part, what it does for a team, the buyer's case and the short paper. Every number
+// is read from what is inlined above (EXPLAIN, CATALOGUE, DECK, SHOP, TRIAL, GROW) or computed by a
+// tested part (costCase); none is typed here.
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+const EX_IDS = ['start', 'how', 'blueprint', 'team', 'buyers', 'paper'];
+function exJump(id) {
+  if (at !== 'world') { at = 'world'; draw(); }
+  const t = document.getElementById('x-' + id);
+  if (t) t.scrollIntoView({ block: 'start' });
+}
+const gbp = (x) => '£' + Number(x).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const exP = (html, cls) => { const p = el('p', cls || null); p.innerHTML = html; return p; };
+const exList = (items, ordered) => { const l = el(ordered ? 'ol' : 'ul'); for (const h of items) { const li = el('li'); li.innerHTML = h; l.append(li); } return l; };
+const exBtn = (label, id) => { const b = el('button', 'act', label); b.type = 'button'; b.addEventListener('click', () => exJump(id)); return b; };
+const exLink = (label, href) => { const a = el('a', 'act', label); a.href = href; if (/^https?:/.test(href)) { a.target = '_blank'; a.rel = 'noopener'; } return a; };
+function gateBadge() {
+  const a = el('a'); a.href = 'https://github.com/sjgant80-hub/fallworld/actions/workflows/gate.yml'; a.target = '_blank'; a.rel = 'noopener';
+  const i = el('img', 'ex-badge'); i.src = 'https://github.com/sjgant80-hub/fallworld/actions/workflows/gate.yml/badge.svg';
+  i.alt = 'the gate on GitHub, its latest result'; i.loading = 'lazy'; a.append(i);
+  return a;
+}
+const PAGE_PARTS = EXPLAIN.parts.filter((p) => p.where === 'page').length;
+
+function startHere() {
+  const box = el('section', 'ex-start'); box.id = 'x-start';
+  box.append(el('h2', null, 'Start here'));
+  box.append(exP('Fall World is a free game that runs in your browser, on your own machine. Your didy is your character: a helper that works before you set anything up. Do these in order.', 'lead'));
+  box.append(Object.assign(exList([
+    '<b>Ask your didy something real.</b> Press <b>D</b>, type a decision you are actually facing and press the button. It answers with no model, no key and no account, and what you type stays on this machine.',
+    `<b>Open the Deck</b> (K). ${DECK.length} cards, one per public build. Tap one to see why it is the colour it is and what checked it.`,
+    `<b>Open the Store</b> (S). ${SHOP.listed.length} tools are listed and ${SHOP.refused.length} refused for want of evidence anybody could check. Install one, then fit it into your didy’s slots.`,
+    '<b>Grow it</b> (G). See which size of model a job needs, and take the same sealed trial in this tab.',
+    '<b>Keep it.</b> The button at the top right installs it like an app, and it then opens with no internet.',
+    '<b>Walk the world.</b> The rooms further down open the real builds. Start at the Duel.',
+  ], true), { className: 'ex-steps' }));
+  const j = el('div', 'ex-jump');
+  j.append(exBtn('how it works', 'how'), exBtn('the blueprint', 'blueprint'), exBtn('for your team', 'team'), exBtn('for buyers', 'buyers'), exBtn('the white paper', 'paper'),
+    exLink('how it all fits together →', 'ecosystem.html'), exLink('the room map →', 'blueprint.html'));
+  box.append(j);
+  return box;
+}
+
+// a flow drawn as stacked boxes, every label computed; text is wrapped by hand because SVG does not wrap
+function exWrap(text, max) {
+  const lines = []; let cur = '';
+  for (const w of String(text).split(' ')) {
+    if (cur && (cur + ' ' + w).length > max) { lines.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+function exFlow(nodes, label) {
+  const W = 360, X = 10, BW = 340, mid = W / 2;
+  let y = 6, g = '';
+  nodes.forEach((n, i) => {
+    const tl = exWrap(n.t, 42), sl = exWrap(n.s, 52);
+    const nl = n.n ? exWrap(n.n, 46) : [];
+    const h = 12 + tl.length * 17 + sl.length * 15 + nl.length * 16 + (nl.length ? 2 : 0) + 6;
+    g += `<rect class="bx${n.c ? ' ' + n.c : ''}" x="${X}" y="${y}" width="${BW}" height="${h}" rx="7"/>`;
+    let ty = y + 21;
+    for (const l of tl) { g += `<text class="t" x="${X + 12}" y="${ty}">${esc(l)}</text>`; ty += 17; }
+    for (const l of sl) { g += `<text class="s" x="${X + 12}" y="${ty}">${esc(l)}</text>`; ty += 15; }
+    for (const l of nl) { g += `<text class="n" x="${X + 12}" y="${ty + 2}">${esc(l)}</text>`; ty += 16; }
+    y += h;
+    if (i < nodes.length - 1) {
+      g += `<path class="ar" d="M${mid} ${y + 2} V${y + 18}"/><path class="ah" d="M${mid - 5} ${y + 13} L${mid} ${y + 21} L${mid + 5} ${y + 13} Z"/>`;
+      y += 24;
+    }
+  });
+  return `<svg class="ex-flow" viewBox="0 0 ${W} ${y + 6}" role="img" aria-label="${esc(label)}">${g}</svg>`;
+}
+
+function exHow() {
+  const s = el('section', 'ex-sec'); s.id = 'x-how';
+  const W = EXPLAIN.world.counts, pr = W.proof || {};
+  s.append(el('h2', null, 'How it works'));
+  s.append(exP(`Every number on this page is computed, never typed. This is the path they take, traced from the build that made this page, which read the estate’s index of ${esc(EXPLAIN.world.generated)}.`, 'lead'));
+  const nodes = [
+    { t: '1 · The estate’s index', s: `${W.indexed} repositories, each with the line it uses to describe itself`, n: `index of ${EXPLAIN.world.generated}` },
+    { t: '2 · What GitHub’s own machines ran', s: 'for each build, the latest run of every workflow, and whether that workflow attacks its own tests; read from GitHub, never from a description' },
+    { t: '3 · The world is built', s: `of the ${W.indexed}, ${W.collapsed} do not appear as builds of their own: companion repositories folded into the build they belong to, and the ${W.private} private repositories, left out entirely with their companions`, n: `= ${CATALOGUE.length} public builds` },
+    { t: '4 · One rule grades every build', s: 'a mutation gate that passed: proven. Tests that passed: works. Nothing checked: prototype', n: `Simon Gant’s ${W.items}: ${pr.proven} proven · ${pr.works} works · ${pr.prototype} prototype` },
+    { t: '5 · This page is generated', s: `${PAGE_PARTS} tested parts of this repo and ${EXPLAIN.modules - PAGE_PARTS} of fall·os, written with the whole world into one file` },
+    { t: '6 · The gate, on GitHub’s machines, every push', s: `${EXPLAIN.cases} tests, then a mutation gate attacks ${EXPLAIN.parts.length} parts; the page is rebuilt and must match the one served`, c: 'g' },
+    { t: '7 · In your browser', s: `your didy answers with no model first; the Store lists ${SHOP.listed.length} and refuses ${SHOP.refused.length}; the Deck deals ${DECK.length} cards; Grow re-grades the sealed trial`, c: 'k' },
+  ];
+  const fig = el('div'); fig.innerHTML = exFlow(nodes, 'How Fall World is made: the index, what GitHub ran, the world built and graded, the page generated, the gate, and your browser');
+  s.append(fig);
+  // one real card, followed through steps 2 to 4, read from the record this page was built from
+  const own = DECK.find((c) => c.id === 'fallworld');
+  if (own && own.evidence && own.proof === 'proven') s.append(exP(`<b>Follow one card through it: this repository’s own.</b> In the record this page was built from, GitHub’s machines ran its gate, a workflow that attacks its own tests, and it passed (<code>${esc(own.evidence)}</code>). So <code>tier.mjs</code> grades it <b>${esc(own.proof)}</b>, and <code>deck.mjs</code> deals it as a <b>${esc(own.label)}</b> card: “${esc(own.why)}”. Open it in the Deck (K) and it says the same.`));
+  s.append(exList([
+    '<b>The index</b> holds every repository, private ones included, so it never leaves Simon’s machine: <code>scripts/build-world.mjs</code> reads it there, and only the public result, <code>world.json</code>, is published.',
+    '<b>The evidence</b> comes from GitHub’s API, not from anybody’s description: <code>scripts/scan-ci.mjs</code> and <code>scripts/scan-tiers.mjs</code>, with <code>mutation-detect.mjs</code> deciding what really counts as a mutation gate.',
+    '<b>The world</b>: <code>build-world.mjs</code> folds each <i>-api</i>, <i>-mcp</i> and <i>-sdk</i> companion into its build and drops every private repository, its companions with it.',
+    '<b>The grade</b>: <code>tier.mjs</code> reads the evidence (proven, works, prototype); <code>deck.mjs</code> turns it into a card’s rarity and art.',
+    '<b>The page</b>: <code>scripts/build-client.mjs</code> writes this file from the tested parts and <code>world.json</code>; <code>scripts/build-ecosystem.mjs</code> writes the long explainer and the README’s numbers.',
+    '<b>The gate</b>: <code>.github/workflows/gate.yml</code> runs on GitHub’s machines on every push, and every morning a second job checks fall·os has not moved underneath it.',
+    '<b>Your browser</b> runs fall·os, copied in byte for byte: plain rules first, a model in your own tab when the job needs one, a paid model only with your own key.',
+  ], true));
+  const r = el('div', 'row'); r.append(gateBadge(), el('span', 'quiet', 'the gate’s latest result, live from GitHub'));
+  s.append(r);
+  return s;
+}
+
+function exBlueprint() {
+  const s = el('section', 'ex-sec'); s.id = 'x-blueprint';
+  s.append(el('h2', null, 'The blueprint, part by part'));
+  s.append(exP(`Fall World owns no engine: fall·os runs it, and its files are copied in byte for byte and checked against fall-os on every push and every morning. This repo adds <b>${EXPLAIN.parts.length} tested parts</b> and the scripts that turn the estate’s index into this page. Every part is attacked by a mutation gate on GitHub’s machines on every push: the gate changes the code one operator at a time, and any change the tests fail to catch fails the build. ${EXPLAIN.cases} tests in ${EXPLAIN.suites} suites run first.`, 'lead'));
+  const RUNS = { page: 'in your browser', build: 'when the page is built', none: 'gated, not wired into the page' };
+  const t = el('table', 'ttable ex-wide');
+  t.innerHTML = '<thead><tr><th>part</th><th>what it does</th><th>runs</th><th>tests</th><th>exempt</th></tr></thead>';
+  const tb = el('tbody');
+  for (const p of EXPLAIN.parts) {
+    const tr = el('tr');
+    const ex = p.exempt.length ? `<span title="${esc(p.exempt.join(' · '))}">${p.exempt.length}, each with its written reason</span>` : 'none';
+    tr.innerHTML = `<td><b><code>${esc(p.file)}</code></b></td><td>${esc(p.what)}</td><td>${RUNS[p.where]}</td><td>${p.cases ? p.cases + ' in' : p.checks + ' checks in'} <code>${esc(p.test || '')}</code></td><td>${ex}</td>`;
+    tb.append(tr);
+  }
+  t.append(tb);
+  const sc = el('div', 'scroll'); sc.append(t); s.append(sc);
+  // the exemptions in their own words, read from the baselines the gate names: a reader should not have to hover to see them
+  const ex = EXPLAIN.parts.flatMap((p) => p.exempt.map((why) => '<code>' + esc(p.file) + '</code>: ' + esc(why)));
+  if (ex.length) { s.append(exP('<b>The exemptions, each in its own words.</b> A mutant the gate cannot kill is only let through with a written reason why no test could ever tell the difference; there are ' + ex.length + ', and these are their reasons:')); const l = exList(ex); l.className = 'ex-src'; s.append(l); }
+  s.append(el('h3', null, 'copied in, never edited'));
+  const t2 = el('table', 'ttable ex-wide');
+  t2.innerHTML = '<thead><tr><th>file</th><th>from</th><th>checked</th></tr></thead>';
+  const tb2 = el('tbody');
+  for (const c of EXPLAIN.copied) {
+    const tr = el('tr');
+    tr.innerHTML = `<td><code>${esc(c.file)}</code></td><td>${esc(c.repo)}</td><td>${c.engine ? 'byte for byte with its main branch, every push and every morning' : c.pin ? `against ${esc(c.repo)}@${esc(c.pin)}, every push and every morning` : 'copied once'}</td>`;
+    tb2.append(tr);
+  }
+  t2.append(tb2);
+  const sc2 = el('div', 'scroll'); sc2.append(t2); s.append(sc2);
+  s.append(el('h3', null, 'the scripts that make it'));
+  s.append(exList([
+    '<code>scripts/build-world.mjs</code> the estate’s index into <code>world.json</code>, on the machine that holds the index; private repositories never enter the file.',
+    '<code>scripts/scan-ci.mjs</code>, <code>scripts/scan-tiers.mjs</code> what GitHub’s machines ran for each public build, into <code>ci-evidence.json</code> and <code>workflow-evidence.json</code>.',
+    '<code>scripts/build-client.mjs</code> this page, from the tested parts and the world; the gate rebuilds it and fails on any difference.',
+    '<code>scripts/build-ecosystem.mjs</code> the long explainer, the README’s numbers, <code>llms.txt</code> and the sitemap; also rebuilt and compared by the gate.',
+    '<code>scripts/build-blueprint.mjs</code> the room map.',
+    '<code>scripts/sync-fallos.mjs</code>, <code>scripts/sync-sources.mjs</code> the copied-in files, checked against where they came from.',
+    '<code>scripts/grow-trial.mjs</code> the growth trial: its seal checked, every recorded reply graded again.',
+    '<code>scripts/check-workflows.mjs</code> every workflow still parses as a workflow, so a broken one cannot sit there looking like a check.',
+  ]));
+  return s;
+}
+
+function exTeam() {
+  const s = el('section', 'ex-sec'); s.id = 'x-team';
+  const proven = DECK.filter((c) => c.proof === 'proven').length;
+  s.append(el('h2', null, 'For your team: what it does, and how you roll it out'));
+  s.append(exList([
+    `<b>A catalogue you can trust by construction.</b> ${DECK.length} tools as cards, each graded from what GitHub’s machines did to it. ${proven} held when a machine tried to break their tests; the Store refuses ${SHOP.refused.length} for want of evidence anybody could check. Your people choose tools on evidence, not on a maker’s word.`,
+    '<b>An assistant that starts with nothing rented.</b> The didy answers with no model and no key, on the machine it runs on. When a job needs a model it runs one in the browser tab; a paid model only with your own key, which goes to the provider that issued it and nowhere else, and the cost of each call is said as it happens.',
+    '<b>The right size of model, measured before it is bought.</b> Grow shows the smallest model that clears a job’s bar, and lets each person take the same sealed trial on their own laptop.',
+    '<b>Tools in a box.</b> An addon runs in a sandboxed frame with no network of its own, and gets only what a person grants it: read, write, net, spend, publish or run. The Sandbox (X) shows three of them trying.',
+    '<b>Better asking.</b> Learn (L) is a set of short exercises on asking a model properly and reading what comes back. It marks what you write and can tell you no.',
+    '<b>Decisions that stay human.</b> Money, taste and counsel go to a person’s queue, statutory deadlines first; the machine never takes them.',
+  ]));
+  s.append(el('h3', null, 'rolling it out'));
+  s.append(exList([
+    '<b>Open it.</b> One person opens this page. There is nothing to sign up for and nothing to install first.',
+    '<b>Pilot on real work.</b> A small group uses the didy on decisions they are actually making. The bar along the top shows how much of what ran stayed on their own machines.',
+    '<b>Measure the size you need.</b> Each person takes the Grow trial on their own laptop. That, not a vendor’s sheet, says which size of model your jobs need.',
+    '<b>Choose tools by their grade.</b> Every one is open source, so your own IT can read it before anybody installs it.',
+    '<b>Keep it on each machine.</b> “keep your didy” installs it like an app; it then works with no internet.',
+    '<b>Make it yours.</b> The same build over your own repositories, with your own gate and your own page, is what AI Native Solutions supplies: see For buyers. The grading reads GitHub as it stands (your repositories and their Actions runs), so the estate it grades lives on GitHub.',
+  ], true));
+  return s;
+}
+
+function exCalc() {
+  const box = el('div');
+  const D = CASE_DEFAULTS;
+  const vals = { seats: D.seats, seatsDropped: D.seatsDropped, callsPerWeek: D.callsPerWeek, tokensIn: D.tokensIn, tokensOut: D.tokensOut, sharePct: Math.round(D.shareLocal * 100), machines: D.machines, years: D.years };
+  const FIELDS = [
+    ['seats', 'rented AI assistant seats now', 'priced at Microsoft 365 Copilot’s published rate'],
+    ['seatsDropped', 'seats you would drop', 'only once your own trial shows a local stage does that job; 0 keeps every seat'],
+    ['callsPerWeek', 'calls a week to a rented model', 'priced at the published API rate below'],
+    ['tokensIn', 'tokens in, per call', ''],
+    ['tokensOut', 'tokens out, per call', ''],
+    ['sharePct', 'calls a local stage clears (%)', 'the 50 it starts at is a placeholder, not a measurement: measure yours with Grow (G), then the trial'],
+    ['machines', 'your own machines that run it', 'each costed as drawing extra power every hour of the year'],
+    ['years', 'years', '1 to 10; UK CPI on every year after the first'],
+  ];
+  const grid = el('div', 'ex-calc');
+  const out = el('div');
+  const paint = () => {
+    const r = costCase(EXPLAIN.basis, { seats: vals.seats, seatsDropped: vals.seatsDropped, callsPerWeek: vals.callsPerWeek, tokensIn: vals.tokensIn, tokensOut: vals.tokensOut, shareLocal: vals.sharePct / 100, machines: vals.machines, years: vals.years });
+    out.replaceChildren();
+    if (!r.ok) { out.append(el('div', 'warn', 'Check the numbers: ' + r.why + '.')); return; }
+    const t = el('table', 'ttable ex-out');
+    t.innerHTML = '<thead><tr><th></th><th class="v">today, rented</th><th class="v">owned</th><th class="v">the same share, rented cheap</th></tr></thead>';
+    const tb = el('tbody');
+    const row = (k, a, b, c, cls) => { const tr = el('tr', cls || null); tr.innerHTML = `<td>${k}</td><td class="v">${a}</td><td class="v">${b}</td><td class="v">${c}</td>`; tb.append(tr); };
+    const yrs = `${r.inputs.years} year${r.inputs.years === 1 ? '' : 's'}`;
+    row('assistant seats, a year', gbp(r.lines.seats), gbp(r.lines.seatsKept), gbp(r.lines.seatsKept));
+    row('calls on the frontier model, a year', gbp(r.lines.api), gbp(r.lines.apiKept), gbp(r.lines.apiKept));
+    row('the share moved off it, a year', '—', gbp(r.lines.power) + ' <span class="quiet">electricity</span>', gbp(r.lines.openApi) + ' <span class="quiet">open model</span>');
+    row('a year', gbp(r.perYear.today), gbp(r.perYear.own), gbp(r.perYear.cloudOpen), 'sum');
+    row(`over ${yrs}, with CPI`, gbp(r.over.today), gbp(r.over.own), gbp(r.over.cloudOpen), 'sum');
+    t.append(tb);
+    const sc = el('div', 'scroll'); sc.append(t); out.append(sc);
+    out.append(r.savingPerYear >= 0
+      ? el('div', 'note good', `Against what you rent today, owning saves ${gbp(r.savingPerYear)} a year, ${gbp(r.savingOver)} over ${yrs}.`)
+      : el('div', 'warn', `At these numbers owning costs ${gbp(-r.savingPerYear)} a year more than it saves: the electricity is more than the calls it replaces. Keep renting those, or raise the share only if your own trial supports it.`));
+    if (r.inputs.shareLocal > 0) out.append(r.versusCloudPerYear >= 0
+      ? el('div', 'note good', `Against renting the same share from the cheapest open model priced here, owning saves ${gbp(r.versusCloudPerYear)} a year, ${gbp(r.versusCloudOver)} over ${yrs}.`)
+      : el('div', 'note', `At this volume the cheap cloud costs ${gbp(-r.versusCloudPerYear)} a year less than owning, ${gbp(-r.versusCloudOver)} over ${yrs}: owning wins here on where the data goes, not on the bill. Your machines cost the same however much they run, so it turns at about ${r.breakEven.toLocaleString('en-GB')} calls a week.`));
+  };
+  for (const [k, label, hint] of FIELDS) {
+    const f = el('div', 'field');
+    const id = 'ex-' + k;
+    const lab = el('label', null, label); lab.htmlFor = id;
+    const inp = el('input'); inp.id = id; inp.type = 'number'; inp.min = '0'; inp.step = '1'; inp.inputMode = 'numeric'; inp.value = String(vals[k]);
+    if (k === 'sharePct') inp.max = '100';
+    if (k === 'years') { inp.min = '1'; inp.max = '10'; }
+    inp.addEventListener('input', () => { vals[k] = inp.value === '' ? NaN : Number(inp.value); paint(); });
+    f.append(lab, inp);
+    if (hint) f.append(el('div', 'h', hint));
+    grid.append(f);
+  }
+  box.append(grid, out);
+  paint();
+  const src = el('ul', 'ex-src');
+  for (const x of caseSources(EXPLAIN.basis)) {
+    const li = el('li');
+    // the figure itself, read from the same basis entry the case read
+    const b = EXPLAIN.basis[x.key] || {};
+    const unit = b.unit || ({ fxGbpPerUsd: 'GBP per USD', laptopExtraWatts: 'watts', hoursPerYear: 'hours a year', electricityPencePerKwh: 'pence per kWh', cpi: 'a year' })[x.key];
+    const fig = Number.isFinite(b.value) ? `${b.value}${unit ? ' ' + unit : ''}` : Number.isFinite(b.inPerM) ? `${b.inPerM} in, ${b.outPerM} out, ${b.unit || ''}` : '';
+    li.innerHTML = `${fig ? `<b>${esc(fig)}</b> · ` : ''}${esc(x.what)}${x.source ? ` — <a href="${esc(x.source)}" target="_blank" rel="noopener">source</a>` : ''}${x.via ? ` (${esc(x.via)})` : ''}`;
+    src.append(li);
+  }
+  box.append(el('p', 'quiet', 'Every outside figure, and where it came from. ' + EXPLAIN.basisAbout + '. These are your suppliers’ published prices; nothing on this page is a price of ours.'), src);
+  return box;
+}
+
+function exBuyers() {
+  const s = el('section', 'ex-sec'); s.id = 'x-buyers';
+  const proven = DECK.filter((c) => c.proof === 'proven').length;
+  s.append(el('h2', null, 'For buyers: what you would be buying'));
+  s.append(exP('Fall World itself is free and MIT-licensed: open it, keep it, read every line. What a business buys is the same way of building, over its own estate: its own index, its own gate on its own repositories, its own page where every claim is computed from what ran. That is supplied by <a href="https://www.ai-nativesolutions.com" target="_blank" rel="noopener">AI Native Solutions</a>.', 'lead'));
+  const roles = el('div', 'ex-roles');
+  for (const [w, d] of [
+    ['CEO', `Proof you can check. Every number here is computed from what ran; ${proven} builds held when a machine tried to break their tests. The same discipline over your own tools means you know what works before the business depends on it.`],
+    ['CFO', 'The rent stops where the work allows. The bar along the top measures what ran on your own machines and what was rented; the case below turns your own seats and calls into a bill at the prices Microsoft, Anthropic and AWS publish, and says plainly when the cheap cloud beats owning.'],
+    ['COO', 'A roll-out without a project: a static page, an app install, no accounts to provision, works offline. Every tool is graded before anyone uses it, and decisions that need a person stay with a person.'],
+    ['CTO / CISO', 'No server of ours holds anything, because there is none. Keys go only to the provider that issued them. Addons run boxed with no network of their own. Every part of this repo is open source and mutation-gated on GitHub’s machines.'],
+    ['The teams', 'A helper that answers before anything is set up, tells you when something costs money, and says plainly when it found nothing to go on. Learn teaches the one skill that makes any model better: asking properly.'],
+  ]) {
+    const c = el('div', 'ex-role'); c.append(el('div', 'w', w), el('div', 'd', d)); roles.append(c);
+  }
+  s.append(roles);
+
+  s.append(el('h3', null, 'the cost case: your numbers, their prices'));
+  s.append(exP('What your rented AI costs you today, against the same work with the share your own trial supports moved onto your own machines, and against that same share rented instead from the cheapest open model priced here (gpt-oss-120b on Amazon Bedrock, London). Seats you keep stay at full price; calls that stay on the frontier model stay at full price; your machines are costed as if they drew extra power every hour of the year, which overstates them. Change any number.'));
+  s.append(exCalc());
+
+  s.append(el('h3', null, 'security and data protection'));
+  s.append(exList([
+    '<b>No server of ours.</b> This page is static files served by GitHub Pages. It has no backend, no account and no database of ours; what you type is worked on in the page itself.',
+    '<b>Your keys stay yours.</b> A model key you add is kept in this browser’s own storage and sent only to the provider that issued it: <code>providers.mjs</code> fixes each provider’s host and refuses any provider it does not know. It is stored as the browser stores any site data, unencrypted, so on a shared machine remove it when you are done: the same field removes it.',
+    '<b>Addons are boxed.</b> An addon runs in a sandboxed frame whose content policy allows it no network at all. It can only ask the page, and gets only the capabilities you granted (<code>runtime.mjs</code>).',
+    `<b>What leaves the machine, and when.</b> By default, nothing you type. GitHub, which hosts the page, sees the request for it, as any web host does, and serves the gate’s badge. The first time you hatch the in-tab model, your browser fetches the WebLLM library (pinned at <code>${esc(GROW.webllm.lib.replace(/^https:\/\//, ''))}</code>) and its weights (${esc(GROW.webllm.id)}, about ${esc(GROW.webllm.size.replace('~', ''))}) from huggingface.co and raw.githubusercontent.com, as that library is set up; after that the model runs in the tab. Looking for a model already on your machine asks 127.0.0.1 only. A paid model receives exactly the call you send it.`,
+    '<b>Data protection.</b> With no server and no account, nothing you type reaches us to be processed. Your save lives in this browser’s storage and goes when you clear this site’s data. A deployment for your own estate is set up in your own hosting, on terms agreed with you.',
+    '<b>Supply chain.</b> fall·os and every other copied-in file is checked against where it came from on every push and every morning; any drift turns the build red.',
+    '<b>Audit trail.</b> Every grade on every card names the workflow and commit that earned it, and anyone can run it again.',
+  ]));
+
+  s.append(el('h3', null, 'roll-out'));
+  s.append(exP('Start with the steps under For your team: open it, pilot it on real work, measure the size you need, choose tools by grade, keep it on each machine. For your own estate, AI Native Solutions sets up the same build over your repositories.'));
+
+  s.append(el('h3', null, 'ownership, support and exit'));
+  s.append(exList([
+    '<b>Supplier:</b> <a href="https://www.ai-nativesolutions.com" target="_blank" rel="noopener">AI Native Solutions</a>. Contact is through that site.',
+    '<b>Support, service levels, warranty and liability</b> are agreed per deployment, in that deployment’s agreement.',
+    '<b>Licence:</b> MIT, with no licence fee. You own the copy you run.',
+    '<b>Credited work:</b> the Konomi architecture is used with Thomas Frumkin’s permission; Gary W. Floyd’s papers are published as Open Defensive Prior Art under Creative Commons.',
+    '<b>Exit:</b> it keeps running without us. Keep the files and nothing stops; there is no account to close and no data held elsewhere to retrieve.',
+  ]));
+
+  s.append(el('h3', null, 'risks, answered straight'));
+  const T = TRIAL && TRIAL.scores ? TRIAL.scores : [];
+  const best = T.length ? T.reduce((a, b) => (b.right > a.right ? b : a)) : null;
+  const base = costCase(EXPLAIN.basis, {});
+  s.append(exList([
+    best && GROW.prereg ? `<b>Small models get things wrong.</b> They do: in the sealed trial the best stage this machine could run got ${best.right} of ${best.n}, and no stage cleared the bar of ${GROW.prereg.bar.right}. That is why the didy starts with no model for rule-shaped jobs, and why Grow measures a size before you rely on it.` : '<b>Small models get things wrong.</b> That is why Grow measures a size before you rely on it.',
+    `<b>A tool in the store could be bad.</b> Nothing is listed without evidence anybody can re-check, and each card says how far the checking went: prototype, works or proven. ${SHOP.refused.length} are refused today. Every one is open source.`,
+    '<b>It rests on one person’s estate.</b> It is MIT, the engine is copied into the page itself, and it runs offline from the copy you keep.',
+    base.ok ? `<b>The saving can be small, and the cheap cloud can be cheaper.</b> At the starting numbers above owning saves ${gbp(base.savingPerYear)} a year against today’s rent; ${base.versusCloudPerYear < 0 ? `renting the same share from the cheapest open model would cost ${gbp(-base.versusCloudPerYear)} a year less than owning, and owning turns cheaper at about ${base.breakEven.toLocaleString('en-GB')} calls a week` : `against renting the same share from the cheapest open model it saves ${gbp(base.versusCloudPerYear)} a year`}. Most of the rent is seats, and a seat is dropped only when your own trial says so. The case shows a loss when there is one, rather than hiding it.` : '<b>The saving can be small.</b> The case shows a loss when owning costs more, rather than hiding it.',
+    '<b>Browser storage can be cleared.</b> The didy’s save lives in this browser. Keep it as an app, and keep a copy of anything you load into it.',
+  ]));
+
+  s.append(el('h3', null, 'the case for the board'));
+  s.append(exP('Fall World shows, on a page anyone can open, a way of building where every claim is computed from what ran and every tool is graded before it is used. Trying it costs nothing: it is free, MIT-licensed and needs no account. It rents nothing the work does not need, and your own people can check it line by line. The decision in front of the board is a pilot, not a contract.'));
+  return s;
+}
+
+function exPaper() {
+  const s = el('section', 'ex-sec'); s.id = 'x-paper';
+  const W = EXPLAIN.world.counts, pr = W.proof || {};
+  const T = TRIAL && TRIAL.j && TRIAL.j.ok ? TRIAL : null;
+  const P = GROW.prereg;
+  s.append(el('h2', null, 'The white paper, short: rank by evidence, rent only what the work needs'));
+  s.append(exP('<b>The problem.</b> A catalogue of software is trusted on its makers’ word: stars, reviews and descriptions are all things the maker controls. And AI is rented by the seat whether or not a job needs a frontier model. Both are fixable with things a machine can check.'));
+  s.append(exP(`<b>Rank by evidence.</b> Every public build in the estate is graded by one rule over what GitHub’s own machines did: a build that only publishes is a prototype, passing tests make it works, and a passing mutation gate, which changes the code on purpose to see whether the tests notice, makes it proven. Of Simon Gant’s ${W.items} builds, ${pr.proven} are proven, ${pr.works} work and ${pr.prototype} are prototypes. A card’s rarity is counted the same way, first match wins, and nobody can move a card by saying so.`));
+  s.append(exP(T && P
+    ? `<b>Rent only what the work needs.</b> A didy grows to the smallest stage that clears a job’s bar, and shrinks when a smaller one will do. The trial that decides it was sealed before any model answered: ${P.cards.length} cards, the world’s own rarity rule, a bar of ${P.bar.right}. ${T.scores.map((x) => `${esc((STAGES.find((st) => st.id === x.id) || {}).name || x.id)} ${x.right}/${x.n}`).join(', ')}; ${T.j.chosen ? 'the smallest stage to clear it was the ' + esc((STAGES.find((st) => st.id === T.j.chosen) || {}).name || T.j.chosen) : 'none cleared it'}. The failed predictions are kept on the page. For a job that is a written rule, the smallest mind that clears the bar is no model at all, and that is where a didy starts.`
+    : '<b>Rent only what the work needs.</b> A didy grows to the smallest stage that clears a job’s bar, and shrinks when a smaller one will do.'));
+  s.append(exP(`<b>Generated, never typed.</b> This page is written by a script from ${PAGE_PARTS} tested parts and the world file; the gate on GitHub’s machines rebuilds it on every push and fails if what is served differs. ${EXPLAIN.cases} tests run, then a mutation gate attacks every one of the ${EXPLAIN.parts.length} parts. Everything copied in from another repository is checked against where it came from, on every push and every morning.`));
+  s.append(exP('<b>What it does not claim.</b> Sizes beyond the test machine were not measured, and the page says so. A grade is only as fresh as the last run that earned it, and each card names that run. Nothing here is a benchmark of anyone else’s product.'));
+  s.append(exP('<b>Credits.</b> Powered by the Konomi architecture, created by Thomas Frumkin. The didy’s sleep-and-dream memory is built on Gary W. Floyd, Lumiea Systems Research Division — ThunderStruck Service LLC — “Dream State Architecture: GEP-Guided Memory Consolidation and Entropy Regulation in Artificial Consciousness Systems,” 2025.', 'credits'));
+  return s;
+}
+
+function explainer() {
+  const f = document.createDocumentFragment();
+  f.append(exHow(), exBlueprint(), exTeam(), exBuyers(), exPaper());
+  return f;
+}
+
 let deckQ = { text: '', rarity: '', seat: '', proof: '' }, deckShown = 60;
 function deckGrid(into) {
   into.replaceChildren();
@@ -2101,6 +2468,10 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
 
 draw();
 say(`${SHOP.listed.length} things listed · ${SHOP.refused.length} refused for want of evidence · works with no key at all`);
+// a link straight to a part of the explainer: #start, #how, #blueprint, #team, #buyers, #paper
+const exHash = () => { const h = location.hash.slice(1); if (EX_IDS.includes(h)) exJump(h); };
+addEventListener('hashchange', exHash);
+exHash();
 </script>
 </body>
 </html>

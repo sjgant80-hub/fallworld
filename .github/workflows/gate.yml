@@ -47,6 +47,7 @@ jobs:
       # ⚑ THE LIVING WORLD reads two things it does not own — fallforgemint's size ladder and kard-evolve's
       # sealed creatures — at pinned commits. Checked, not trusted: if either file is not exactly what its
       # pinned commit gives, the world is showing something nobody measured.
+      # (and, byte for byte, the sourced basis the buyer's cost case reads)
       - name: the ladder and the creatures are what their repos say
         run: node scripts/sync-sources.mjs --check
 
@@ -82,6 +83,7 @@ jobs:
           node .witness/witness.mjs mutate trial.mjs --timeout 60000 --test node --test trial.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate grow.mjs --timeout 60000 --test node --test grow.test.mjs | tee -a gate.out
           node .witness/witness.mjs mutate deck.mjs --timeout 60000 --test node --test deck.test.mjs | tee -a gate.out
+          node .witness/witness.mjs mutate costcase.mjs --timeout 60000 --test node --test costcase.test.mjs | tee -a gate.out
 
       # ⚑ The page a visitor gets must be the page this build makes. Regenerate and diff: a stale
       # index.html means the shop on screen and the shop that was gated are two different shops.
@@ -106,7 +108,7 @@ jobs:
             // Counted from the kernels this job actually gates, never typed. A hard-coded 2 went
             // stale the moment a third kernel arrived, and a count nobody updates fails a build
             // that was perfectly clean — which is how a real check gets deleted.
-            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'journey.mjs', 'mind.mjs', 'doors.mjs', 'render.mjs', 'providers.mjs', 'runtime.mjs', 'module.mjs', 'guide.mjs', 'safe.mjs', 'mutation-detect.mjs', 'trial.mjs', 'grow.mjs', 'deck.mjs'];
+            const KERNELS = ['tier.mjs', 'pass.mjs', 'client.mjs', 'ladder.mjs', 'journey.mjs', 'mind.mjs', 'doors.mjs', 'render.mjs', 'providers.mjs', 'runtime.mjs', 'module.mjs', 'guide.mjs', 'safe.mjs', 'mutation-detect.mjs', 'trial.mjs', 'grow.mjs', 'deck.mjs', 'costcase.mjs'];
             if (all.length !== KERNELS.length) { console.error('expected ' + KERNELS.length + ' gate verdicts (' + KERNELS.join(', ') + '), saw ' + all.length + ' — a kernel was not gated'); process.exit(1); }
             if (all.some(v => v !== 'true')) { console.error('mutants survived — those lines are test-theatre'); process.exit(1); }
             console.log(all.length + ' gates clean');

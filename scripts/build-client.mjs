@@ -9,7 +9,7 @@
 // redeclaration error that takes the whole page down at parse time — one dead token and the app is
 // a screenshot. So every module is wrapped in an IIFE returning its exports, and only the exported
 // names reach the top level.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -63,6 +63,7 @@ const MODULES = [
   ['trial.mjs', 'the trial of rules'],
   ['grow.mjs', 'how a didy grows'],
   ['deck.mjs', 'the cards'],
+  ['costcase.mjs', 'what the rent costs, and what owning it costs', { DEFAULTS: 'CASE_DEFAULTS', over: 'caseOver', sourcesOf: 'caseSources', BASIS_KEYS: 'CASE_KEYS' }],
 ];
 
 // ── the catalogue, from what the estate's CI actually ran ─────────────────────────────────────
@@ -186,8 +187,78 @@ const ORGANS_ = {
 };
 const livingBlock = `const GROW = ${JSON.stringify(GROW)};\nconst CREATURES = ${JSON.stringify(CREATURES_)};\nconst ORGANS = ${JSON.stringify(ORGANS_)};\nconst TONGUE = ${JSON.stringify({ passed: vTongue.passed, of: vTongue.of, text: vTongue.text, textGlyphs: vTongue.textGlyphs, json: vTongue.json, combined: vTongue.combined, bestPicture: vTongue.bestPicture, bestText: vTongue.bestText, source: { sha: vTongue.source.sha.slice(0, 7), sealedIn: vTongue.source.sealedIn.slice(0, 7) } })};\nconst SENTINEL = ${JSON.stringify({ passed: vSentinel.passed, of: vSentinel.of, hard: vSentinel.hard, grown: vSentinel.grown, source: { sha: vSentinel.source.sha.slice(0, 7), sealedIn: vSentinel.source.sealedIn.slice(0, 7) } })};\nconst AIRGAP = ${JSON.stringify({ passed: vAirgap.passed, of: vAirgap.of, coord: vAirgap.coord, delta: vAirgap.delta, wire: vAirgap.wire, source: { sha: vAirgap.source.sha.slice(0, 7) } })};\nconst LEDGER = ${JSON.stringify({ N: vLedger.N, ratioPayloadVsJson: vLedger.ratioPayloadVsJson, ratioSignedVsJsonSigned: vLedger.ratioSignedVsJsonSigned, ledgerPayloadKB: vLedger.ledgerPayloadKB, jsonMB: vLedger.jsonMB, replayMs10k: vLedger.replayMs10k, verdictPassed: vLedger.verdictPassed, verdictOf: vLedger.verdictOf, source: { sha: vLedger.source.sha.slice(0, 7) } })};\nconst SEEDLIB = ${JSON.stringify({ libraryBytes: vSeedlib.libraryBytes, grownBytes: vSeedlib.grownBytes, domains: vSeedlib.domains, sessions: vSeedlib.sessions, shopperAuc: vSeedlib.shopperAuc, triageAuc: vSeedlib.triageAuc, waterAuc: vSeedlib.waterAuc, cropAuc: vSeedlib.cropAuc, minRatio: vSeedlib.minRatio, maxRatio: vSeedlib.maxRatio, growMs: vSeedlib.growMs, sporeBytes: vSeedlib.sporeBytes, sporeGrownBytes: vSeedlib.sporeGrownBytes, sporeRatio: vSeedlib.sporeRatio, sporeAuc: vSeedlib.sporeAuc, source: { sha: vSeedlib.source.sha.slice(0, 7) } })};\nconst ATTEST = ${JSON.stringify({ held: vAttest.held, of: vAttest.of, total: vAttest.total, pages: vAttest.pages, live: vAttest.live, source: { sha: vAttest.source.sha.slice(0, 7) } })};\nconst FORGE = ${JSON.stringify({ signalTestBA: vPatternForge.signalTestBA, breedSingleBestTestBA: vPatternForge.breedSingleBestTestBA, breedChampionTestBA: vPatternForge.breedChampionTestBA, llmChampionKind: vPatternForge.llmChampionKind, llmChampionTestBA: vPatternForge.llmChampionTestBA, llmBestStumpTestBA: vPatternForge.llmBestStumpTestBA, observerUnguidedPos: vPatternForge.observerUnguidedPos, observerGuidedPos: vPatternForge.observerGuidedPos, bookSize: vPatternForge.bookSize, source: { sha: vPatternForge.source.sha.slice(0, 7) } })}\nconst DIGI = ${JSON.stringify({ organ: vDigi.organ, held: vDigi.held, rules: vDigi.rules, failed: vDigi.failed, saw: vDigi.saw, source: { sha: vDigi.source.sha.slice(0, 7) } })};\nconst NFT = ${JSON.stringify(nft.rows)};`;
 
+// ── THE PAGE EXPLAINS ITSELF: the blueprint, the path a number takes, and the buyer's figures ────────
+// ⚑ READ OFF THE REPO, NEVER RESTATED. Which parts are gated comes from the gate's own verdict list; each
+// part's test count from its test file; its exemptions from the baseline the gate names; where it runs
+// from this file's MODULES and the scripts that import it; what was copied in from the vendor folder and
+// the pins that check it. Only the plain-words line saying what each part does is written here, and the
+// build refuses to finish if a gated part has none, so a new part cannot reach the gate without reaching
+// the page.
+const WHAT = {
+  'tier.mjs': 'grades how far each build has been checked (prototype, works, proven) from what GitHub\u2019s own machines ran, never from what anybody says',
+  'pass.mjs': 'the ownership rule, kept under the gate: if a paid service were ever added, ending it could stop the service, never take back anything a person owns; nothing on this page calls it, because nothing here is paid',
+  'client.mjs': 'the store: nothing is listed unless a check ran, and an addon is held to what it declared it would touch',
+  'ladder.mjs': 'the rungs of model your didy can use, from none at all to a paid one with your own key, and the rule for coming back down',
+  'journey.mjs': 'your level, computed from what you actually did; it lights the next thing and never shuts a door',
+  'mind.mjs': 'reads a didy\u2019s studied notes that you load yourself, without inventing a level it did not earn',
+  'doors.mjs': 'the decisions only a person makes (money, taste, counsel), queued with legal deadlines first',
+  'render.mjs': 'the seam: say what you need, and it answers with what already exists before anything new is made',
+  'providers.mjs': 'talking to a paid model: your key goes only to the provider that issued it, and the cost is said every time',
+  'runtime.mjs': 'the wall round an addon: it can only ask, and it only gets what you allowed',
+  'module.mjs': 'what an addon has to declare before it is allowed to run at all',
+  'guide.mjs': 'the guide: one line at a time, always skippable, never a locked door',
+  'safe.mjs': 'reading things that might not be there without a blank screen',
+  'mutation-detect.mjs': 'decides whether a workflow really runs a mutation gate; a mention in a comment does not count',
+  'trial.mjs': 'the trial of rules: grades a model\u2019s one-word answers against the world\u2019s own rarity rule',
+  'grow.mjs': 'how a didy grows: the smallest stage that clears a job\u2019s bar, and the memory each stage needs',
+  'deck.mjs': 'the cards: rarity counted from evidence, art grown from it',
+  'costcase.mjs': 'the buyer\u2019s cost case below: rented seats and calls against the same work owned, from sourced prices',
+};
+const gateYml = read('.github/workflows/gate.yml');
+const kList = /const KERNELS = \[([^\]]*)\]/.exec(gateYml);
+if (!kList) throw new Error('the gate\u2019s verdict list is not where the blueprint reads it');
+const scriptsText = readdirSync(join(here, 'scripts')).filter((f) => f.endsWith('.mjs')).sort().map((f) => read('scripts/' + f));
+const casesIn = (t) => (t.match(/^\s*test\(/gm) || []).length;
+const PARTS = [...kList[1].matchAll(/'([^']+)'/g)].map(([, k]) => {
+  // up to the pipe into tee, across continued lines (tier.mjs's step is written over three)
+  const line = new RegExp('mutate ' + k.replace(/[.]/g, '\\.') + '([^|]*)').exec(gateYml);
+  if (!line) throw new Error(`${k} is in the gate\u2019s verdict list but no step mutates it`);
+  if (!WHAT[k]) throw new Error(`${k} is gated but the blueprint does not say what it does`);
+  const tf = /--test node (?:--test )?(\S+\.test\.mjs)/.exec(line[1]);
+  const bl = /--baseline (\S+)/.exec(line[1]);
+  const t = tf ? read(tf[1]) : '';
+  const cases = casesIn(t);
+  return {
+    file: k, what: WHAT[k], lines: read(k).split('\n').length, test: tf ? tf[1] : null,
+    cases, checks: cases ? 0 : (t.match(/\bok\(/g) || []).length,
+    exempt: bl ? JSON.parse(read(bl[1])).map((e) => e.reason) : [],
+    where: MODULES.some(([f]) => f === k) ? 'page' : scriptsText.some((s) => s.includes(`'../${k}'`)) ? 'build' : 'none',
+  };
+});
+const SUITES = readdirSync(here).filter((f) => f.endsWith('.test.mjs')).sort();
+const pinsText = read('scripts/sync-sources.mjs');
+const PINS_ = Object.fromEntries([...pinsText.matchAll(/^\s*'?([\w-]+)'?: '([0-9a-f]{40})'/gm)].map((m) => [m[1], m[2]]));
+const ENGINE = ['fall-os', 'fall-kit', 'fallcompass'];
+const UPSTREAM = { 'digi-card': 'kardlings' };   // the repo was renamed; the folder kept its old name
+const COPIED = readdirSync(join(here, 'vendor'), { recursive: true }).map((p) => String(p).split('\\').join('/'))
+  .filter((p) => /\.(mjs|js|json)$/.test(p)).sort().map((p) => {
+    const dir = p.split('/')[0], repo = UPSTREAM[dir] || dir;
+    return { file: 'vendor/' + p, repo, engine: ENGINE.includes(dir), pin: PINS_[repo] ? PINS_[repo].slice(0, 7) : null };
+  });
+const vBasis = JSON.parse(read('vendor/sovereign-enterprise/data/basis.json'));
+const { BASIS_KEYS: CASE_KEYS_ } = await import('../costcase.mjs');
+const EXPLAIN = {
+  world: { counts: world.counts, generated: world.generated },
+  parts: PARTS, suites: SUITES.length, cases: SUITES.reduce((n, f) => n + (casesIn(read(f)) || 1), 0),
+  copied: COPIED, engineFiles: COPIED.filter((c) => c.engine).length,
+  modules: MODULES.length,
+  basis: Object.fromEntries(CASE_KEYS_.map((k) => [k, vBasis[k]])), basisAbout: vBasis.currency,
+};
+const explainBlock = `const EXPLAIN = ${JSON.stringify(EXPLAIN)};`;
+
 const kernel = [
   ...MODULES.map(([f, label, renames]) => scope(read(f), label, renames)),
+  '// ── the page explains itself: the blueprint, the traced path, the sourced basis ──\n' + explainBlock,
   '// ── the world, from rooms.mjs ──\n' + roomBlock,
   '// ── the living world: ladder, creatures, trial, the NFT map ──\n' + livingBlock,
   `// ── the catalogue, from world.json ──\nconst CATALOGUE = ${JSON.stringify(catalogue)};`,

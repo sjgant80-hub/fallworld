@@ -2,6 +2,11 @@
 
 ### ▶ **https://sjgant80-hub.github.io/fallworld/** · [how it all fits together](https://sjgant80-hub.github.io/fallworld/ecosystem.html)
 
+The page explains itself, on the page: [start here](https://sjgant80-hub.github.io/fallworld/#start) ·
+[how it works](https://sjgant80-hub.github.io/fallworld/#how) · [the blueprint](https://sjgant80-hub.github.io/fallworld/#blueprint) ·
+[for your team](https://sjgant80-hub.github.io/fallworld/#team) · [for buyers](https://sjgant80-hub.github.io/fallworld/#buyers)
+(with a cost case computed by `costcase.mjs` from a sourced basis: rented today, owned, and the same share rented from the cheapest open model) · [the white paper](https://sjgant80-hub.github.io/fallworld/#paper).
+
 **Hatch a didy. Grow it. Collect the whole estate as cards. Every rank is earned from what actually ran.**
 
 Fall World is the whole estate as one game you install. Your didy is your character: an egg that
