@@ -1960,7 +1960,7 @@ function startHere() {
     `<b>Open the Deck</b> (K). ${DECK.length} cards, one per public build. Tap one to see why it is the colour it is and what checked it.`,
     `<b>Open the Store</b> (S). ${SHOP.listed.length} tools are listed and ${SHOP.refused.length} refused for want of evidence anybody could check. Install one, then fit it into your didy’s slots.`,
     '<b>Grow it</b> (G). See which size of model a job needs, and take the same sealed trial in this tab.',
-    '<b>Keep it.</b> The button at the top right installs it like an app, and it then opens with no internet.',
+    '<b>Keep it.</b> The <b>keep your didy</b> button at the top installs it like an app, and it then opens with no internet.',
     '<b>Walk the world.</b> The rooms further down open the real builds. Start at the Duel.',
   ], true), { className: 'ex-steps' }));
   const j = el('div', 'ex-jump');
@@ -2178,7 +2178,7 @@ function exBuyers() {
     ['CEO', `Proof you can check. Every number here is computed from what ran; ${proven} builds held when a machine tried to break their tests. The same discipline over your own tools means you know what works before the business depends on it.`],
     ['CFO', 'The rent stops where the work allows. The bar along the top measures what ran on your own machines and what was rented; the case below turns your own seats and calls into a bill at the prices Microsoft, Anthropic and AWS publish, and says plainly when the cheap cloud beats owning.'],
     ['COO', 'A roll-out without a project: a static page, an app install, no accounts to provision, works offline. Every tool is graded before anyone uses it, and decisions that need a person stay with a person.'],
-    ['CTO / CISO', 'No server of ours holds anything, because there is none. Keys go only to the provider that issued them. Addons run boxed with no network of their own. Every part of this repo is open source and mutation-gated on GitHub’s machines.'],
+    ['CTO / CISO', `No server of ours holds anything, because there is none. Keys go only to the provider that issued them. Addons run boxed with no network of their own. All of it is open source; its ${EXPLAIN.parts.length} tested parts are mutation-gated on GitHub’s machines on every push, and the page around them is rebuilt and compared there too.`],
     ['The teams', 'A helper that answers before anything is set up, tells you when something costs money, and says plainly when it found nothing to go on. Learn teaches the one skill that makes any model better: asking properly.'],
   ]) {
     const c = el('div', 'ex-role'); c.append(el('div', 'w', w), el('div', 'd', d)); roles.append(c);
